@@ -1,0 +1,8 @@
+# Eval harness only. Kept separate from the service's requirements.txt so the
+# gateway's runtime dependency set is unchanged.
+#
+# Do NOT use langsmith[claude-agent-sdk]: Genesis makes raw HTTP calls to the
+# SwarmSync router, so there is no Claude Agent SDK for that extra to hook.
+langsmith>=0.10,<1.0
+httpx>=0.27,<1.0    # pinned at 0.28.1 by the service's requirements.txt
+pytest>=8.0

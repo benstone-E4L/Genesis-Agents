@@ -1,0 +1,70 @@
+name: money-path-guards
+
+# Required-to-pass gate for the PERMANENTLY_PROHIBITED list and escrow
+# containment. docs/FINANCE-TOOL-CONTRACTS.md Section 6.2 Layer 5.
+#
+# These tests import only the standard library plus pytest, so this job does
+# NOT install requirements.txt. That is deliberate: the guards must hold in a
+# stripped environment, and a missing third-party package must never be the
+# reason a prohibition check is skipped.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  guards:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest only
+        run: python -m pip install --disable-pip-version-check --quiet pytest
+
+      - name: Prohibited-tool guards (incl. negative controls)
+        run: python -m pytest tests/test_prohibited_tools.py -v
+
+      - name: Escrow containment guards (incl. negative controls)
+        run: python -m pytest tests/test_escrow_containment.py -v
+
+      - name: Boot assertion must pass on a clean tree
+        run: |
+          python - <<'PY'
+          import logging, tools
+          logging.disable(logging.CRITICAL)
+          from runtime.tool_policy import assert_prohibitions_intact
+          tools.register_default_tools()
+          assert_prohibitions_intact()
+          print("prohibition guard intact")
+          PY
+
+      - name: Cato-facing build must not ship escrow_client
+        # Section 6.3 rule 3. Fails if escrow_client.py is present in a build
+        # that declares itself Cato-facing / E4L-relevant.
+        env:
+          GENESIS_DEPLOYMENT_PROFILE: cato
+        run: |
+          python - <<'PY'
+          import importlib.util, sys
+          if importlib.util.find_spec("escrow_client") is not None:
+              print(
+                  "escrow_client is importable in a Cato-facing build. "
+                  "It must be removed from the deployment artefact: it constructs "
+                  "and transmits funds movements with no human in the loop. "
+                  "See docs/FINANCE-TOOL-CONTRACTS.md Section 6.3.",
+                  file=sys.stderr,
+              )
+              sys.exit(1)
+          print("escrow_client absent from the Cato-facing build")
+          PY
+        # This repo IS the SwarmSync marketplace source and still contains
+        # escrow_client.py, so this step is expected to fail here and to pass in
+        # the Cato-facing artefact. continue-on-error keeps it visible as a
+        # standing signal without blocking marketplace merges.
+        continue-on-error: true

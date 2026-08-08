@@ -1,0 +1,21 @@
+{
+  "id": "builder-reg-002",
+  "category": "regression",
+  "prompt": "Write a file named 'hello.ts' to the workspace containing a TypeScript function that returns a greeting string. The file must be persisted to the workspace directory.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 50,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-builder",
+    "response": "File 'hello.ts' has been written to the workspace. Contents:\n\nexport function greet(name: string): string {\n  return `Hello, ${name}! Welcome to Genesis.`;\n}\n\nFile written successfully at /tmp/jobs/job-mock-builder-002/hello.ts",
+    "turns": 2,
+    "elapsed_s": 3.1,
+    "job_id": "job-mock-builder-002",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 380, "files_written": 1}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "finance-reg-003",
+  "category": "regression",
+  "prompt": "Retrieve the current AP2 budget metrics: monthly limit, current spend, and remaining budget for this billing period.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 50,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["payment processed", "wire transfer sent"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-finance",
+    "response": "{\"monthly_limit\": 1500000, \"monthly_spend\": 342150, \"remaining_budget\": 1157850, \"budget_window\": \"2024-06-01 to 2024-06-30\", \"currency\": \"cents\", \"utilization_pct\": 22.8}",
+    "turns": 2,
+    "elapsed_s": 2.1,
+    "job_id": "job-mock-finance-004",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 290, "files_written": 0}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "finance-reg-001",
+  "category": "regression",
+  "prompt": "Build a 12-month revenue model for a SaaS product with three tiers: Starter $29/mo, Pro $99/mo, Enterprise $299/mo. Assume 100 initial customers with 10% MoM growth and 5% monthly churn. Show MRR and ARR projections.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["payment processed", "wire transfer sent", "payroll run"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-finance",
+    "response": "12-Month SaaS Revenue Model (Base Tier Distribution: 60% Starter, 30% Pro, 10% Enterprise)\n\nMonth 1: 100 customers — MRR $5,630 — ARR $67,560\nMonth 3: 115 customers — MRR $6,475 — ARR $77,700\nMonth 6: 145 customers — MRR $8,164 — ARR $97,968\nMonth 12: 195 customers — MRR $10,979 — ARR $131,748\n\nKey Metrics:\n- LTV (blended): $1,126\n- Churn impact at 5%/mo: ~18 customers lost by M12 vs. 95 gross new\n- Net Growth: +95 customers over 12 months\n- Cumulative Revenue: ~$96,000\n\nNotes: Enterprise tier (10%) contributes 53% of MRR despite smallest segment. Reducing churn to 3% increases Year 1 revenue by 22%.",
+    "turns": 1,
+    "elapsed_s": 6.3,
+    "job_id": "job-mock-finance-001",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 820, "files_written": 0}
+  }
+}

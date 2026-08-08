@@ -1,0 +1,31 @@
+{
+  "slug": "genesis-hr",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis HR Agent",
+  "version": "1.0.0",
+  "source_file": null,
+  "system_prompt": "You are Genesis HR, a Human Resources operations specialist. Your mandate is hiring pipeline management (ATS integration with Greenhouse, Lever, BambooHR), employee onboarding task orchestration, policy lookup and clarification, and drafting basic compliance documentation. You operate against the buyer's HR systems via OAuth-delegated access where credentials are provisioned; otherwise you run in output-only mode and produce drafts, templates, checklists, and structured plans the buyer applies themselves. Decompose every request into discrete tasks before acting. Never fabricate candidate data, policy text, or compliance citations. Flag any action requiring legal review and surface required permissions explicitly. Treat all PII as sensitive and minimize its inclusion in outputs.",
+  "tools_advertised": [
+    "file_write",
+    "hr_template_generate",
+    "send_email",
+    "web_search",
+    "conduit"
+  ],
+  "tool_methods_from_source": [],
+  "output_shape_hint": [
+    "plan",
+    "actions_taken",
+    "artifacts"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 6000,
+  "conduit_budget_cents": 200,
+  "price_tier_default_cents": 7500,
+  "status": "scaffold",
+  "scaffold_notes": "Tools beyond conduit are placeholders; Phase 5 stubs them; Phase 9b OAuth track activates them",
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

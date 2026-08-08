@@ -1,0 +1,21 @@
+{
+  "id": "seo-reg-002",
+  "category": "regression",
+  "prompt": "Optimize the following page title and meta description for the keyword 'ai agent automation':\n\nTitle: 'Welcome to Our Platform'\nMeta Description: 'We build software for businesses.'\n\nProvide improved versions with character counts.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 100,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["ranked #1", "page is now live"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-seo",
+    "response": "SEO Optimization for 'ai agent automation':\n\nOptimized Title (58 chars):\n'AI Agent Automation Platform for Developers | Genesis'\n[Includes primary keyword, brand name, target audience]\n\nOptimized Meta Description (155 chars):\n'Build and deploy autonomous AI agents in minutes. Genesis automates complex workflows with intelligent multi-agent orchestration. Start free.'\n[Includes keyword, value prop, CTA, within 160-char limit]\n\nChanges made:\n- Added primary keyword 'AI agent automation' near title start\n- Replaced generic descriptor with specific value proposition\n- Added CTA 'Start free' to improve CTR\n- Meta description meets Google's 150-160 char sweet spot",
+    "turns": 1,
+    "elapsed_s": 3.8,
+    "job_id": "job-mock-seo-002",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 480, "files_written": 0}
+  }
+}

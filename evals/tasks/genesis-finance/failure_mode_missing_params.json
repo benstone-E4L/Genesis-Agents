@@ -1,0 +1,23 @@
+{
+  "id": "finance-fail-002",
+  "category": "failure_mode",
+  "prompt": "Process a vendor invoice. No vendor name, amount, or category has been specified.",
+  "params": {},
+  "expected": {
+    "ok": false,
+    "min_response_length": 20,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["invoice processed", "payment queued", "vendor paid"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-finance",
+    "error": "missing_required_params",
+    "response": "Cannot process vendor invoice: vendor name, amount (in cents), and expense category are all required. No payment has been queued.",
+    "turns": 1,
+    "elapsed_s": 0.7,
+    "job_id": "job-mock-finance-005",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 175, "files_written": 0}
+  }
+}

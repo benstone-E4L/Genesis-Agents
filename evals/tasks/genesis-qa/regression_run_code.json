@@ -1,0 +1,21 @@
+{
+  "id": "qa-reg-002",
+  "category": "regression",
+  "prompt": "Run the following Python snippet and report the output:\n\n```python\ndef add(a, b):\n    return a + b\n\nresult = add(3, 4)\nprint(f'Result: {result}')\nassert result == 7, 'Addition failed'\nprint('Test passed')\n```",
+  "expected": {
+    "ok": true,
+    "min_response_length": 30,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production"],
+    "max_latency_s": 60
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-qa",
+    "response": "Code execution output:\n\nResult: 7\nTest passed\n\nExit code: 0. The assertion passed — add(3, 4) correctly returns 7.",
+    "turns": 2,
+    "elapsed_s": 5.2,
+    "job_id": "job-mock-qa-002",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 320, "files_written": 0}
+  }
+}

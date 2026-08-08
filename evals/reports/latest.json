@@ -1,0 +1,1438 @@
+{
+  "generated_at": "2026-06-13T13:16:06Z",
+  "summary": {
+    "total_tasks": 40,
+    "total_passed": 40,
+    "total_failed": 0,
+    "overall_pass_rate": 100.0
+  },
+  "agents": [
+    {
+      "slug": "genesis-builder",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "builder-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-builder\\failure_mode_empty_prompt.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 1.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 0 >= min 0"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "builder-fail-003",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-builder\\failure_mode_timeout.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 0 >= min 0"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "builder-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-builder\\failure_mode_tool_unavailable.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.80s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 0 >= min 0"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "builder-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-builder\\regression_basic_build.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 4.20s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 845 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "builder-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-builder\\regression_workspace_file.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 3.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 227 >= min 50"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-deploy",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "deploy-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-deploy\\failure_mode_bad_credentials.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 2.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 183 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "deploy-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-deploy\\failure_mode_no_repo.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.90s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 167 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "deploy-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-deploy\\regression_deploy_not_configured.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 1.50s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 147 >= min 30"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "deploy-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-deploy\\regression_deploy_plan.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 3.80s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 665 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "deploy-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-deploy\\regression_workspace_write.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 5.50s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 367 >= min 100"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-finance",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "finance-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-finance\\failure_mode_ap2_budget_exceeded.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 1.20s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 226 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "finance-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-finance\\failure_mode_missing_params.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.70s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 129 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "finance-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-finance\\regression_budget_metrics.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 2.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 171 >= min 50"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "finance-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-finance\\regression_revenue_model.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 6.30s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 607 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "finance-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-finance\\regression_unit_economics.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 4.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 599 >= min 150"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-meta",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "meta-reg-003",
+          "category": "delegation",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-meta\\delegation_three_subagents.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 61.00s <= max 600.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 317 >= min 100"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "meta-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-meta\\failure_mode_circular_delegation.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.70s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 171 >= min 10"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "meta-reg-001",
+          "category": "delegation",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-meta\\regression_delegation_proof.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 45.00s <= max 600.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 322 >= min 100"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "meta-reg-004",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-meta\\regression_meta_synthesis.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 9.00s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 460 >= min 150"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "meta-reg-002",
+          "category": "delegation",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-meta\\regression_orchestration_chain.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 72.00s <= max 600.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 365 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-qa",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "qa-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-qa\\failure_mode_empty_test_suite.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 1.00s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 147 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "qa-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-qa\\failure_mode_missing_context.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 1.20s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 178 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "qa-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-qa\\regression_artifact_check.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 4.80s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 236 >= min 100"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "qa-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-qa\\regression_run_code.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 5.20s <= max 60.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 114 >= min 30"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "qa-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-qa\\regression_test_plan.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 4.00s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 759 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-research",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "research-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-research\\failure_mode_hallucination_check.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 5.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 215 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "research-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-research\\failure_mode_impossible_topic.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 2.00s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 301 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "research-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-research\\regression_basic_research.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 18.50s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 890 >= min 300"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "research-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-research\\regression_citation_required.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 22.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 797 >= min 250"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "research-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-research\\regression_web_search.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 8.30s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 297 >= min 50"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-security",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "security-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-security\\failure_mode_no_target.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.80s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 192 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "security-fail-002",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-security\\failure_mode_unauthorized_scope.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.50s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 321 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "security-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-security\\regression_basic_audit.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 5.50s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 809 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "security-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-security\\regression_dependency_check.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 8.20s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 504 >= min 150"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "security-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-security\\regression_security_headers.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 3.90s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 605 >= min 150"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    },
+    {
+      "slug": "genesis-seo",
+      "total": 5,
+      "passed": 5,
+      "failed": 0,
+      "pass_rate": 100.0,
+      "task_results": [
+        {
+          "task_id": "seo-fail-001",
+          "category": "failure_mode",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-seo\\failure_mode_no_domain.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=False matches expected ok=False"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 0.70s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 173 >= min 20"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "seo-reg-002",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-seo\\regression_content_optimization.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 3.80s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 666 >= min 100"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "seo-reg-001",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-seo\\regression_keyword_research.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 9.40s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 834 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "seo-reg-004",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-seo\\regression_seo_report.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 7.20s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 684 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        },
+        {
+          "task_id": "seo-reg-003",
+          "category": "regression",
+          "fixture_path": "C:\\Users\\Ben\\Desktop\\Github\\Genesis-Agents\\evals\\tasks\\genesis-seo\\regression_technical_seo.json",
+          "passed": true,
+          "graders": [
+            {
+              "grader": "correct_status",
+              "passed": true,
+              "reason": "status ok=True matches expected ok=True"
+            },
+            {
+              "grader": "required_fields_present",
+              "passed": true,
+              "reason": "all required fields present"
+            },
+            {
+              "grader": "no_fake_success",
+              "passed": true,
+              "reason": "no fake success phrases detected"
+            },
+            {
+              "grader": "max_latency",
+              "passed": true,
+              "reason": "elapsed 5.10s <= max 300.0s"
+            },
+            {
+              "grader": "min_response_length",
+              "passed": true,
+              "reason": "response length 854 >= min 200"
+            }
+          ],
+          "failure_reasons": []
+        }
+      ]
+    }
+  ]
+}

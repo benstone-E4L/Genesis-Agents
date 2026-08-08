@@ -1,0 +1,236 @@
+{
+  "_note": "OFFLINE FALLBACK ONLY. run_experiment.py fetches GET /agents live by default and aborts on any slug not in the LIVE list. This file is a snapshot for --slug-source snapshot (air-gapped runs) and goes stale the moment an agent is added or removed.",
+  "_source": "GET https://swarmsync-agents.onrender.com/agents (unauthenticated)",
+  "_fetched_utc": "2026-08-03T22:31:26Z",
+  "_count": 57,
+  "agents": [
+    {
+      "slug": "analyst_agent",
+      "name": "Analyst Agent"
+    },
+    {
+      "slug": "api-documentation-generator",
+      "name": "API Documentation Generator"
+    },
+    {
+      "slug": "backup-manager",
+      "name": "Backup Manager"
+    },
+    {
+      "slug": "billing_agent",
+      "name": "Billing Agent"
+    },
+    {
+      "slug": "builder_agent",
+      "name": "Builder Agent"
+    },
+    {
+      "slug": "builder_agent_enhanced",
+      "name": "Builder Agent Enhanced"
+    },
+    {
+      "slug": "business_idea_generator",
+      "name": "Business Idea Generator"
+    },
+    {
+      "slug": "commerce_agent",
+      "name": "Commerce Agent"
+    },
+    {
+      "slug": "content_agent",
+      "name": "Content Agent"
+    },
+    {
+      "slug": "darwin_agent",
+      "name": "Darwin Agent"
+    },
+    {
+      "slug": "deploy_agent",
+      "name": "Deploy Agent"
+    },
+    {
+      "slug": "domain_name_agent",
+      "name": "Domain Name Agent"
+    },
+    {
+      "slug": "email_agent",
+      "name": "Email Agent"
+    },
+    {
+      "slug": "expense-tracker",
+      "name": "Expense Tracker"
+    },
+    {
+      "slug": "finance_agent",
+      "name": "Finance Agent"
+    },
+    {
+      "slug": "genesis-ai-vision-api",
+      "name": "Genesis AI Vision API"
+    },
+    {
+      "slug": "genesis-data-pipeline-agent",
+      "name": "Genesis Data Pipeline Agent"
+    },
+    {
+      "slug": "genesis-workflow-automator",
+      "name": "Genesis Workflow Automator"
+    },
+    {
+      "slug": "genesis_analyst_x402",
+      "name": "Genesis Analyst Agent"
+    },
+    {
+      "slug": "genesis_billing_x402",
+      "name": "Genesis Billing Agent"
+    },
+    {
+      "slug": "genesis_builder_x402",
+      "name": "Genesis Builder Agent"
+    },
+    {
+      "slug": "genesis_commerce_x402",
+      "name": "Genesis Commerce Agent"
+    },
+    {
+      "slug": "genesis_content_x402",
+      "name": "Genesis Content Agent"
+    },
+    {
+      "slug": "genesis_deploy_x402",
+      "name": "Genesis Deploy Agent"
+    },
+    {
+      "slug": "genesis_email_x402",
+      "name": "Genesis Email Agent"
+    },
+    {
+      "slug": "genesis_finance_x402",
+      "name": "Genesis Finance Agent"
+    },
+    {
+      "slug": "genesis_marketing_x402",
+      "name": "Genesis Marketing Agent"
+    },
+    {
+      "slug": "genesis_meta_agent",
+      "name": "Genesis Meta Agent"
+    },
+    {
+      "slug": "genesis_meta_x402",
+      "name": "Genesis Meta Agent"
+    },
+    {
+      "slug": "genesis_qa_x402",
+      "name": "Genesis QA Agent"
+    },
+    {
+      "slug": "genesis_research_x402",
+      "name": "Genesis Research Agent"
+    },
+    {
+      "slug": "genesis_security_x402",
+      "name": "Genesis Security Agent"
+    },
+    {
+      "slug": "genesis_seo_x402",
+      "name": "Genesis SEO Agent"
+    },
+    {
+      "slug": "genesis_support_x402",
+      "name": "Genesis Support Agent"
+    },
+    {
+      "slug": "image-optimizer",
+      "name": "Image Optimizer"
+    },
+    {
+      "slug": "legal_agent",
+      "name": "Legal Agent"
+    },
+    {
+      "slug": "maintenance_agent",
+      "name": "Maintenance Agent"
+    },
+    {
+      "slug": "marketing_agent",
+      "name": "Marketing Agent"
+    },
+    {
+      "slug": "meeting-summarizer",
+      "name": "Meeting Summarizer"
+    },
+    {
+      "slug": "onboarding-automation",
+      "name": "Onboarding Automation"
+    },
+    {
+      "slug": "onboarding_agent",
+      "name": "Onboarding Agent"
+    },
+    {
+      "slug": "pricing_agent",
+      "name": "Pricing Agent"
+    },
+    {
+      "slug": "qa_agent",
+      "name": "QA Agent"
+    },
+    {
+      "slug": "reflection_agent",
+      "name": "Reflection Agent"
+    },
+    {
+      "slug": "research_discovery_agent",
+      "name": "Research Discovery Agent"
+    },
+    {
+      "slug": "review-responder",
+      "name": "Review Responder"
+    },
+    {
+      "slug": "ring1t_reasoning_agent",
+      "name": "Ring1T Reasoning Agent"
+    },
+    {
+      "slug": "se_darwin_agent",
+      "name": "SE Darwin Agent"
+    },
+    {
+      "slug": "security_agent",
+      "name": "Security Agent"
+    },
+    {
+      "slug": "seo_agent",
+      "name": "SEO Agent"
+    },
+    {
+      "slug": "social-media-scheduler",
+      "name": "Social Media Scheduler"
+    },
+    {
+      "slug": "spec_agent",
+      "name": "Spec Agent"
+    },
+    {
+      "slug": "support_agent",
+      "name": "Support Agent"
+    },
+    {
+      "slug": "unit-test-generator",
+      "name": "Unit Test Generator"
+    },
+    {
+      "slug": "waltzrl_conversation_agent",
+      "name": "WaltzRL Conversation Agent"
+    },
+    {
+      "slug": "waltzrl_feedback_agent",
+      "name": "WaltzRL Feedback Agent"
+    },
+    {
+      "slug": "web-scraper-pro",
+      "name": "Web Scraper Pro"
+    }
+  ]
+}

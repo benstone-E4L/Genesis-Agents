@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "description": "Trusted AP2 clients authorized to send signed envelopes to the Genesis agents gateway. Each entry holds a base64-encoded Ed25519 public key plus capability metadata. Read by the gateway's signature-verification middleware (forthcoming) to validate inbound X-AP2-Pubkey headers against this allowlist.",
+  "clients": [
+    {
+      "client_id": "cato",
+      "name": "Cato Agent Framework",
+      "pubkey_b64": "ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ=",
+      "algorithm": "ed25519",
+      "capabilities": ["agent.invoke", "agent.list", "agent.health"],
+      "enabled": true,
+      "added_at": "2026-05-17T23:20:42Z",
+      "notes": "Genesis agents client. Signs requests via vault-bound Ed25519 keypair (cato/vault_crypto.py)."
+    }
+  ]
+}

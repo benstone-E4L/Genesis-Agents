@@ -1,0 +1,21 @@
+{
+  "id": "security-reg-002",
+  "category": "regression",
+  "prompt": "Check the following package.json dependencies for known CVEs and security vulnerabilities:\n\n```json\n{\n  \"dependencies\": {\n    \"lodash\": \"4.17.15\",\n    \"express\": \"4.17.1\",\n    \"jsonwebtoken\": \"8.5.1\",\n    \"axios\": \"0.21.1\"\n  }\n}\n```",
+  "expected": {
+    "ok": true,
+    "min_response_length": 150,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["all dependencies are safe", "no CVEs found", "no vulnerabilities"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-security",
+    "response": "Dependency Security Report:\n\n- lodash@4.17.15: CVE-2021-23337 [HIGH] — prototype pollution via merge functions. Upgrade to 4.17.21+\n- express@4.17.1: No critical CVEs but 4.18.x fixes minor issues. Upgrade recommended.\n- jsonwebtoken@8.5.1: CVE-2022-23529 [HIGH] — arbitrary file read via crafted JWT secret. Upgrade to 9.0.0+\n- axios@0.21.1: CVE-2021-3749 [HIGH] — ReDoS via crafted URLs. Upgrade to 0.27.2+\n\nAction Required: 3 HIGH severity CVEs found. Run npm update or pin fixed versions immediately.",
+    "turns": 2,
+    "elapsed_s": 8.2,
+    "job_id": "job-mock-security-002",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 590, "files_written": 0}
+  }
+}

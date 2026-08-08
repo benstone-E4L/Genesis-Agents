@@ -1,0 +1,23 @@
+{
+  "id": "qa-reg-003",
+  "category": "regression",
+  "prompt": "Generate a test results artifact (JUnit XML) for a sample test run with 10 passing and 2 failing tests. Write it to the workspace.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 100,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-qa",
+    "response": "JUnit XML artifact written to workspace at /tmp/jobs/job-mock-qa-005/test-results.xml\n\nSummary:\n- Total: 12\n- Passed: 10\n- Failed: 2\n- Duration: 8.4s\n\nFailed tests:\n1. TestUserAuth::test_expired_token\n2. TestPayment::test_refund_partial",
+    "turns": 2,
+    "elapsed_s": 4.8,
+    "job_id": "job-mock-qa-005",
+    "artifact_count": 1,
+    "output_artifact_uris": ["/tmp/jobs/job-mock-qa-005/test-results.xml"],
+    "resource_usage": {"llm_calls": 2, "total_tokens": 450, "files_written": 1}
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "deploy-reg-001",
+  "category": "regression",
+  "prompt": "Deploy the current project to Vercel. No VERCEL_TOKEN or repository URL has been provided in the params.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 30,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["completed successfully", "deployment live", "deployed to vercel"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-deploy",
+    "error": "deploy_not_configured",
+    "response": "Deployment cannot proceed: VERCEL_TOKEN is not set and no repository URL was provided. Please configure credentials before requesting a deployment.",
+    "turns": 1,
+    "elapsed_s": 1.5,
+    "job_id": "job-mock-deploy-001",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 210, "files_written": 0}
+  }
+}

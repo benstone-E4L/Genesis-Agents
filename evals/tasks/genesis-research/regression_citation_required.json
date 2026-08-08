@@ -1,0 +1,21 @@
+{
+  "id": "research-reg-003",
+  "category": "regression",
+  "prompt": "Summarize recent advances in retrieval-augmented generation (RAG). Every claim must have an inline citation with a real URL. Minimum 3 citations required.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 250,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "research complete without citations"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-research",
+    "response": "Recent Advances in Retrieval-Augmented Generation (RAG):\n\nRAG has matured significantly in 2024. Dense retrieval using bi-encoder models (e.g., E5, GTE) now outperforms BM25 on most open-domain QA benchmarks [1]. Corrective RAG (CRAG) introduces a lightweight retrieval evaluator that routes low-confidence retrievals to web search, improving factual accuracy by 15% on ASQA [2]. Modular RAG frameworks decouple retrieval, reranking, and generation into composable components, enabling task-specific optimization [3].\n\nSources:\n[1] https://arxiv.org/abs/2402.05672 — E5-Mistral: Improving Text Embeddings with LLMs\n[2] https://arxiv.org/abs/2401.15884 — CRAG: Corrective Retrieval Augmented Generation\n[3] https://arxiv.org/abs/2312.10997 — Modular RAG: Transforming RAG into a LEGO-like framework",
+    "turns": 4,
+    "elapsed_s": 22.1,
+    "job_id": "job-mock-research-005",
+    "resource_usage": {"llm_calls": 4, "total_tokens": 2100, "files_written": 0}
+  }
+}

@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genesis Admin &mdash; Disputes</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.125rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1rem;
+  }
+  .badge-disputed { background-color: #ffedd5; color: #9a3412; }
+  .badge-refunded { background-color: #dcfce7; color: #166534; }
+  .badge-resolved { background-color: #f1f5f9; color: #334155; }
+  .badge-failed   { background-color: #fee2e2; color: #991b1b; }
+
+  /* Fallback styling in case the Tailwind CDN fails to load. */
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 0.5rem 1rem; }
+  thead { background: #f1f5f9; }
+  tr { border-bottom: 1px solid #e2e8f0; }
+  .sort-arrow { display: inline-block; width: 1ch; color: #94a3b8; }
+
+  /* Drawer transitions */
+  #evidence-drawer { transition: transform 0.2s ease-out; }
+</style>
+</head>
+<body class="bg-slate-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-sm border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between flex-wrap gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold">S</div>
+        <div>
+          <div class="text-lg sm:text-xl font-bold text-slate-900 leading-tight">SwarmSync</div>
+          <div class="text-xs text-slate-500 leading-tight">Genesis Admin</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-3 sm:gap-4">
+        <div class="hidden sm:block text-sm text-slate-600" id="current-admin">&mdash;</div>
+        <div class="sm:hidden text-xs text-slate-600 truncate max-w-[8rem]" id="current-admin-mobile">&mdash;</div>
+        <button id="logout-btn" class="text-sm text-slate-500 hover:text-slate-900 transition">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+    <div class="mb-6 flex items-center justify-between flex-wrap gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold text-slate-900">Disputes</h1>
+        <p class="text-sm text-slate-500 mt-1" id="dispute-count">&mdash;</p>
+      </div>
+      <button id="refresh-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 active:bg-blue-800 transition text-sm font-medium shadow-sm">
+        Refresh
+      </button>
+    </div>
+
+    <div id="disputes-container" class="bg-white shadow-sm border border-slate-200 rounded-lg overflow-x-auto">
+      <div class="p-8 text-center text-slate-500">Loading&hellip;</div>
+    </div>
+  </main>
+
+  <!-- Login modal -->
+  <div id="login-modal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-60 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+      <h2 class="text-xl font-bold text-slate-900 mb-2">Admin Sign-in</h2>
+      <p class="text-sm text-slate-600 mb-4">Enter your admin email to access the dispute queue. The email is stored locally and sent on every API call as <code class="bg-slate-100 px-1 rounded text-xs">X-Admin-Email</code>.</p>
+      <form id="login-form">
+        <input id="email-input" type="email" autocomplete="email" placeholder="you@example.com" class="w-full px-3 py-2 border border-slate-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" required>
+        <div id="email-error" class="hidden text-red-600 text-sm mb-2"></div>
+        <button id="submit-email" type="submit" class="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 active:bg-blue-800 transition font-medium">Sign in</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-4 right-4 px-4 py-3 rounded-md shadow-lg text-white z-50 max-w-sm"></div>
+
+  <!-- Evidence drawer -->
+  <div id="evidence-backdrop" class="hidden fixed inset-0 bg-slate-900 bg-opacity-30 z-30"></div>
+  <aside id="evidence-drawer" class="hidden fixed inset-y-0 right-0 w-full max-w-2xl bg-white shadow-2xl z-40 overflow-y-auto border-l border-slate-200">
+    <div class="p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">Dispute Evidence</h3>
+        <button id="close-drawer" class="text-slate-400 hover:text-slate-900 text-3xl leading-none transition" aria-label="Close">&times;</button>
+      </div>
+      <div class="mb-3 text-xs text-slate-500" id="evidence-meta">&mdash;</div>
+      <pre id="evidence-content" class="font-mono text-xs bg-slate-100 p-4 rounded-md overflow-x-auto whitespace-pre-wrap break-words text-slate-800"></pre>
+    </div>
+  </aside>
+
+<script>
+(function () {
+  const API_BASE = window.location.origin;
+  let adminEmail = localStorage.getItem('admin_email');
+  let lastItems = [];
+  let sortKey = 'updatedAt';
+  let sortDir = 'desc';
+
+  // ---- helpers --------------------------------------------------------
+  function escapeHtml(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function showToast(msg, kind) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    const colour = kind === 'error' ? 'bg-red-600' : (kind === 'info' ? 'bg-slate-700' : 'bg-green-600');
+    t.className = 'fixed bottom-4 right-4 px-4 py-3 rounded-md shadow-lg text-white z-50 max-w-sm ' + colour;
+    t.classList.remove('hidden');
+    setTimeout(function () { t.classList.add('hidden'); }, 3500);
+  }
+
+  function showLogin() {
+    document.getElementById('login-modal').classList.remove('hidden');
+    setTimeout(function () {
+      const el = document.getElementById('email-input');
+      if (el) el.focus();
+    }, 50);
+  }
+
+  function hideLogin() {
+    document.getElementById('login-modal').classList.add('hidden');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '—';
+    try {
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleString();
+    } catch (e) { return iso; }
+  }
+
+  function shortId(id) {
+    if (!id) return '—';
+    if (id.length <= 12) return id;
+    return id.slice(0, 8) + '…';
+  }
+
+  function statusBadge(s) {
+    const map = {
+      'DISPUTED':  'badge-disputed',
+      'REFUNDED':  'badge-refunded',
+      'RESOLVED':  'badge-resolved',
+      'SETTLED':   'badge-refunded',
+      'FAILED':    'badge-failed',
+      'DELIVERED': 'badge-refunded',
+    };
+    const cls = map[s] || 'badge-resolved';
+    return '<span class="badge ' + cls + '">' + escapeHtml(s || '—') + '</span>';
+  }
+
+  function setAdminLabel() {
+    const t1 = document.getElementById('current-admin');
+    const t2 = document.getElementById('current-admin-mobile');
+    const v  = adminEmail || '—';
+    if (t1) t1.textContent = v;
+    if (t2) t2.textContent = v;
+  }
+
+  // ---- API ------------------------------------------------------------
+  async function adminFetch(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers || {}, {
+      'X-Admin-Email': adminEmail || '',
+    });
+    if (opts.body && !opts.headers['Content-Type']) {
+      opts.headers['Content-Type'] = 'application/json';
+    }
+    const r = await fetch(API_BASE + path, opts);
+    if (r.status === 403) {
+      localStorage.removeItem('admin_email');
+      adminEmail = null;
+      setAdminLabel();
+      showLogin();
+      showToast('Admin access denied. Please sign in again.', 'error');
+      throw new Error('forbidden');
+    }
+    return r;
+  }
+
+  async function fetchDisputes() {
+    if (!adminEmail) { showLogin(); return; }
+    const container = document.getElementById('disputes-container');
+    container.innerHTML = '<div class="p-8 text-center text-slate-500">Loading&hellip;</div>';
+    try {
+      const r = await adminFetch('/admin/disputes');
+      if (!r.ok) {
+        const body = await r.text();
+        container.innerHTML = '<div class="p-8 text-center text-red-600">Failed to load disputes: ' + escapeHtml(r.status + ' ' + body) + '</div>';
+        return;
+      }
+      const data = await r.json();
+      lastItems = (data && data.items) || [];
+      renderDisputes();
+    } catch (e) {
+      if (e && e.message === 'forbidden') return;
+      container.innerHTML = '<div class="p-8 text-center text-red-600">Network error: ' + escapeHtml(e.message || String(e)) + '</div>';
+    }
+  }
+
+  function sortItems(items) {
+    const out = items.slice();
+    out.sort(function (a, b) {
+      let av = a[sortKey];
+      let bv = b[sortKey];
+      if (av === undefined || av === null) av = '';
+      if (bv === undefined || bv === null) bv = '';
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ?  1 : -1;
+      return 0;
+    });
+    return out;
+  }
+
+  function renderDisputes() {
+    const container = document.getElementById('disputes-container');
+    const count = lastItems.length;
+    const countEl = document.getElementById('dispute-count');
+    if (countEl) {
+      countEl.textContent = count === 0
+        ? 'No disputes in the queue.'
+        : count + ' dispute' + (count === 1 ? '' : 's') + ' in the queue.';
+    }
+
+    if (count === 0) {
+      container.innerHTML =
+        '<div class="p-12 text-center">' +
+          '<div class="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-3">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-8 h-8">' +
+              '<path fill-rule="evenodd" d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 011.42-1.42L8.5 12.08l6.79-6.79a1 1 0 011.414 0z" clip-rule="evenodd" />' +
+            '</svg>' +
+          '</div>' +
+          '<div class="text-lg font-semibold text-slate-900">No active disputes</div>' +
+          '<div class="text-sm text-slate-500 mt-1">All Genesis jobs are running smoothly.</div>' +
+        '</div>';
+      return;
+    }
+
+    function arrow(k) {
+      if (sortKey !== k) return '<span class="sort-arrow">↕</span>';
+      return '<span class="sort-arrow">' + (sortDir === 'asc' ? '▲' : '▼') + '</span>';
+    }
+
+    function th(label, key) {
+      return '<th data-sort-key="' + key + '" class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider cursor-pointer select-none hover:bg-slate-200">' +
+        escapeHtml(label) + ' ' + arrow(key) +
+      '</th>';
+    }
+
+    const items = sortItems(lastItems);
+    const rows = items.map(function (j, idx) {
+      const payload = j.dispute_payload || {};
+      const reasonFull = (payload.reason || '').toString();
+      const reason = reasonFull.length > 80 ? reasonFull.slice(0, 80) + '…' : reasonFull;
+      const buyer = j.buyerClientId || (j.buyerWalletId ? shortId(j.buyerWalletId) : '—');
+      const jobIdEsc = escapeHtml(j.id);
+      return (
+        '<tr class="hover:bg-slate-50" data-row="' + idx + '">' +
+          '<td class="px-4 py-3 text-sm font-mono text-slate-900">' +
+            '<button class="job-id-cell hover:underline text-left" data-full="' + jobIdEsc + '" title="' + jobIdEsc + '">' + escapeHtml(shortId(j.id)) + '</button>' +
+          '</td>' +
+          '<td class="px-4 py-3 text-sm text-slate-700">' + escapeHtml(j.agentSlug || '—') + '</td>' +
+          '<td class="px-4 py-3 text-sm text-slate-700 font-mono">' + escapeHtml(buyer) + '</td>' +
+          '<td class="px-4 py-3 text-sm text-slate-500 whitespace-nowrap">' + escapeHtml(fmtDate(j.updatedAt)) + '</td>' +
+          '<td class="px-4 py-3 text-sm text-slate-700 max-w-md">' + (reason ? escapeHtml(reason) : '<em class="text-slate-400">no reason</em>') + '</td>' +
+          '<td class="px-4 py-3">' + statusBadge(j.status) + '</td>' +
+          '<td class="px-4 py-3 text-sm whitespace-nowrap">' +
+            '<button class="act-view text-blue-600 hover:underline mr-3" data-job="' + jobIdEsc + '">View</button>' +
+            '<button class="act-refund text-orange-600 hover:underline mr-3" data-job="' + jobIdEsc + '">Refund</button>' +
+            '<button class="act-resolve text-green-700 hover:underline" data-job="' + jobIdEsc + '">Resolve</button>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join('');
+
+    container.innerHTML =
+      '<table class="min-w-full">' +
+        '<thead class="bg-slate-100">' +
+          '<tr>' +
+            th('Job ID',  'id') +
+            th('Agent',   'agentSlug') +
+            th('Buyer',   'buyerClientId') +
+            th('Filed',   'updatedAt') +
+            th('Reason',  'reason') +
+            th('Status',  'status') +
+            '<th class="px-4 py-2 text-left text-xs font-medium text-slate-600 uppercase tracking-wider">Actions</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>';
+
+    // Wire up header sort
+    const headers = container.querySelectorAll('th[data-sort-key]');
+    headers.forEach(function (h) {
+      h.addEventListener('click', function () {
+        const k = h.getAttribute('data-sort-key');
+        if (sortKey === k) {
+          sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+        } else {
+          sortKey = k;
+          sortDir = 'asc';
+        }
+        renderDisputes();
+      });
+    });
+
+    // Wire up row actions (delegated handlers attached inline)
+    container.querySelectorAll('.job-id-cell').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const full = btn.getAttribute('data-full');
+        btn.textContent = btn.textContent.indexOf('…') >= 0 ? full : shortId(full);
+      });
+    });
+    container.querySelectorAll('.act-view').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const id = btn.getAttribute('data-job');
+        const job = lastItems.find(function (j) { return j.id === id; });
+        viewEvidence(job);
+      });
+    });
+    container.querySelectorAll('.act-refund').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        refundJob(btn.getAttribute('data-job'));
+      });
+    });
+    container.querySelectorAll('.act-resolve').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        resolveJob(btn.getAttribute('data-job'));
+      });
+    });
+  }
+
+  function viewEvidence(job) {
+    if (!job) return;
+    const payload = job.dispute_payload || {};
+    const drawer  = document.getElementById('evidence-drawer');
+    const backdrop = document.getElementById('evidence-backdrop');
+    document.getElementById('evidence-content').textContent = JSON.stringify(payload, null, 2);
+    document.getElementById('evidence-meta').textContent =
+      'Job ' + (job.id || '') + ' · ' + (job.agentSlug || '') + ' · filed ' + fmtDate(job.updatedAt);
+    drawer.classList.remove('hidden');
+    backdrop.classList.remove('hidden');
+  }
+
+  function closeDrawer() {
+    document.getElementById('evidence-drawer').classList.add('hidden');
+    document.getElementById('evidence-backdrop').classList.add('hidden');
+  }
+
+  async function refundJob(jobId) {
+    if (!confirm('Refund the buyer for job ' + jobId + '?\n\nThis releases the escrow back to them and marks the job REFUNDED.')) return;
+    try {
+      const r = await adminFetch('/admin/disputes/' + encodeURIComponent(jobId) + '/refund', { method: 'POST' });
+      let data = {};
+      try { data = await r.json(); } catch (e) { /* not JSON */ }
+      if (r.ok) {
+        showToast('Refund issued for ' + shortId(jobId));
+        fetchDisputes();
+      } else {
+        showToast('Refund failed: ' + (data.detail || r.status), 'error');
+      }
+    } catch (e) {
+      if (!e || e.message !== 'forbidden') {
+        showToast('Error: ' + (e.message || String(e)), 'error');
+      }
+    }
+  }
+
+  async function resolveJob(jobId) {
+    if (!confirm('Mark dispute ' + jobId + ' as resolved?\n\nNo refund will be issued; the case will be closed.')) return;
+    try {
+      const r = await adminFetch('/admin/disputes/' + encodeURIComponent(jobId) + '/resolve', { method: 'POST' });
+      let data = {};
+      try { data = await r.json(); } catch (e) { /* not JSON */ }
+      if (r.ok) {
+        showToast('Dispute resolved: ' + shortId(jobId));
+        fetchDisputes();
+      } else {
+        showToast('Resolve failed: ' + (data.detail || r.status), 'error');
+      }
+    } catch (e) {
+      if (!e || e.message !== 'forbidden') {
+        showToast('Error: ' + (e.message || String(e)), 'error');
+      }
+    }
+  }
+
+  // ---- wiring ---------------------------------------------------------
+  document.getElementById('login-form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    const v = document.getElementById('email-input').value.trim();
+    const err = document.getElementById('email-error');
+    if (!v || v.indexOf('@') < 0) {
+      err.textContent = 'Enter a valid email address.';
+      err.classList.remove('hidden');
+      return;
+    }
+    err.classList.add('hidden');
+    adminEmail = v;
+    localStorage.setItem('admin_email', v);
+    setAdminLabel();
+    hideLogin();
+    fetchDisputes();
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', function () {
+    localStorage.removeItem('admin_email');
+    adminEmail = null;
+    setAdminLabel();
+    showLogin();
+  });
+
+  document.getElementById('refresh-btn').addEventListener('click', fetchDisputes);
+  document.getElementById('close-drawer').addEventListener('click', closeDrawer);
+  document.getElementById('evidence-backdrop').addEventListener('click', closeDrawer);
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape') closeDrawer();
+  });
+
+  // Expose for debugging in console
+  window.__adminReload = fetchDisputes;
+
+  // Init
+  setAdminLabel();
+  if (adminEmail) {
+    fetchDisputes();
+  } else {
+    showLogin();
+  }
+})();
+</script>
+</body>
+</html>

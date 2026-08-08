@@ -1,0 +1,21 @@
+{
+  "id": "deploy-reg-002",
+  "category": "regression",
+  "prompt": "Create a deployment plan for a Next.js application hosted on Vercel. The plan should include environment variable setup, build command, output directory, and domain configuration steps. Do not execute the deployment yet.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "live at https://", "deployment complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-deploy",
+    "response": "Deployment Plan for Next.js on Vercel:\n\n1. Environment Variables:\n   - Set NODE_ENV=production\n   - Add all required secrets via Vercel dashboard or CLI\n\n2. Build Configuration:\n   - Build command: next build\n   - Output directory: .next\n   - Install command: npm ci\n\n3. Domain Configuration:\n   - Configure custom domain in Vercel project settings\n   - Add DNS CNAME record pointing to cname.vercel-dns.com\n\n4. Pre-deployment checklist:\n   - Verify all env vars are set\n   - Run npm run build locally to confirm no errors\n   - Check vercel.json for route rewrites\n\n5. Deployment trigger:\n   - Push to main branch for automatic deployment\n   - Or run: vercel --prod",
+    "turns": 1,
+    "elapsed_s": 3.8,
+    "job_id": "job-mock-deploy-002",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 620, "files_written": 0}
+  }
+}

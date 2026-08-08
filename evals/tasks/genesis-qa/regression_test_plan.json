@@ -1,0 +1,21 @@
+{
+  "id": "qa-reg-001",
+  "category": "regression",
+  "prompt": "Create a comprehensive test plan for a user authentication feature. Include unit tests for password hashing, integration tests for login/logout endpoints, and E2E tests for the full login flow via browser.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["all tests passed", "100% coverage achieved", "zero bugs found"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-qa",
+    "response": "Test Plan: User Authentication\n\nUnit Tests (Jest):\n- password_hash: test bcrypt rounds, verify salt uniqueness\n- token_sign: JWT signing with RSA, expiry claims\n- input_validation: email format, password strength rules\n\nIntegration Tests (Jest + Supertest):\n- POST /auth/login: valid credentials → 200 + session cookie\n- POST /auth/login: wrong password → 401\n- POST /auth/logout: authenticated → 204 + cookie cleared\n- GET /auth/me: no session → 401\n\nE2E Tests (Playwright):\n- Happy path: fill email + password → submit → redirect to /dashboard\n- Invalid credentials: error message visible\n- Session persistence: reload page → still logged in\n- Logout: click logout → redirect to /login\n\nCoverage Target: 90% for auth module\nEstimated Duration: 45 minutes CI",
+    "turns": 1,
+    "elapsed_s": 4.0,
+    "job_id": "job-mock-qa-001",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 580, "files_written": 0}
+  }
+}

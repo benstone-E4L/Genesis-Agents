@@ -1,0 +1,21 @@
+{
+  "id": "finance-reg-002",
+  "category": "regression",
+  "prompt": "Calculate unit economics for: CAC=$250, ARPU=$75/mo, Gross Margin=70%, Monthly Churn=4%. Compute LTV, LTV:CAC ratio, payback period, and contribution margin per customer.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 150,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["payment processed", "transaction complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-finance",
+    "response": "Unit Economics Analysis:\n\nInputs:\n- CAC: $250\n- ARPU: $75/mo\n- Gross Margin: 70%\n- Monthly Churn: 4% (implies avg customer lifetime of 25 months)\n\nCalculations:\n- LTV = (ARPU × Gross Margin) / Monthly Churn = ($75 × 0.70) / 0.04 = $1,312.50\n- LTV:CAC Ratio = $1,312.50 / $250 = 5.25x [Healthy — target is >3x]\n- Payback Period = CAC / (ARPU × Gross Margin) = $250 / $52.50 = 4.8 months [Excellent — target <12mo]\n- Contribution Margin per Customer = $52.50/mo\n\nAssessment: Strong unit economics. LTV:CAC of 5.25x exceeds the SaaS benchmark. Focus on reducing churn below 3% to push LTV above $1,750.",
+    "turns": 1,
+    "elapsed_s": 4.1,
+    "job_id": "job-mock-finance-002",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 650, "files_written": 0}
+  }
+}

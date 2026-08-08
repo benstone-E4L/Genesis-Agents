@@ -1,0 +1,23 @@
+{
+  "id": "meta-reg-001",
+  "category": "delegation",
+  "prompt": "Build and deploy a landing page. Use genesis_call to delegate: (1) genesis-builder to generate the HTML/CSS, (2) genesis-qa to verify it, (3) genesis-deploy to deploy it. Report results from all three.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 100,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["completed without calling subagents", "did everything myself"],
+    "max_latency_s": 600,
+    "min_genesis_calls": 3
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-meta",
+    "response": "{\"business_name\": \"landing-page\", \"success\": true, \"components_generated\": [\"html\", \"css\", \"deploy\"], \"tasks_completed\": 3, \"tasks_failed\": 0, \"generation_time_seconds\": 45, \"subagent_calls\": [{\"slug\": \"genesis-builder\", \"status\": \"ok\"}, {\"slug\": \"genesis-qa\", \"status\": \"ok\"}, {\"slug\": \"genesis-deploy\", \"status\": \"ok\"}]}",
+    "turns": 6,
+    "elapsed_s": 45.0,
+    "job_id": "job-mock-meta-001",
+    "genesis_calls_made": 3,
+    "resource_usage": {"llm_calls": 6, "total_tokens": 4800, "files_written": 2}
+  }
+}

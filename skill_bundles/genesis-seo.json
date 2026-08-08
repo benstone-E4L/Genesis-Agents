@@ -1,0 +1,78 @@
+{
+  "slug": "genesis-seo",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis SEO Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/seo_agent.py",
+  "system_prompt": "You are an SEO specialist. Conduct keyword research, optimize content for search engines, analyze backlinks, monitor rankings, and implement technical SEO best practices. Focus on both on-page and off-page optimization. Track organic traffic growth and conversion metrics.",
+  "tools_advertised": [
+    "file_write",
+    "web_search",
+    "web_fetch",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "keyword_research",
+      "docstring": "Research relevant keywords for a topic"
+    },
+    {
+      "name": "optimize_content",
+      "docstring": "Optimize content for search engines"
+    },
+    {
+      "name": "analyze_backlinks",
+      "docstring": "Analyze backlink profile for a domain"
+    },
+    {
+      "name": "track_rankings",
+      "docstring": "Track keyword rankings for a domain"
+    },
+    {
+      "name": "generate_seo_report",
+      "docstring": "Generate comprehensive SEO performance report"
+    },
+    {
+      "name": "run_full_seo_analysis",
+      "docstring": "End-to-end helper that collects AP2 receipts for the full SEO workflow."
+    }
+  ],
+  "output_shape_hint": [
+    "research_id",
+    "topic",
+    "target_audience",
+    "keywords",
+    "total_keywords",
+    "ap2_approvals",
+    "optimization_id",
+    "content_url",
+    "target_keywords",
+    "optimization_type",
+    "recommendations",
+    "seo_score_before",
+    "seo_score_after",
+    "analysis_id",
+    "domain",
+    "total_backlinks",
+    "referring_domains",
+    "domain_authority",
+    "top_backlinks",
+    "tracking_id",
+    "search_engine",
+    "rankings",
+    "average_position",
+    "visibility_score",
+    "report_id",
+    "period",
+    "metrics"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 4000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 4000,
+  "absorbed_from": [],
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

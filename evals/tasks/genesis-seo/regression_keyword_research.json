@@ -1,0 +1,21 @@
+{
+  "id": "seo-reg-001",
+  "category": "regression",
+  "prompt": "Perform keyword research for a SaaS product in the 'AI agent automation' space targeting developers. Provide 10 keywords with estimated search volume and competition level.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production", "ranked #1"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-seo",
+    "response": "Keyword Research: AI Agent Automation (Developer Audience)\n\n1. 'ai agent framework' — Vol: 8,100/mo — Competition: Medium\n2. 'autonomous ai agents' — Vol: 5,400/mo — Competition: High\n3. 'langchain alternatives' — Vol: 4,200/mo — Competition: Medium\n4. 'multi agent systems python' — Vol: 3,600/mo — Competition: Low\n5. 'ai workflow automation' — Vol: 12,000/mo — Competition: High\n6. 'openai agents api' — Vol: 9,800/mo — Competition: High\n7. 'crewai tutorial' — Vol: 2,900/mo — Competition: Low\n8. 'agent orchestration tool' — Vol: 1,800/mo — Competition: Low (opportunity)\n9. 'ai task automation developer' — Vol: 1,400/mo — Competition: Low (opportunity)\n10. 'llm tool use framework' — Vol: 2,100/mo — Competition: Medium\n\nTop Opportunities: Keywords 8 and 9 have low competition — strong candidates for initial content targeting.",
+    "turns": 2,
+    "elapsed_s": 9.4,
+    "job_id": "job-mock-seo-001",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 720, "files_written": 0}
+  }
+}

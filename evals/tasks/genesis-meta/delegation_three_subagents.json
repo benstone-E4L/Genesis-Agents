@@ -1,0 +1,23 @@
+{
+  "id": "meta-reg-003",
+  "category": "delegation",
+  "prompt": "Demonstrate that genesis-meta calls exactly three distinct subagents. Task: coordinate genesis-research, genesis-security, and genesis-seo to produce a competitor analysis, security audit brief, and SEO keyword list for a new SaaS product. Report the slug and status of every genesis_call made.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 100,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["completed without calling subagents", "no delegation needed"],
+    "max_latency_s": 600,
+    "min_genesis_calls": 3
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-meta",
+    "response": "{\"tasks_completed\": 3, \"genesis_calls\": [{\"slug\": \"genesis-research\", \"status\": \"ok\", \"summary\": \"Competitor analysis complete\"}, {\"slug\": \"genesis-security\", \"status\": \"ok\", \"summary\": \"Security brief generated\"}, {\"slug\": \"genesis-seo\", \"status\": \"ok\", \"summary\": \"35 target keywords identified\"}], \"success\": true}",
+    "turns": 7,
+    "elapsed_s": 61.0,
+    "job_id": "job-mock-meta-004",
+    "genesis_calls_made": 3,
+    "resource_usage": {"llm_calls": 7, "total_tokens": 5500, "files_written": 1}
+  }
+}

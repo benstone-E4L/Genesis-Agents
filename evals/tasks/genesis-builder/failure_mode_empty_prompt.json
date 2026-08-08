@@ -1,0 +1,26 @@
+{
+  "id": "builder-fail-001",
+  "category": "failure_mode",
+  "prompt": "",
+  "expected": {
+    "ok": false,
+    "min_response_length": 0,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["completed successfully", "deployed to", "build succeeded"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-builder",
+    "error": "success_criteria_failed",
+    "response": "",
+    "turns": 1,
+    "elapsed_s": 1.1,
+    "job_id": "job-mock-builder-003",
+    "success_criteria_eval": {
+      "ok": false,
+      "failed": [{"type": "non_empty", "reason": "response is empty"}]
+    },
+    "resource_usage": {"llm_calls": 1, "total_tokens": 100, "files_written": 0}
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "id": "builder-reg-001",
+  "category": "regression",
+  "prompt": "Build a React Button component in TypeScript with variants: primary, secondary, danger. Include proper prop types, hover states via Tailwind CSS, and export the component as default.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-builder",
+    "response": "Here is the TypeScript React Button component:\n\n```tsx\nimport React from 'react';\n\ntype Variant = 'primary' | 'secondary' | 'danger';\n\ninterface ButtonProps {\n  variant?: Variant;\n  children: React.ReactNode;\n  onClick?: () => void;\n  disabled?: boolean;\n}\n\nconst variantClasses: Record<Variant, string> = {\n  primary: 'bg-blue-600 hover:bg-blue-700 text-white',\n  secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900',\n  danger: 'bg-red-600 hover:bg-red-700 text-white',\n};\n\nexport default function Button({ variant = 'primary', children, onClick, disabled }: ButtonProps) {\n  return (\n    <button\n      className={`px-4 py-2 rounded font-medium transition-colors ${variantClasses[variant]} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}\n      onClick={onClick}\n      disabled={disabled}\n    >\n      {children}\n    </button>\n  );\n}\n```",
+    "turns": 1,
+    "elapsed_s": 4.2,
+    "job_id": "job-mock-builder-001",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 512, "files_written": 0}
+  }
+}

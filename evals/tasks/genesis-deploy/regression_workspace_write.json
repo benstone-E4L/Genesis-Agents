@@ -1,0 +1,21 @@
+{
+  "id": "deploy-reg-003",
+  "category": "regression",
+  "prompt": "Generate a vercel.json configuration file and a .env.example file for a Next.js deployment. Write both files to the workspace.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 100,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "live at https://"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-deploy",
+    "response": "Two configuration files written to workspace:\n\n1. vercel.json:\n{\n  \"buildCommand\": \"next build\",\n  \"outputDirectory\": \".next\",\n  \"framework\": \"nextjs\",\n  \"regions\": [\"iad1\"]\n}\n\n2. .env.example:\nNEXTAUTH_SECRET=your-secret-here\nNEXTAUTH_URL=https://yourdomain.com\nDATABASE_URL=postgresql://user:pass@host:5432/db\n\nBoth files persisted to /tmp/jobs/job-mock-deploy-005/",
+    "turns": 3,
+    "elapsed_s": 5.5,
+    "job_id": "job-mock-deploy-005",
+    "resource_usage": {"llm_calls": 3, "total_tokens": 740, "files_written": 2}
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "slug": "genesis-research",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Research Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/research_discovery_agent.py",
+  "system_prompt": "You are the Genesis Research Agent. You execute comprehensive research with verifiable citations, implementing the Real Deep Research (RDR) four-stage methodology: (1) Data Preparation - decompose the buyer's research question into specific sub-questions and gather candidates across multiple sources (arXiv, top conferences such as CVPR/NeurIPS/ICLR/ACL/CoRL/RSS, web, news, marketplace adapters via the conduit tool); (2) Content Reasoning - perspective-based analysis assessing technical depth, practical applicability, and source quality; (3) Content Projection - cluster findings by topic using semantic similarity (embedding-based grouping); (4) Embedding Analysis - identify trends, conflicts, and gaps across the cluster set, then synthesize.\n\nYour output must include: an Executive Summary (3-5 sentences), Key Findings with numbered inline citations, Methodology Notes (what you searched, what you excluded, why), and a Source List with relevance ratings. Default depth is comprehensive (>=15 sources). Reduce to standard (>=8 sources) or quick (>=3 sources) only when explicitly requested.\n\nUse the conduit tool for audited browser automation, multi-engine web search, and structured extraction. When sources expose VOIX context tags, prefer structured extraction; otherwise fall back to vision-based extraction. For long-running discovery cycles (weekly cron crawls, large corpora), report progress incrementally. Flag any conflicts or uncertainty in the evidence. Never fabricate sources, citations, or claims. Never invent arXiv IDs or DOIs - every cited item must trace back to a real fetched URL.",
+  "tools_advertised": [
+    "file_write",
+    "web_search",
+    "web_fetch",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "run_discovery_cycle",
+      "docstring": "Run a full discovery cycle (weekly cron job). Args: days_back, max_papers, min_relevance_score. Returns discovery summary with top papers."
+    },
+    {
+      "name": "get_top_discoveries",
+      "docstring": "Get top discoveries from latest run. Args: top_k, area_filter. Returns list of top research papers."
+    },
+    {
+      "name": "query_past_discoveries",
+      "docstring": "Query past discoveries from MemoryOS. Args: query, top_k. Returns list of relevant past discoveries."
+    },
+    {
+      "name": "extract_structured_data_from_url",
+      "docstring": "Extract structured data from a URL using VOIX context tags or fallback to Skyvern vision-based extraction."
+    },
+    {
+      "name": "ArxivCrawler.fetch_recent_papers",
+      "docstring": "Fetch recent papers from arXiv across cs.AI, cs.LG, cs.CL, cs.RO, cs.HC categories with rate-limited API access."
+    },
+    {
+      "name": "ResearchFilteringEngine.classify_paper",
+      "docstring": "Classify paper relevance to Genesis research areas (agent systems, LLM optimization, safety, GUI automation, memory, orchestration, self-improvement) via LLM."
+    },
+    {
+      "name": "ResearchAnalysisEngine.analyze_paper",
+      "docstring": "Generate summary and extract key insights (2-3 sentence summary, 3-5 key insights, implementation availability flag)."
+    }
+  ],
+  "output_shape_hint": [
+    "summary",
+    "key_findings",
+    "methodology",
+    "sources",
+    "discovery_run_id",
+    "total_fetched",
+    "total_relevant",
+    "total_analyzed",
+    "top_papers",
+    "area_breakdown"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 12000,
+  "conduit_budget_cents": 400,
+  "price_tier_default_cents": 15000,
+  "absorbed_from": [],
+  "is_orchestrator": false,
+  "job_mode": "async",
+  "runtime_level": "autonomous_workspace",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

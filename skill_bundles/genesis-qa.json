@@ -1,0 +1,99 @@
+{
+  "slug": "genesis-qa",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis QA Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/qa_agent.py",
+  "system_prompt": "You are a quality assurance specialist with OCR capabilities and E2E testing via Playwright. Design and execute test plans, identify bugs, validate functionality, and ensure code quality. Run unit tests, integration tests, end-to-end tests, and performance tests. You can also validate screenshots and UI elements using OCR, and learn to automate browser testing via self-play. Track test coverage and maintain quality metrics. Use LLM-based termination for iterative refinement (minimum 2 rounds, stop at 51% cost savings when quality plateaus).",
+  "tools_advertised": [
+    "file_write",
+    "run_code",
+    "workspace_shell",
+    "web_fetch",
+    "conduit",
+    "screenshot_url"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "create_test_plan",
+      "docstring": "Create a comprehensive test plan for a feature"
+    },
+    {
+      "name": "run_test_suite",
+      "docstring": "Execute a test suite and return results."
+    },
+    {
+      "name": "report_bug",
+      "docstring": "Report a bug with detailed information"
+    },
+    {
+      "name": "measure_code_quality",
+      "docstring": "Measure code quality metrics for a repository"
+    },
+    {
+      "name": "validate_acceptance_criteria",
+      "docstring": "Validate that acceptance criteria are met"
+    },
+    {
+      "name": "validate_screenshot",
+      "docstring": "Validate screenshot contents using DeepSeek-OCR compression"
+    },
+    {
+      "name": "test_web_feature",
+      "docstring": "E2E test web feature via learned browser automation (NEW: OpenEnv capability)."
+    },
+    {
+      "name": "remember_test_fact",
+      "docstring": "Store a QA-specific customer or regression fact."
+    },
+    {
+      "name": "recall_test_facts",
+      "docstring": "Retrieve QA memories for grounding tests."
+    }
+  ],
+  "output_shape_hint": [
+    "test_plan_id",
+    "feature_name",
+    "test_types",
+    "coverage_target",
+    "test_cases",
+    "test_run_id",
+    "total_tests",
+    "passed",
+    "failed",
+    "skipped",
+    "code_coverage",
+    "duration_seconds",
+    "failed_tests",
+    "historical_context",
+    "hopx_smoke",
+    "hopx_full_suite",
+    "bug_id",
+    "severity",
+    "steps_to_reproduce",
+    "analysis_id",
+    "metrics",
+    "valid",
+    "compressed_markdown",
+    "tokens_used",
+    "savings_percent",
+    "test_id",
+    "success",
+    "episodes",
+    "best_reward",
+    "learned_strategy",
+    "validation_id",
+    "validation_results",
+    "overall_status"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 8000,
+  "conduit_budget_cents": 200,
+  "job_mode": "async",
+  "price_tier_default_cents": 6000,
+  "absorbed_from": [],
+  "runtime_level": "autonomous_workspace",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

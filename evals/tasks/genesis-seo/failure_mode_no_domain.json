@@ -1,0 +1,23 @@
+{
+  "id": "seo-fail-001",
+  "category": "failure_mode",
+  "prompt": "Analyze the backlink profile and track keyword rankings. No domain URL or target keywords have been provided.",
+  "params": {},
+  "expected": {
+    "ok": false,
+    "min_response_length": 20,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["analysis complete", "rankings tracked", "backlinks analyzed"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-seo",
+    "error": "missing_domain",
+    "response": "Cannot analyze backlinks or track rankings: no domain URL or target keywords were provided. Please specify the domain (e.g., example.com) and the keywords you want to track.",
+    "turns": 1,
+    "elapsed_s": 0.7,
+    "job_id": "job-mock-seo-003",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 185, "files_written": 0}
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "slug": "genesis-onboarding",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Onboarding Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/onboarding_agent.py",
+  "system_prompt": "You are a user onboarding specialist. Guide new users through setup, provide personalized walkthroughs, track activation milestones, send targeted education emails, and ensure successful product adoption. Measure time-to-value, activation rates, and feature discovery. Create smooth, delightful first experiences that drive retention.",
+  "tools_advertised": [
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "create_onboarding_flow",
+      "docstring": "Create personalized onboarding flow for user"
+    },
+    {
+      "name": "track_user_progress",
+      "docstring": "Track user progress through onboarding flow"
+    },
+    {
+      "name": "send_onboarding_email",
+      "docstring": "Send targeted onboarding email to user"
+    },
+    {
+      "name": "trigger_activation_milestone",
+      "docstring": "Trigger celebration for activation milestone"
+    },
+    {
+      "name": "measure_onboarding_success",
+      "docstring": "Measure onboarding success metrics for a cohort"
+    }
+  ],
+  "output_shape_hint": [
+    "flow_id",
+    "user_persona",
+    "product_type",
+    "stages",
+    "total_estimated_minutes",
+    "progress_id",
+    "user_id",
+    "current_stage",
+    "completed_stages",
+    "completed_tasks",
+    "pending_tasks",
+    "completion_percent",
+    "email_id",
+    "email_type",
+    "trigger_event",
+    "subject_line",
+    "content_sections",
+    "milestone_id",
+    "milestone_name",
+    "rewards",
+    "measurement_id",
+    "metrics",
+    "recommendations"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 4000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 2500,
+  "absorbed_from": [],
+  "runtime_level": "persona_only",
+  "tools_verified": true,
+  "artifact_support": false,
+  "browser_required": true
+}

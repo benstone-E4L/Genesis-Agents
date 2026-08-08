@@ -1,0 +1,21 @@
+{
+  "id": "seo-reg-003",
+  "category": "regression",
+  "prompt": "Generate a technical SEO checklist for a Next.js App Router application. Include checks for sitemap, robots.txt, canonical tags, Core Web Vitals, and structured data.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["ranked #1", "deployment complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-seo",
+    "response": "Technical SEO Checklist: Next.js App Router\n\nSitemap:\n[ ] Add /app/sitemap.ts exporting a Sitemap type\n[ ] Submit sitemap URL to Google Search Console\n[ ] Verify sitemap auto-updates on new page creation\n\nrobots.txt:\n[ ] Add /app/robots.ts with appropriate allow/disallow rules\n[ ] Disallow /api/ and /admin/ from crawlers\n\nCanonical Tags:\n[ ] Add <link rel='canonical'> via generateMetadata in each layout\n[ ] Ensure no duplicate content across pagination\n\nCore Web Vitals:\n[ ] LCP < 2.5s — optimize hero images with next/image priority\n[ ] INP < 200ms — defer non-critical JS, use useTransition\n[ ] CLS < 0.1 — set explicit width/height on all images\n\nStructured Data:\n[ ] Add JSON-LD Organization schema to root layout\n[ ] Add FAQ schema to relevant pages\n[ ] Validate with Google Rich Results Test\n\n12 total checks. Estimated implementation: 4 hours.",
+    "turns": 1,
+    "elapsed_s": 5.1,
+    "job_id": "job-mock-seo-004",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 610, "files_written": 0}
+  }
+}

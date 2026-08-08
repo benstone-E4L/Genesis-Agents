@@ -1,0 +1,22 @@
+{
+  "id": "builder-fail-002",
+  "category": "failure_mode",
+  "prompt": "Use the stripe_checkout tool to create a payment link for a $50 product called 'Genesis Pro'. This tool is not in the builder's allowed toolset.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 0,
+    "required_fields": ["ok", "error"],
+    "no_fake_success_phrases": ["completed successfully", "payment link created", "checkout session created"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-builder",
+    "error": "tool_not_allowed",
+    "response": null,
+    "turns": 1,
+    "elapsed_s": 0.8,
+    "job_id": "job-mock-builder-004",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 95, "files_written": 0}
+  }
+}

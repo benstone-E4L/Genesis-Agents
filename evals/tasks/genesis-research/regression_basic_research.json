@@ -1,0 +1,21 @@
+{
+  "id": "research-reg-001",
+  "category": "regression",
+  "prompt": "Research the current state of transformer-based language models in 2024. Provide an executive summary, 5 key findings, and a methodology note explaining which sources you consulted.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 300,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "research complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-research",
+    "response": "Executive Summary:\nTransformer-based language models have continued to scale in 2024, with frontier models achieving unprecedented reasoning capabilities. Multi-modal architectures are now mainstream, and inference efficiency has improved dramatically through techniques like speculative decoding and quantization.\n\nKey Findings:\n1. GPT-4o and Claude 3.5 Sonnet set new MMLU benchmarks above 88%.\n2. Mixture-of-experts (MoE) architectures reduce training compute by 3-5x.\n3. Context windows have expanded to 1M+ tokens in production models.\n4. Tool-use and agentic capabilities are now table stakes for frontier models.\n5. Open-source models (Llama 3, Mistral) close the gap with proprietary systems.\n\nMethodology:\nSearched arXiv cs.CL (2024-01 to 2024-06), ICLR 2024 accepted papers, and web sources including Hugging Face blog and official model release posts. 12 sources consulted total.",
+    "turns": 3,
+    "elapsed_s": 18.5,
+    "job_id": "job-mock-research-001",
+    "resource_usage": {"llm_calls": 3, "total_tokens": 1800, "files_written": 0}
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "id": "meta-reg-002",
+  "category": "delegation",
+  "prompt": "Execute a full research → build → qa pipeline for a SaaS MVP: (1) genesis-research to research competitor pricing, (2) genesis-builder to scaffold the pricing page, (3) genesis-qa to validate the page output. Chain outputs so each agent receives the prior agent's result.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["skipped delegation", "completed without subagents"],
+    "max_latency_s": 600,
+    "min_genesis_calls": 3
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-meta",
+    "response": "{\"business_name\": \"saas-mvp\", \"success\": true, \"components_generated\": [\"research\", \"pricing-page\", \"qa-report\"], \"tasks_completed\": 3, \"tasks_failed\": 0, \"generation_time_seconds\": 72, \"chain_results\": {\"research\": {\"ok\": true, \"competitor_pricing\": \"$29/$99/$299\"}, \"builder\": {\"ok\": true, \"files\": [\"pricing.tsx\"]}, \"qa\": {\"ok\": true, \"passed\": 5, \"failed\": 0}}}",
+    "turns": 8,
+    "elapsed_s": 72.0,
+    "job_id": "job-mock-meta-002",
+    "genesis_calls_made": 3,
+    "resource_usage": {"llm_calls": 8, "total_tokens": 7200, "files_written": 3}
+  }
+}

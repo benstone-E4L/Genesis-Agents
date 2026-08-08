@@ -1,0 +1,1514 @@
+{
+  "genesis-builder::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::conduit": {
+    "ok": true,
+    "risk_class": "browser"
+  },
+  "genesis-builder::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::data_dbt_compile": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::data_pipeline_design": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::domain_configure_dns": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-builder::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::file_write": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "genesis-builder::github_tool": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-builder::hr_bamboohr_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::hr_greenhouse_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::hr_lever_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::hr_template_generate": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::netlify_deploy": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-builder::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-builder::run_code": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-builder::screenshot_url": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::send_email": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::vercel_deploy": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-builder::vision_analyze": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::vision_compare": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::vision_ocr": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::web_fetch": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::web_search": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::workflow_make_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::workflow_n8n_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::workflow_webhook_trigger": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-builder::workflow_zapier_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-builder::workspace_shell": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-deploy::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::conduit": {
+    "ok": false,
+    "risk_class": "browser"
+  },
+  "genesis-deploy::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::data_dbt_compile": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::data_pipeline_design": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::domain_configure_dns": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-deploy::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::file_write": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "genesis-deploy::github_tool": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-deploy::hr_bamboohr_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::hr_greenhouse_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::hr_lever_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::hr_template_generate": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::netlify_deploy": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-deploy::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-deploy::run_code": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-deploy::screenshot_url": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::send_email": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::vercel_deploy": {
+    "ok": true,
+    "risk_class": "deployment"
+  },
+  "genesis-deploy::vision_analyze": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::vision_compare": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::vision_ocr": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::web_fetch": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::web_search": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::workflow_make_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::workflow_n8n_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::workflow_webhook_trigger": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-deploy::workflow_zapier_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-deploy::workspace_shell": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-finance::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::conduit": {
+    "ok": false,
+    "risk_class": "browser"
+  },
+  "genesis-finance::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::data_dbt_compile": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::data_pipeline_design": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::domain_configure_dns": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-finance::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::file_write": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "genesis-finance::github_tool": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-finance::hr_bamboohr_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::hr_greenhouse_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::hr_lever_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::hr_template_generate": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::netlify_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-finance::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-finance::run_code": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "genesis-finance::screenshot_url": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::send_email": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::vercel_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-finance::vision_analyze": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::vision_compare": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::vision_ocr": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::web_fetch": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::web_search": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-finance::workflow_make_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::workflow_n8n_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::workflow_webhook_trigger": {
+    "ok": false,
+    "risk_class": "prohibited"
+  },
+  "genesis-finance::workflow_zapier_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-finance::workspace_shell": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "genesis-meta::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::conduit": {
+    "ok": true,
+    "risk_class": "browser"
+  },
+  "genesis-meta::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::data_dbt_compile": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::data_pipeline_design": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::domain_configure_dns": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-meta::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::file_write": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::genesis_call": {
+    "ok": true,
+    "risk_class": "subagent"
+  },
+  "genesis-meta::github_tool": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-meta::hr_bamboohr_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::hr_greenhouse_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::hr_lever_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::hr_template_generate": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::netlify_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-meta::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-meta::run_code": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "genesis-meta::screenshot_url": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::send_email": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::vercel_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-meta::vision_analyze": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::vision_compare": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::vision_ocr": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::web_fetch": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::web_search": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::workflow_make_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::workflow_n8n_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::workflow_webhook_trigger": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "genesis-meta::workflow_zapier_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-meta::workspace_shell": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "genesis-qa::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::conduit": {
+    "ok": true,
+    "risk_class": "browser"
+  },
+  "genesis-qa::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::data_dbt_compile": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::data_pipeline_design": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::domain_configure_dns": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-qa::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::file_write": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "genesis-qa::github_tool": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-qa::hr_bamboohr_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::hr_greenhouse_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::hr_lever_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::hr_template_generate": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::netlify_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-qa::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-qa::run_code": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-qa::screenshot_url": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::send_email": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::vercel_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-qa::vision_analyze": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::vision_compare": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::vision_ocr": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::web_fetch": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::web_search": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::workflow_make_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::workflow_n8n_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::workflow_webhook_trigger": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-qa::workflow_zapier_export": {
+    "ok": true,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-qa::workspace_shell": {
+    "ok": true,
+    "risk_class": "shell"
+  },
+  "genesis-research::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::conduit": {
+    "ok": false,
+    "risk_class": "browser"
+  },
+  "genesis-research::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::data_dbt_compile": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::data_pipeline_design": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::domain_configure_dns": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-research::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::file_write": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "genesis-research::github_tool": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-research::hr_bamboohr_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::hr_greenhouse_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::hr_lever_query": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::hr_template_generate": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::netlify_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-research::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "genesis-research::run_code": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "genesis-research::screenshot_url": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::send_email": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::vercel_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "genesis-research::vision_analyze": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::vision_compare": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::vision_ocr": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::web_fetch": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::web_search": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::workflow_make_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::workflow_n8n_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::workflow_webhook_trigger": {
+    "ok": true,
+    "risk_class": "network"
+  },
+  "genesis-research::workflow_zapier_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "genesis-research::workspace_shell": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "unknown-slug-xyz::billing_deploy_plan_change": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::billing_generate_revops_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::billing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::billing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::billing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::billing_import_ar_ledger": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::code_format": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::commerce_configure_tax_engine": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::commerce_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::commerce_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::commerce_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::conduit": {
+    "ok": false,
+    "risk_class": "browser"
+  },
+  "unknown-slug-xyz::data_bigquery_query": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::data_dbt_compile": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::data_pipeline_design": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::data_s3_signed_url": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::domain_check_availability": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::domain_configure_dns": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "unknown-slug-xyz::domain_generate_candidates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::domain_get_cost_summary": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::file_write": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::finance_generate_finance_report": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::finance_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::finance_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::finance_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::finance_import_x402_transactions": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::finance_sync_bank_fees": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::genesis_call": {
+    "ok": false,
+    "risk_class": "subagent"
+  },
+  "unknown-slug-xyz::github_tool": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "unknown-slug-xyz::hr_bamboohr_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::hr_greenhouse_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::hr_lever_query": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::hr_template_generate": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::netlify_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "unknown-slug-xyz::pricing_deploy_pricing_update": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::pricing_get_alerts": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::pricing_get_audit_log": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::pricing_get_budget_metrics": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::pricing_run_elasticity_experiment": {
+    "ok": false,
+    "risk_class": "payment"
+  },
+  "unknown-slug-xyz::run_code": {
+    "ok": false,
+    "risk_class": "shell"
+  },
+  "unknown-slug-xyz::screenshot_url": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::send_email": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::vercel_deploy": {
+    "ok": false,
+    "risk_class": "deployment"
+  },
+  "unknown-slug-xyz::vision_analyze": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::vision_compare": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::vision_ocr": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::web_fetch": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::web_search": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::workflow_make_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::workflow_n8n_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::workflow_webhook_trigger": {
+    "ok": false,
+    "risk_class": "network"
+  },
+  "unknown-slug-xyz::workflow_zapier_export": {
+    "ok": false,
+    "risk_class": "filesystem_write"
+  },
+  "unknown-slug-xyz::workspace_shell": {
+    "ok": false,
+    "risk_class": "shell"
+  }
+}

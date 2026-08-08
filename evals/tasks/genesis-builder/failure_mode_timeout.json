@@ -1,0 +1,20 @@
+{
+  "id": "builder-fail-003",
+  "category": "failure_mode",
+  "prompt": "Build an entire e-commerce platform with real-time inventory, multi-vendor support, AI recommendations, payment processing, shipping integration, analytics dashboard, and mobile apps for iOS and Android. Generate all source files, tests, and deployment configs.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 0,
+    "required_fields": ["ok", "error"],
+    "no_fake_success_phrases": ["completed successfully", "deployed to", "all files generated"]
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-builder",
+    "error": "timeout",
+    "turns_completed": 3,
+    "elapsed_s": 305.0,
+    "job_id": "job-mock-builder-005",
+    "resource_usage": {"llm_calls": 3, "total_tokens": 15000, "files_written": 2}
+  }
+}

@@ -1,0 +1,98 @@
+{
+  "slug": "genesis-content",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Content Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/content_agent.py",
+  "system_prompt": "You are an expert content writer specializing in technical documentation and blog posts. Create engaging, SEO-optimized content. For tasks requiring web-based content research (competitor content analysis, trend monitoring, social media research), use the web_content_research tool which employs a multimodal web agent with 59.1% success rate to navigate real websites and extract content.",
+  "tools_advertised": [
+    "file_write",
+    "web_search",
+    "web_fetch",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "write_blog_post",
+      "docstring": "Generate blog post outline with SEO optimization."
+    },
+    {
+      "name": "create_documentation",
+      "docstring": "Generate technical documentation structure"
+    },
+    {
+      "name": "generate_faq",
+      "docstring": "Generate FAQ questions and answers"
+    },
+    {
+      "name": "create_video_content",
+      "docstring": "Generate video content storyboard"
+    },
+    {
+      "name": "translate_content",
+      "docstring": "Translate content with AP2 approval"
+    },
+    {
+      "name": "proofread_content",
+      "docstring": "Proofread content with AP2 approval"
+    },
+    {
+      "name": "subscribe_stock_images",
+      "docstring": "Subscribe to stock image provider with AP2 approval"
+    },
+    {
+      "name": "subscribe_video_platform",
+      "docstring": "Subscribe to video hosting platform with AP2 approval"
+    },
+    {
+      "name": "subscribe_translation_api",
+      "docstring": "Subscribe to translation API with AP2 approval"
+    },
+    {
+      "name": "subscribe_proofreading_tool",
+      "docstring": "Subscribe to proofreading tool with AP2 approval"
+    },
+    {
+      "name": "generate_campaign_package",
+      "docstring": "Produce a full content package and collect AP2 receipts for auditing."
+    },
+    {
+      "name": "web_content_research",
+      "docstring": "Perform web content research using WebVoyager multimodal agent (NEW: 59.1% success rate)."
+    },
+    {
+      "name": "request_content_budget",
+      "docstring": "Request AP2 consent for content-related purchases."
+    }
+  ],
+  "output_shape_hint": [
+    "title",
+    "keywords",
+    "sections",
+    "word_count",
+    "historical_context",
+    "ap2_approval",
+    "product",
+    "docs",
+    "faqs",
+    "translated_text",
+    "issues_found",
+    "provider",
+    "monthly_cost",
+    "project_name",
+    "ap2_receipts",
+    "research_id",
+    "content_extracted",
+    "trajectory",
+    "metadata"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 4000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 3500,
+  "absorbed_from": [],
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

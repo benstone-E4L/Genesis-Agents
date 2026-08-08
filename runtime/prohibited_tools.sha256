@@ -1,0 +1,32 @@
+# Frozen manifest of the PERMANENTLY_PROHIBITED tool list.
+# docs/FINANCE-TOOL-CONTRACTS.md Section 6.2 Layer 3.
+#
+# runtime/tool_policy.assert_prohibitions_intact() recomputes this digest
+# at boot and REFUSES TO START the process on a mismatch. Editing the
+# prohibition list alone therefore breaks the boot: whoever weakens it
+# must also regenerate a hash in a file named for what they are weakening.
+#
+# Covers 20 names:
+#   billing_run_billing_cycle
+#   billing_run_dunning_batch
+#   commerce_activate_payment_gateway
+#   commerce_launch_commerce_stack
+#   commerce_register_domain
+#   commerce_ship_fulfillment_batch
+#   domain_create_intent_mandate
+#   domain_register
+#   domain_select_and_register
+#   escrow_client.calculate_split
+#   escrow_client.complete_escrow
+#   escrow_client.initiate_escrow
+#   escrow_client.release_escrow
+#   finance_process_vendor_invoice
+#   finance_run_finance_close
+#   finance_run_payroll_batch
+#   pricing_generate_pricing_report
+#   pricing_purchase_dataset
+#   pricing_run_pricing_cycle
+#   workflow_webhook_trigger
+#
+# Regenerate with: python scripts/regen_prohibited_manifest.py
+4cc2d304312040d94021e31a2593065cd266871987e28efaf26b7c70ddd594aa

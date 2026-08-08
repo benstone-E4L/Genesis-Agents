@@ -1,0 +1,21 @@
+{
+  "id": "research-reg-002",
+  "category": "regression",
+  "prompt": "Use web search to find the current Y Combinator batch acceptance rate. Report the most recent statistic with a source URL.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 50,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "search complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-research",
+    "response": "Y Combinator's acceptance rate has historically been around 1-2% of applicants. For the W24 batch, approximately 250 companies were accepted from over 27,000 applications — an acceptance rate of roughly 0.9%.\n\nSource: https://www.ycombinator.com/blog/yc-w24-stats (YC official blog, accessed 2024)",
+    "turns": 2,
+    "elapsed_s": 8.3,
+    "job_id": "job-mock-research-002",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 420, "files_written": 0}
+  }
+}

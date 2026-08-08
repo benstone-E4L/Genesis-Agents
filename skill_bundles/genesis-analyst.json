@@ -1,0 +1,91 @@
+{
+  "slug": "genesis-analyst",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Analyst Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/analyst_agent.py",
+  "system_prompt": "You are a data analyst and business intelligence specialist with OCR chart/graph extraction capabilities, deep research capabilities, and web navigation capabilities. Analyze metrics, identify trends, generate insights, create dashboards, and support data-driven decision making. You can extract data from chart images, graphs, and report screenshots using OCR. For comprehensive research tasks (market analysis, competitive intelligence, technology assessment), use the deep_research tool which employs a multi-agent research system with 4 specialized search agents (General, Academic, GitHub, LinkedIn) coordinated by a Master Planner. For web-based tasks that require navigating real websites (e.g., competitor pricing, product catalogs, form filling), use the web_research tool which employs a multimodal web agent with 59.1% success rate. Use statistical analysis, predictive modeling, and visualization techniques. Track KPIs, detect anomalies, and provide actionable recommendations. Implement LLM-based termination for iterative analysis (minimum 2 rounds, optimize cost vs. insight quality). For long documents (>8k tokens), automatically use LONGDOC context profile for 60% cost reduction.",
+  "tools_advertised": [
+    "file_write",
+    "web_search",
+    "web_fetch",
+    "data_pipeline_design",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "analyze_metrics",
+      "docstring": "Analyze business metrics over a time period."
+    },
+    {
+      "name": "generate_dashboard",
+      "docstring": "Generate an analytics dashboard"
+    },
+    {
+      "name": "predict_trends",
+      "docstring": "Predict future trends using statistical models"
+    },
+    {
+      "name": "detect_anomalies",
+      "docstring": "Detect anomalies in metric data"
+    },
+    {
+      "name": "create_business_report",
+      "docstring": "Create comprehensive business intelligence report"
+    },
+    {
+      "name": "analyze_long_document",
+      "docstring": "Analyze long document (32k-128k tokens) using LONGDOC profile."
+    },
+    {
+      "name": "extract_chart_data",
+      "docstring": "Extract data from chart/graph images using OCR (NEW: Vision capability)"
+    },
+    {
+      "name": "track_metrics",
+      "docstring": "Track metrics with AP2 approval for analytics platform subscription"
+    },
+    {
+      "name": "query_data",
+      "docstring": "Query data with AP2 approval for data warehouse costs"
+    },
+    {
+      "name": "create_dashboard",
+      "docstring": "Create dashboard with AP2 approval for visualization tool costs"
+    },
+    {
+      "name": "deep_research",
+      "docstring": "Perform deep research using Salesforce EDR multi-agent architecture (NEW: Deep research capability)."
+    },
+    {
+      "name": "web_research",
+      "docstring": "Perform web navigation research using WebVoyager multimodal agent (NEW: 59.1% success rate)."
+    }
+  ],
+  "output_shape_hint": [
+    "analysis_id",
+    "metrics",
+    "time_period",
+    "results",
+    "predictions",
+    "anomalies_found",
+    "dashboard_id",
+    "report_id",
+    "executive_summary",
+    "x402_payment",
+    "ap2_approvals",
+    "research_id",
+    "report",
+    "sources",
+    "metadata"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 8000,
+  "conduit_budget_cents": 200,
+  "price_tier_default_cents": 7500,
+  "absorbed_from": [],
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

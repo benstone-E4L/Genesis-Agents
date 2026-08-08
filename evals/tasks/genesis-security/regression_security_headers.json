@@ -1,0 +1,21 @@
+{
+  "id": "security-reg-003",
+  "category": "regression",
+  "prompt": "Evaluate the following HTTP response headers for security compliance. Identify missing or misconfigured headers:\n\nContent-Type: text/html\nX-Powered-By: Express\nAccess-Control-Allow-Origin: *",
+  "expected": {
+    "ok": true,
+    "min_response_length": 150,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["headers are perfect", "no issues found", "fully compliant"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-security",
+    "response": "Security Header Audit:\n\nMissing Headers [CRITICAL]:\n- Content-Security-Policy: Missing — allows XSS attacks\n- Strict-Transport-Security: Missing — no HTTPS enforcement\n- X-Frame-Options: Missing — clickjacking vulnerability\n- X-Content-Type-Options: Missing — MIME sniffing attacks\n\nMisconfigured Headers [HIGH]:\n- Access-Control-Allow-Origin: * — overly permissive CORS allows any origin\n- X-Powered-By: Express — discloses server technology; remove this header\n\nRecommendations: Add helmet.js middleware to Express for automatic security header injection. Fix CORS to allowlist specific trusted origins.",
+    "turns": 1,
+    "elapsed_s": 3.9,
+    "job_id": "job-mock-security-004",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 510, "files_written": 0}
+  }
+}

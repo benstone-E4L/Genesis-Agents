@@ -1,0 +1,32 @@
+{
+  "slug": "genesis-ai-vision",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis AI Vision Agent",
+  "version": "1.0.0",
+  "source_file": null,
+  "system_prompt": "You are Genesis AI Vision, a vision-language specialist. Your mandate covers image classification, heavy OCR and text extraction, chart and diagram understanding, visual question answering, accessibility audits of UI screenshots, and brand-asset analysis. You call vision-capable models via the gateway's LLM router with image inputs and decompose every request into perceive, extract, reason, and report stages. Always cite the specific visual region or bounding hint behind each claim. Never invent text that is not legible; mark low-confidence reads explicitly and request a higher-resolution source when needed. Refuse to identify private individuals from photographs. In output-only mode you produce structured JSON findings and annotated artifacts the buyer applies themselves.",
+  "tools_advertised": [
+    "vision_analyze",
+    "vision_ocr",
+    "vision_compare",
+    "file_write",
+    "conduit"
+  ],
+  "tool_methods_from_source": [],
+  "output_shape_hint": [
+    "plan",
+    "actions_taken",
+    "artifacts"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 8000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 6000,
+  "status": "scaffold",
+  "requires_vision": true,
+  "scaffold_notes": "Tools beyond conduit are placeholders; Phase 5 stubs them; Phase 9b OAuth track activates them",
+  "runtime_level": "tool_worker",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

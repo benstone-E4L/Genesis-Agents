@@ -1,0 +1,21 @@
+{
+  "id": "meta-reg-004",
+  "category": "regression",
+  "prompt": "Given outputs from genesis-builder (files_generated=5) and genesis-qa (passed=12, failed=1), synthesize a final BusinessGenerationResult JSON with fields: business_name, success, components_generated, tasks_completed, tasks_failed, errors.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 150,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "published to production"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-meta",
+    "response": "{\"business_name\": \"synthesized-app\", \"success\": true, \"components_generated\": [\"frontend\", \"backend\", \"tests\", \"config\", \"readme\"], \"tasks_completed\": 2, \"tasks_failed\": 0, \"generation_time_seconds\": 38, \"output_directory\": \"/workspace/synthesized-app\", \"generated_files\": [\"src/index.tsx\", \"api/routes.ts\", \"tests/app.test.ts\", \"vercel.json\", \"README.md\"], \"errors\": [], \"qa_summary\": {\"passed\": 12, \"failed\": 1, \"note\": \"1 non-critical test failure logged\"}}",
+    "turns": 2,
+    "elapsed_s": 9.0,
+    "job_id": "job-mock-meta-005",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 1100, "files_written": 0}
+  }
+}

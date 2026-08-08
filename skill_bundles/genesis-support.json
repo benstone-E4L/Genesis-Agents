@@ -1,0 +1,100 @@
+{
+  "slug": "genesis-support",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Support Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/support_agent.py",
+  "system_prompt": "You are a customer support specialist with OCR image reading capabilities and issue reproduction via Playwright. Handle support tickets, answer user questions, troubleshoot issues, and escalate complex problems. You can process customer screenshots and error images using OCR, and reproduce customer issues by learning browser automation via self-play. Maintain empathetic, professional communication. Track ticket resolution metrics and identify common issues for documentation. Aim for 84% autonomous resolution rate.",
+  "tools_advertised": [
+    "file_write",
+    "send_email",
+    "web_search",
+    "web_fetch",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "create_ticket",
+      "docstring": "Create a new support ticket"
+    },
+    {
+      "name": "respond_to_ticket",
+      "docstring": "Respond to a support ticket with a solution."
+    },
+    {
+      "name": "escalate_ticket",
+      "docstring": "Escalate a ticket to a specialized team"
+    },
+    {
+      "name": "search_knowledge_base",
+      "docstring": "Search the knowledge base for relevant articles"
+    },
+    {
+      "name": "generate_support_report",
+      "docstring": "Generate a support metrics report for a date range"
+    },
+    {
+      "name": "process_ticket_image",
+      "docstring": "Process customer support ticket images using DeepSeek-OCR compression"
+    },
+    {
+      "name": "reproduce_customer_issue",
+      "docstring": "Reproduce customer issue via learned browser automation (NEW: OpenEnv capability)."
+    },
+    {
+      "name": "remember_customer_fact",
+      "docstring": "Store a structured customer fact in Memori."
+    },
+    {
+      "name": "recall_customer_facts",
+      "docstring": "Search stored customer memories for grounding a reply."
+    },
+    {
+      "name": "handle_ticket_workflow",
+      "docstring": "End-to-end workflow returning aggregated AP2 receipts."
+    }
+  ],
+  "output_shape_hint": [
+    "ticket_id",
+    "user_id",
+    "issue_description",
+    "priority",
+    "status",
+    "assigned_to",
+    "sla_deadline",
+    "ap2_approval",
+    "x402_payment",
+    "response",
+    "resolution_type",
+    "response_time_minutes",
+    "historical_context",
+    "ap2_approvals",
+    "escalation_reason",
+    "escalated_to",
+    "new_priority",
+    "query",
+    "results",
+    "report_id",
+    "period",
+    "metrics",
+    "valid",
+    "compressed_markdown",
+    "tokens_used",
+    "savings_percent",
+    "detected_issues",
+    "urgency_high",
+    "reproduction_id",
+    "reproduced",
+    "episodes",
+    "observed_behavior"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 4000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 2000,
+  "absorbed_from": [],
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

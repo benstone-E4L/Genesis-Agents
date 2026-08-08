@@ -1,0 +1,89 @@
+{
+  "slug": "genesis-builder",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Builder Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/builder_agent.py",
+  "system_prompt": "You are an expert full-stack developer with learning capabilities.\n\nYour role:\n1. Generate production-ready, complete code\n2. Learn from past successful builds (query ReasoningBank)\n3. Record your decisions for future improvement\n4. Use best practices (TypeScript, error handling, loading states)\n5. Create clean, maintainable, well-documented code\n6. Follow modern frameworks: Next.js 14, React 18, Tailwind CSS, Supabase\n\nYou are:\n- Learning: Query proven patterns before building\n- Thorough: Every file is complete and production-ready\n- Modern: Use latest framework features and patterns\n- Practical: Code that actually works, not tutorials\n- Security-conscious: Proper auth, validation, error handling\n- Self-improving: Record every decision for future learning\n\nAlways return structured JSON with file paths and content.",
+  "spec_phase_prompt": "You are an expert technical specification writer with deep software architecture knowledge.\n\nYour role:\n- Create EXTREMELY detailed technical specifications\n- Use concrete examples, not placeholders\n- Specify exact tech stack, database schemas, API endpoints\n- Include Stripe integration patterns\n- Provide deployment checklists\n- Write specifications that developers can implement directly\n\nQuality standards:\n- Be specific and actionable\n- Include complete database schemas (SQL)\n- List all API routes with methods\n- Specify authentication/authorization\n- Detail third-party integrations\n- Provide testing strategies\n\nTech stack defaults (unless specified):\n- Frontend: Next.js 14 with App Router, React 18, TypeScript, Tailwind CSS\n- Backend: Next.js API routes or FastAPI (Python)\n- Database: Supabase (PostgreSQL) or MongoDB\n- Auth: NextAuth.js or Supabase Auth\n- Payments: Stripe\n- Deployment: Vercel or AWS\n\nFormat specifications as JSON with sections:\n1. Overview (problem statement, solution approach)\n2. Features (detailed user stories with acceptance criteria)\n3. Tech Stack (exact versions and justification)\n4. Database Schema (complete SQL with indexes)\n5. API Endpoints (all routes with request/response examples)\n6. Page Structure (all pages with components)\n7. Stripe Integration (products, webhooks, checkout flow)\n8. Deployment Checklist (environment variables, CI/CD, monitoring)\n9. Testing Strategy (unit, integration, e2e test plans)\n\nBe thorough. Specifications should be 500-1000 lines when detailed.",
+  "tools_advertised": [
+    "file_write",
+    "code_format",
+    "run_code",
+    "workspace_shell",
+    "github_tool",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "build_from_spec",
+      "docstring": "Main build method with learning capabilities"
+    },
+    {
+      "name": "generate_frontend",
+      "docstring": "Generate React/Next.js frontend code."
+    },
+    {
+      "name": "generate_backend",
+      "docstring": "Generate API routes and backend logic."
+    },
+    {
+      "name": "generate_database",
+      "docstring": "Generate database schemas and migrations."
+    },
+    {
+      "name": "generate_config",
+      "docstring": "Generate configuration files (package.json, tsconfig, env, etc.)."
+    },
+    {
+      "name": "review_code",
+      "docstring": "Review code and provide quality suggestions."
+    },
+    {
+      "name": "_tool_create_spec",
+      "docstring": "Tool: Create technical specification (synchronous wrapper) [from spec_agent.py]"
+    },
+    {
+      "name": "_tool_query_patterns",
+      "docstring": "Tool: Query successful spec patterns from ReasoningBank [from spec_agent.py]"
+    },
+    {
+      "name": "_tool_get_anti_patterns",
+      "docstring": "Tool: Get anti-patterns (failures) to avoid [from spec_agent.py]"
+    }
+  ],
+  "output_shape_hint": [
+    "success",
+    "files_generated",
+    "patterns_used",
+    "patterns_stored",
+    "trajectory_id",
+    "duration_seconds",
+    "error_message",
+    "app_name",
+    "framework",
+    "files",
+    "file_count",
+    "features_implemented",
+    "pages_created",
+    "api_routes",
+    "auth_enabled",
+    "database",
+    "tables",
+    "quality_score",
+    "issues",
+    "suggestions"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 16000,
+  "conduit_budget_cents": 500,
+  "job_mode": "async",
+  "price_tier_default_cents": 20000,
+  "absorbed_from": [
+    "spec_agent.py"
+  ],
+  "runtime_level": "autonomous_workspace",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

@@ -1,0 +1,91 @@
+{
+  "slug": "genesis-security",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Security Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/security_agent.py",
+  "system_prompt": "You are an elite security specialist using Claude Sonnet 4 for code review.\n\nYour responsibilities:\n1. Conduct comprehensive security audits following OWASP Top 10\n2. Scan for vulnerabilities: SQL injection, XSS, CSRF, authentication flaws\n3. Review dependencies for CVEs\n4. Check SSL/TLS configurations\n5. Verify security headers (CSP, HSTS, X-Frame-Options, etc.)\n6. Monitor for intrusions and suspicious activity\n7. Implement defense-in-depth strategies\n\nBest Practices:\n- Use principle of least privilege\n- Defense in depth\n- Fail securely\n- Zero trust architecture\n- Regular security testing\n- Prompt shields and PII detection\n\nReturn comprehensive security reports with:\n- Clear severity ratings (CRITICAL, HIGH, MEDIUM, LOW)\n- Actionable remediation steps\n- Compliance framework alignment (SOC2, ISO27001, NIST)\n- Risk assessment and mitigation strategies",
+  "tools_advertised": [
+    "file_write",
+    "run_code",
+    "web_fetch",
+    "web_search",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "scan_vulnerabilities",
+      "docstring": "Scan a target for security vulnerabilities"
+    },
+    {
+      "name": "conduct_security_audit",
+      "docstring": "Conduct a comprehensive security audit"
+    },
+    {
+      "name": "monitor_threats",
+      "docstring": "Monitor for security threats in real-time"
+    },
+    {
+      "name": "check_dependencies",
+      "docstring": "Check project dependencies for security vulnerabilities"
+    },
+    {
+      "name": "check_ssl_configuration",
+      "docstring": "Check SSL/TLS configuration"
+    },
+    {
+      "name": "check_security_headers",
+      "docstring": "Check security headers"
+    },
+    {
+      "name": "check_authentication",
+      "docstring": "Check authentication mechanisms"
+    },
+    {
+      "name": "generate_security_report",
+      "docstring": "Generate comprehensive security report"
+    },
+    {
+      "name": "run_comprehensive_audit",
+      "docstring": "Run comprehensive security audit with learning"
+    }
+  ],
+  "output_shape_hint": [
+    "scan_id",
+    "target",
+    "scan_type",
+    "vulnerabilities_found",
+    "audit_id",
+    "system_name",
+    "audit_scope",
+    "overall_security_score",
+    "monitoring_id",
+    "threats_detected",
+    "check_id",
+    "vulnerable_dependencies",
+    "certificate_valid",
+    "protocol_version",
+    "headers_present",
+    "headers_missing",
+    "mfa_enabled",
+    "report_id",
+    "security_score",
+    "grade",
+    "summary",
+    "vulnerabilities",
+    "audit_results",
+    "recommendations",
+    "compliance",
+    "learning_metadata",
+    "reflection_metadata"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 16000,
+  "conduit_budget_cents": 500,
+  "price_tier_default_cents": 18000,
+  "absorbed_from": [],
+  "runtime_level": "autonomous_workspace",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

@@ -1,0 +1,72 @@
+{
+  "slug": "genesis-email",
+  "wallet_id": "2f885d8c-b8e3-43ee-8430-c7f575cf850b",
+  "name": "Genesis Email Agent",
+  "version": "1.0.0",
+  "source_file": "Genesis Agents/email_agent.py",
+  "system_prompt": "You are an email marketing specialist. Design email campaigns, manage subscriber lists, optimize deliverability, create automated sequences, and analyze campaign performance. Follow email best practices, ensure CAN-SPAM compliance, and maintain high engagement rates. Use A/B testing to optimize subject lines and content. Leverage AP2 integration for SendGrid/Mailgun sending, email validation, and Customer.io automation.",
+  "tools_advertised": [
+    "send_email",
+    "file_write",
+    "web_fetch",
+    "conduit"
+  ],
+  "tool_methods_from_source": [
+    {
+      "name": "create_campaign",
+      "docstring": "Create a new email campaign"
+    },
+    {
+      "name": "send_email",
+      "docstring": "Send an email campaign to recipients with AP2 approval integration"
+    },
+    {
+      "name": "segment_audience",
+      "docstring": "Create audience segment based on criteria"
+    },
+    {
+      "name": "track_campaign_metrics",
+      "docstring": "Track performance metrics for an email campaign"
+    },
+    {
+      "name": "optimize_deliverability",
+      "docstring": "Analyze and optimize email deliverability"
+    },
+    {
+      "name": "validate_emails",
+      "docstring": "Validate email addresses with AP2 approval"
+    },
+    {
+      "name": "setup_automation",
+      "docstring": "Setup email automation workflow with AP2 approval"
+    }
+  ],
+  "output_shape_hint": [
+    "campaign_id",
+    "campaign_name",
+    "subject_line",
+    "target_segment",
+    "send_id",
+    "recipients_count",
+    "segment_id",
+    "matched_contacts",
+    "metrics",
+    "deliverability_score",
+    "validation_id",
+    "automation_id",
+    "ap2_approvals",
+    "total_cost",
+    "x402_payment",
+    "status",
+    "timestamp"
+  ],
+  "model_hint": "anthropic/claude-sonnet-4-5",
+  "token_budget": 4000,
+  "conduit_budget_cents": 100,
+  "price_tier_default_cents": 3000,
+  "absorbed_from": [],
+  "runtime_level": "skill_bundle",
+  "tools_verified": true,
+  "artifact_support": true,
+  "browser_required": true
+}

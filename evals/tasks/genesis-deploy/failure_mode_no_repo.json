@@ -1,0 +1,23 @@
+{
+  "id": "deploy-fail-002",
+  "category": "failure_mode",
+  "prompt": "Deploy the project to Netlify. No repository URL, no local directory, and no uploaded files have been provided.",
+  "params": {},
+  "expected": {
+    "ok": false,
+    "min_response_length": 20,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["completed successfully", "deployed to", "site is live"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-deploy",
+    "error": "missing_repository",
+    "response": "Deployment cannot proceed: no repository URL or local project directory was provided. Please specify a GitHub URL or upload project files before requesting deployment.",
+    "turns": 1,
+    "elapsed_s": 0.9,
+    "job_id": "job-mock-deploy-004",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 180, "files_written": 0}
+  }
+}

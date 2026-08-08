@@ -1,0 +1,22 @@
+{
+  "id": "qa-fail-001",
+  "category": "failure_mode",
+  "prompt": "Run the test suite located at /nonexistent/path/tests/. No test files exist at this path.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 20,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["all tests passed", "test suite complete", "0 failures"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-qa",
+    "error": "test_suite_not_found",
+    "response": "Cannot run test suite: the path /nonexistent/path/tests/ does not exist or contains no test files. Please provide a valid path to a test directory.",
+    "turns": 1,
+    "elapsed_s": 1.0,
+    "job_id": "job-mock-qa-003",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 195, "files_written": 0}
+  }
+}

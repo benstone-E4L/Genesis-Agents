@@ -1,0 +1,22 @@
+{
+  "id": "meta-fail-001",
+  "category": "failure_mode",
+  "prompt": "Call genesis-meta recursively to build a business. The meta agent should call itself via genesis_call with slug='genesis-meta'.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 10,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["recursion complete", "meta called meta successfully", "completed successfully"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-meta",
+    "error": "circular_delegation_detected",
+    "response": "Circular delegation rejected: genesis-meta cannot call itself via genesis_call. This would create an infinite loop. Please specify a non-meta subagent slug for delegation.",
+    "turns": 1,
+    "elapsed_s": 0.7,
+    "job_id": "job-mock-meta-003",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 150, "files_written": 0}
+  }
+}

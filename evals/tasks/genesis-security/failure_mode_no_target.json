@@ -1,0 +1,22 @@
+{
+  "id": "security-fail-001",
+  "category": "failure_mode",
+  "prompt": "Run a penetration test. No target URL, IP address, codebase, or scope has been provided.",
+  "expected": {
+    "ok": false,
+    "min_response_length": 20,
+    "required_fields": ["ok"],
+    "no_fake_success_phrases": ["penetration test complete", "all systems secure", "scan complete"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": false,
+    "slug": "genesis-security",
+    "error": "missing_target",
+    "response": "Cannot run a penetration test: no target URL, IP address, code repository, or scope definition was provided. Please specify the target system and scope before requesting a security assessment.",
+    "turns": 1,
+    "elapsed_s": 0.8,
+    "job_id": "job-mock-security-003",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 195, "files_written": 0}
+  }
+}

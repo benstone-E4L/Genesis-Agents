@@ -1,0 +1,21 @@
+{
+  "id": "seo-reg-004",
+  "category": "regression",
+  "prompt": "Generate a monthly SEO performance report for domain 'example.com' for June 2024. Include organic traffic trend, top 5 ranking pages, average position, and 3 actionable recommendations.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["deployed to", "live at https://"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-seo",
+    "response": "Monthly SEO Report: example.com — June 2024\n\nOrganic Traffic:\n- Total sessions: 12,450 (+8.3% MoM)\n- Organic CTR: 3.2% (benchmark: 2.8%)\n- Avg. session duration: 2m 14s\n\nTop 5 Ranking Pages:\n1. /blog/ai-automation — Pos 3.2 — 2,100 clicks\n2. / (homepage) — Pos 4.8 — 1,850 clicks\n3. /pricing — Pos 6.1 — 980 clicks\n4. /features — Pos 7.4 — 760 clicks\n5. /docs/quickstart — Pos 5.9 — 690 clicks\n\nAverage Position: 5.5 (target: <5.0)\n\nRecommendations:\n1. Add FAQ schema to /pricing — potential featured snippet capture\n2. Improve /features page load time (LCP 3.8s) to boost Core Web Vitals score\n3. Build 3 backlinks to /blog/ai-automation to strengthen domain authority for head terms",
+    "turns": 2,
+    "elapsed_s": 7.2,
+    "job_id": "job-mock-seo-005",
+    "resource_usage": {"llm_calls": 2, "total_tokens": 750, "files_written": 0}
+  }
+}

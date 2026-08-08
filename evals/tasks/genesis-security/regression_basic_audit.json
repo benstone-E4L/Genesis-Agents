@@ -1,0 +1,21 @@
+{
+  "id": "security-reg-001",
+  "category": "regression",
+  "prompt": "Conduct a security audit of the following Express.js route:\n\n```js\napp.get('/user', (req, res) => {\n  const id = req.query.id;\n  db.query(`SELECT * FROM users WHERE id = ${id}`, (err, rows) => {\n    res.json(rows);\n  });\n});\n```\n\nIdentify all vulnerabilities with severity ratings and remediation steps.",
+  "expected": {
+    "ok": true,
+    "min_response_length": 200,
+    "required_fields": ["ok", "response"],
+    "no_fake_success_phrases": ["no vulnerabilities found", "code is secure", "passed security audit"],
+    "max_latency_s": 300
+  },
+  "mock_result": {
+    "ok": true,
+    "slug": "genesis-security",
+    "response": "Security Audit Results:\n\nVulnerability 1: SQL Injection [CRITICAL]\nLocation: db.query template literal on line 3\nRisk: Attacker can inject arbitrary SQL via ?id=1 OR 1=1--\nRemediation: Use parameterized queries: db.query('SELECT * FROM users WHERE id = ?', [id], ...)\n\nVulnerability 2: Missing Input Validation [HIGH]\nLocation: req.query.id used without type check\nRisk: Non-integer values crash db driver or expose stack traces\nRemediation: Validate id is a positive integer before querying\n\nVulnerability 3: Error Information Disclosure [MEDIUM]\nLocation: err ignored, all rows returned without auth check\nRisk: Unauthenticated access to all user data\nRemediation: Add authentication middleware and handle db errors explicitly\n\nOverall Security Score: 2/10. Requires immediate remediation before production.",
+    "turns": 1,
+    "elapsed_s": 5.5,
+    "job_id": "job-mock-security-001",
+    "resource_usage": {"llm_calls": 1, "total_tokens": 680, "files_written": 0}
+  }
+}
