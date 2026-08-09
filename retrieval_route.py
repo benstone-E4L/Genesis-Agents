@@ -12,6 +12,16 @@ nothing scores above RETRIEVAL_MIN_SCORE, or the assistant-tier PG connection is
 unreachable, it returns a structured refusal object with HTTP 200 (never an error status) — a
 refusal is a valid, expected answer shape here, not a failure.
 
+CHUNK_4_RETRIEVAL (E4L Drive Knowledge Integration): this route also fans out to a second
+backend, `knowledge_backbone` (company Drive knowledge, `rg-kb-prod`, see
+SPEC-e4l-drive-knowledge-integration.md), behind this SAME route/call shape — callers never
+choose a backend. The vault-only failure path above (assistant-tier PG unreachable) is
+unchanged; the second backend's own unreachability degrades independently, flagged
+`partial: true`, and never blocks or replaces the vault backend's own result. The second
+backend is only ever queried when the caller supplies `requesting_principal` (permission
+filtering has no identity to check without it — fails closed by omission, per this
+workstream's PERMISSION-FILTER-FAILS-CLOSED guardrail) and `domain_hint` is not `"vault"`.
+
 Auth: mounted by main.py with `dependencies=[Depends(verify_gateway_key)]` (same GATEWAY_API_KEY
 guard every other non-public /agents/* route uses). This module intentionally does not import
 from main.py, to avoid a circular import (main.py imports this module to mount it).
@@ -21,11 +31,13 @@ from __future__ import annotations
 import logging
 import os
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from fastapi import APIRouter
 from pydantic import BaseModel
 
+import knowledge_backbone
+import knowledge_backbone_store
 import retrieval_store
 
 logger = logging.getLogger(__name__)
@@ -50,6 +62,12 @@ class RetrievalQueryRequest(BaseModel):
     top_k: int = 8
     entity_filter: Optional[str] = None
     include_superseded: bool = False
+    # CHUNK_4_RETRIEVAL additions (spec §12). Both optional, defaulted for backward
+    # compatibility with existing callers that only know the vault-only contract — omitting
+    # requesting_principal means the knowledge_backbone backend is never queried at all (fails
+    # closed by omission, not by returning unrestricted results).
+    domain_hint: Literal["vault", "drive", "any"] = "any"
+    requesting_principal: Optional[str] = None
 
 
 class RetrievalChunk(BaseModel):
@@ -62,6 +80,17 @@ class RetrievalChunk(BaseModel):
     updated: Optional[str] = None
     supersedes: list[str] = []
     score: float
+    # CHUNK_4_RETRIEVAL additions (spec §12). "vault" chunks (the pre-existing contract) leave
+    # every field below at its default — only "knowledge_backbone" chunks populate them.
+    source: Literal["vault", "knowledge_backbone"] = "vault"
+    source_account: Optional[str] = None
+    source_classification: Optional[str] = None
+    drive_id: Optional[str] = None
+    file_id: Optional[str] = None
+    original_path: Optional[str] = None
+    modified_at: Optional[str] = None
+    content_hash: Optional[str] = None
+    staleness_flag: Optional[bool] = None
 
 
 class RetrievalQueryResponse(BaseModel):
@@ -72,6 +101,11 @@ class RetrievalQueryResponse(BaseModel):
     reason: Optional[str] = None
     degraded: bool = False
     degraded_reason: Optional[str] = None
+    # CHUNK_4_RETRIEVAL additions (spec §12): the knowledge_backbone backend's own degrade
+    # signal, independent of `degraded`/`degraded_reason` above (which is the vault backend's
+    # pre-existing, unchanged failure signal).
+    partial: bool = False
+    partial_reason: Optional[str] = None
 
 
 def _isoformat(value: Any) -> Optional[str]:
@@ -128,6 +162,51 @@ def _degraded_response(reason: str) -> RetrievalQueryResponse:
     )
 
 
+def _row_to_kb_chunk(row: dict[str, Any]) -> RetrievalChunk:
+    """Map one knowledge_backbone row (spec §6 shape, already permission-filtered/deduped by
+    knowledge_backbone.resolve()) to the contract's response shape. Every provenance field named
+    in spec §12 is populated straight from the row — never left null for a real chunk that has
+    real source data, matching CHUNK_4's own acceptance criterion."""
+    return RetrievalChunk(
+        chunk_id=str(row.get("chunk_id", "")),
+        content_sha256=str(row.get("content_hash", "")),
+        citation=str(row.get("citation", row.get("original_path", ""))),
+        score=float(row.get("score", 0.0)),
+        source="knowledge_backbone",
+        source_account=row.get("source_account"),
+        source_classification=row.get("source_classification"),
+        drive_id=row.get("drive_id"),
+        file_id=row.get("file_id"),
+        original_path=row.get("original_path"),
+        modified_at=_isoformat(row.get("modified_at")),
+        content_hash=row.get("content_hash"),
+        staleness_flag=row.get("staleness_flag"),
+    )
+
+
+def _query_knowledge_backbone(
+    query: str, *, top_k: int, principal: Optional[str], min_score: float
+) -> tuple[list[RetrievalChunk], bool, Optional[str]]:
+    """Returns (chunks, partial, partial_reason). Never raises — any failure of the backend
+    itself, or the absence of a usable identity to filter against, degrades to an empty chunk
+    list rather than propagating an exception up to the route handler."""
+    if not principal:
+        # No identity to permission-filter against — fails closed by never querying at all,
+        # not by querying and hoping the filter catches it. This is not a backend failure, so
+        # it is never reported as `partial`.
+        return [], False, None
+
+    try:
+        raw_rows = knowledge_backbone_store.query_chunks(query, top_k=top_k)
+    except Exception as exc:
+        logger.warning("retrieval_query: knowledge_backbone unavailable: %s", exc)
+        return [], True, "knowledge_backbone unavailable"
+
+    resolved = knowledge_backbone.resolve(raw_rows, principal)
+    scored = [row for row in resolved if float(row.get("score", 0.0)) >= min_score]
+    return [_row_to_kb_chunk(row) for row in scored], False, None
+
+
 @router.post("/retrieval/query", response_model=RetrievalQueryResponse)
 async def retrieval_query(body: RetrievalQueryRequest) -> RetrievalQueryResponse:
     try:
@@ -149,19 +228,38 @@ async def retrieval_query(body: RetrievalQueryRequest) -> RetrievalQueryResponse
 
     min_score = _min_score()
     scored = [row for row in rows if float(row.get("score", 0.0)) >= min_score]
+    vault_chunks = [_row_to_chunk(row) for row in scored]
 
-    if not scored:
+    # CHUNK_4_RETRIEVAL: fan out to the knowledge_backbone backend too, unless the caller
+    # explicitly scoped this query to "vault" only (domain_hint) — a vault-only query must never
+    # trigger a knowledge_backbone call at all, per the spec's own acceptance criterion, not just
+    # "contribute nothing to the answer".
+    kb_chunks: list[RetrievalChunk] = []
+    partial = False
+    partial_reason: Optional[str] = None
+    if body.domain_hint != "vault":
+        kb_chunks, partial, partial_reason = _query_knowledge_backbone(
+            body.query, top_k=body.top_k, principal=body.requesting_principal, min_score=min_score
+        )
+
+    all_chunks = vault_chunks + kb_chunks
+
+    if not all_chunks:
         return RetrievalQueryResponse(
             chunks=[],
             index_updated_at=index_updated_at_str,
             stale=stale,
             refusal=True,
             reason=_REFUSAL_REASON,
+            partial=partial,
+            partial_reason=partial_reason,
         )
 
     return RetrievalQueryResponse(
-        chunks=[_row_to_chunk(row) for row in scored],
+        chunks=all_chunks,
         index_updated_at=index_updated_at_str,
         stale=stale,
         refusal=False,
+        partial=partial,
+        partial_reason=partial_reason,
     )
