@@ -177,3 +177,39 @@ test_admin_auth.py`) — 85 passed, 0 failed. Full repo `pytest -q` — 565 pass
 failed, same 3 pre-existing baseline failures as CHUNK_1 (confirmed unrelated, environment-only)
 — zero new regressions from mounting the router. — DONE (gate green).
 <promise>CHUNK COMPLETE: CHUNK_4_RETRIEVAL</promise>
+
+[2026-08-08T01:40:00Z] CHUNK_4_RETRIEVAL code committed: `3cd3cab` (.env.example, main.py,
+retrieval_route.py, retrieval_store.py, .ralph state files — 6 files changed).
+
+[2026-08-08T01:50:00Z] CHUNK_5_TESTS tasks 1-6: created `test_retrieval_route.py` (16 tests,
+1 conditionally-skipped) covering every Retrieval Contract row: chunk ID + citation format;
+superseded filtering (default-excluded, explicit-included); contradiction surfacing (two
+active chunks, both returned, unmerged); staleness true/false at the threshold; hybrid
+ranking (route-level: proves the route never re-expands past what the mocked store already
+filtered, using entity_filter call-argument assertions; store-level: a dedicated unit test
+against `retrieval_store.py`'s real SQL construction via a fake psycopg-shaped
+connection/cursor — no live DB socket opened — asserting `ORDER BY score DESC, updated DESC`,
+`status != 'superseded'` present/absent correctly, and `entity_filter` lands as a WHERE param);
+refusal path (below-threshold -> HTTP 200, chunks: []); degraded-connection path (store raises
+-> HTTP 200, degraded:true) plus a companion `GET /health` still-200 test in the same
+ASSISTANT_PG_DATABASE_URL-unset condition; auth enforcement (missing key -> 401, correct key ->
+200); no-LLM-call proof (both a runtime mock-assert on `main.call_llm_router` and a static
+source-grep assert on both new files); malformed request (missing `query` -> 422). — DONE
+[2026-08-08T01:52:00Z] CHUNK_5_TESTS task 5 (real-connection skip marker): added
+`test_real_connection_integration`, `@pytest.mark.skipif(not os.getenv(
+"ASSISTANT_PG_DATABASE_URL"), ...)` — confirmed it is the 1 test that shows as `skipped` in the
+local run (`ASSISTANT_PG_DATABASE_URL` unset here); will activate automatically once the
+external assistant-tier PG workstream's server is reachable from wherever this suite runs. —
+DONE
+[2026-08-08T01:53:00Z] CHUNK_5_TESTS task 7: confirmed `AGENTS.md`'s `## Validation Commands`
+section already names the exact real test filenames (`test_retrieval_route.py
+tests/test_prohibited_tools.py tests/test_escrow_containment.py tests/test_gateway_key_guard.py`)
+— no edit needed, the scaffolded command was already correct. — DONE
+[2026-08-08T01:55:00Z] CHUNK_5_TESTS validation: `python -m compileall -q main.py
+retrieval_route.py retrieval_store.py bundle_loader.py && pytest test_retrieval_route.py
+tests/test_prohibited_tools.py tests/test_escrow_containment.py tests/test_gateway_key_guard.py
+-q` — 71 passed, 1 skipped, 0 failed (exit 0). Full repo `pytest -q` — 581 passed (565 baseline
++ 16 new) / 15 skipped (14 baseline + 1 new) / 3 failed — same 3 pre-existing baseline failures,
+zero new regressions. — DONE (gate green — this is the acceptance gate for the whole
+workstream's retrieval-route slice).
+<promise>CHUNK COMPLETE: CHUNK_5_TESTS</promise>
