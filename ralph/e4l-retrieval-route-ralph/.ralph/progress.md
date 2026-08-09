@@ -101,3 +101,22 @@ bundle_loader.py` — exit 0. `pytest test_gateway_error_mapping.py test_bundle_
 test_capability_cards.py tests/test_prohibited_tools.py tests/test_escrow_containment.py
 tests/test_gateway_key_guard.py -q` — 80 passed, 0 failed. — DONE (gate green).
 <promise>CHUNK COMPLETE: CHUNK_2_REGISTRY</promise>
+
+[2026-08-08T00:50:00Z] CHUNK_2_REGISTRY code committed: `3f702a0` (bundle_loader.py, main.py,
+.ralph state files — 4 files changed).
+
+[2026-08-08T00:55:00Z] CHUNK_3_DOCS task 1: ran the counting one-liner for real against the
+post-CHUNK_2 tree (live command, not eyeballed): `bundles=24 personas=60 guarded=24
+unguarded=36`. — DONE
+[2026-08-08T00:57:00Z] CHUNK_3_DOCS task 2: replaced `CLAUDE.md`'s stale "20 specialised Genesis
+AI agents" line with accurate language pointing at the new table (24 bundle-backed / 60
+catalogued / 36 unguarded). — DONE
+[2026-08-08T00:59:00Z] CHUNK_3_DOCS task 3: added the "## Agent Count (verify, don't trust)"
+section — the 4 live-verified numbers as a table, the exact copy-pasteable one-liner plus its
+real output, a one-sentence finance-adjacent risk statement, and the enforced-allowlist pointer
+to `cato/tools/genesis.py::GENESIS_AGENTS` copied in as actual text (not just a link to this
+disposable ralph workspace), per the acceptance criterion. — DONE
+[2026-08-08T01:00:00Z] CHUNK_3_DOCS validation: `python -m compileall -q main.py` — exit 0.
+`git diff --stat -- CLAUDE.md` confirms only `CLAUDE.md` changed this chunk (no accidental code
+edits). — DONE (gate green).
+<promise>CHUNK COMPLETE: CHUNK_3_DOCS</promise>

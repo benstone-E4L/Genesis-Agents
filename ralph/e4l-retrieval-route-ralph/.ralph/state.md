@@ -1,13 +1,12 @@
 # Ralph State
 
-**Current Iteration:** 2
+**Current Iteration:** 3
 
-Current chunk: CHUNK_3_DOCS
-Current task: 0 of 3
-Last completed: CHUNK_2_REGISTRY — all 6 tasks done, validation gate green (80/80 targeted
-  tests passed). 3 orphaned bundles (genesis-domain, genesis-maintenance, genesis-pricing) now
-  reachable from AGENT_PERSONAS + BUNDLE_SLUG_ALIASES; verified via load_bundle(), card_for(),
-  and a live GET /agents call.
+Current chunk: CHUNK_4_RETRIEVAL
+Current task: 0 of 5
+Last completed: CHUNK_3_DOCS — all 3 tasks done, validation gate green (compileall clean,
+  only CLAUDE.md touched). Agent count table now reads bundles=24 personas=60 guarded=24
+  unguarded=36, live-verified via the documented one-liner.
 Status: IN_PROGRESS
 
 ## Instructions for ralph

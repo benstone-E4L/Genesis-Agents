@@ -1,6 +1,7 @@
 # Genesis Agents — Claude Guide
 
-Standalone FastAPI gateway serving 20 specialised Genesis AI agents.
+Standalone FastAPI gateway serving 24 bundle-backed agents; see the Agent Count table below for
+the catalogue split (24 bundle-backed / 60 catalogued slugs / 36 unguarded persona-only).
 
 **Deployed:** `https://swarmsync-agents.onrender.com`  
 **Entry point:** `main.py`  
@@ -38,3 +39,38 @@ pip install -r requirements.txt
 python -m patchright install chromium
 uvicorn main:app --reload --port 8000
 ```
+
+## Agent Count (verify, don't trust)
+
+As of 2026-08-08 (post CHUNK_2_REGISTRY reconciliation):
+
+| Count | Number | What it means |
+|---|---|---|
+| Bundle files on disk | 24 | `skill_bundles/*.json` — real personas + tool whitelists that exist |
+| Catalogued `/agents` slugs | 60 | Keys in `main.py`'s `AGENT_PERSONAS` dict — everything the public `GET /agents` listing advertises |
+| Guarded (bundle-backed) | 24 | Catalogued slugs whose `bundle_loader.resolve_bundle_slug()` output matches a real `skill_bundles/` file — these route through the multi-turn `AgentRuntime` with a tool whitelist, token/conduit budget caps, and escrow checks |
+| Unguarded (persona-only) | 36 | Catalogued slugs with **no** matching bundle — these fall straight through to the single-turn persona/router path: no tool-loop, no budget cap, no escrow check |
+
+Reproduce these numbers yourself in under a minute — do not trust this table blindly, it goes
+stale the moment a bundle or persona entry is added or removed:
+
+```bash
+python -c "import main, bundle_loader; bf=sorted(p.stem for p in bundle_loader.BUNDLES_DIR.glob('*.json')); ap=list(main.AGENT_PERSONAS.keys()); g=[s for s in ap if bundle_loader.resolve_bundle_slug(s) in bf]; print(f'bundles={len(bf)} personas={len(ap)} guarded={len(g)} unguarded={len(ap)-len(g)}')"
+```
+Output as of this writing: `bundles=24 personas=60 guarded=24 unguarded=36`.
+
+**Risk:** dispatching finance-adjacent work (payroll, invoicing, refunds, pricing/billing
+spend) to one of the 36 unguarded slugs bypasses `escrow_guard.py` entirely — the unguarded
+persona/router path has no tool-loop, no budget cap, and no escrow containment check, so a
+prompt that gets an unguarded slug to describe taking a financial action is not actually
+gated by anything.
+
+**Enforced allowlist (copied here so it survives after the originating ralph workspace is
+archived — see `ralph/e4l-retrieval-route-ralph/.ralph/guardrails.md` for the full history):**
+the canonical answer to "which Genesis slugs are safe to call for finance-adjacent work" lives
+in the Cato repo, not here: `cato/tools/genesis.py::GENESIS_AGENTS` — 20 hand-curated,
+verified bundle-backed slugs, with its own independent, config-proof `MONEY_DOMAIN_AGENTS`
+denylist. This repo's own 60-slug `/agents` catalogue and 24-file bundle registry are the
+underlying ground truth Cato's list was curated from; "resolvable" (bundle-backed) here does
+**not** by itself mean "safe for finance work" — always check Cato's allowlist, not just this
+repo's guarded/unguarded split, before routing anything money-adjacent to a Genesis slug.
