@@ -61,14 +61,6 @@ logger = logging.getLogger(__name__)
 _background_tasks: set = set()
 
 
-try:
-    # Optional: dynamic Python agent loading; gateway must still function
-    # even if this import fails (e.g. missing dependencies in agents/).
-    from agent_loader import load_agent
-except Exception:  # pragma: no cover - ultra-defensive
-    load_agent = None  # type: ignore[assignment]
-    logger.warning("agent_loader could not be imported; falling back to Llama personas only")
-
 # Phase 2 — consolidated agent runtime backed by skill bundles.
 # Loaded lazily on first /agents/{slug}/run call so the gateway still starts
 # even if conduit-browser or aiohttp aren't yet installed in the environment.
@@ -1729,7 +1721,6 @@ async def run_agent(slug: str, body: RunRequest):
         bundle_slug = resolve_bundle_slug(slug)
     except Exception:
         bundle_slug = slug
-    skip_loaded_agent = False
 
     # External-escrow mode: when the marketplace (or any external coordinator)
     # is the escrow owner, the gateway must skip its OWN escrow init / complete /
@@ -1779,7 +1770,6 @@ async def run_agent(slug: str, body: RunRequest):
                 )
                 display_name = str(bundle_name)
                 system_prompt = str(bundle.get("system_prompt") or system_prompt)
-                skip_loaded_agent = True
                 bundle = None
 
         if bundle is not None:
@@ -2002,39 +1992,7 @@ async def run_agent(slug: str, body: RunRequest):
                     )
 
     # ------------------------------------------------------------------
-    # 1) Try real Python agent via loader (best-effort, never crashes)
-    # ------------------------------------------------------------------
-    if load_agent is not None and not skip_loaded_agent:
-        try:
-            agent = load_agent(slug)
-        except Exception as exc:  # pragma: no cover - ultra-defensive
-            logger.error(
-                "Error loading Python agent for slug=%s: %s; falling back to persona",
-                slug,
-                exc,
-                exc_info=True,
-            )
-            agent = None
-
-        if agent is not None:
-            try:
-                real_response = await _run_loaded_agent(agent, user_prompt, slug)
-                if real_response is not None and not _is_x402_stub_response(real_response):
-                    return RunResponse(
-                        response=real_response,
-                        agentSlug=slug,
-                        agentName=display_name,
-                    )
-            except Exception as exc:  # pragma: no cover - ultra-defensive
-                logger.error(
-                    "Error executing Python agent for slug=%s: %s; falling back to persona",
-                    slug,
-                    exc,
-                    exc_info=True,
-                )
-
-    # ------------------------------------------------------------------
-    # 2) Fallback: router persona. Agent runs must stay on SwarmSync Routing.
+    # 1) Fallback: router persona. Agent runs must stay on SwarmSync Routing.
     # ------------------------------------------------------------------
     router_result = await call_llm_router(system_prompt, user_prompt)
 

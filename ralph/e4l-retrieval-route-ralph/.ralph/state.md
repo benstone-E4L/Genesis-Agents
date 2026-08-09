@@ -1,11 +1,13 @@
 # Ralph State
 
-**Current Iteration:** 0
+**Current Iteration:** 1
 
-Current chunk: CHUNK_1_CLEANUP
+Current chunk: CHUNK_2_REGISTRY
 Current task: 0 of 6
-Last completed: (none — not started)
-Status: NOT_STARTED
+Last completed: CHUNK_1_CLEANUP — all 6 tasks done, validation gate green (70/70 targeted
+  tests passed; full-repo pytest 565 passed/14 skipped/3 pre-existing-baseline failures
+  unrelated to this chunk). Committed ac0b520 (planning) + code commit follows.
+Status: IN_PROGRESS
 
 ## Instructions for ralph
 

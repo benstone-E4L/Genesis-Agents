@@ -221,11 +221,7 @@ async def test_hr_aliases_use_same_canonical_bundle_in_live_test(monkeypatch, re
         assert "Human Resources operations specialist" in system_prompt
         return {"text": "HR response"}
 
-    def fail_load_agent(slug):
-        raise AssertionError("bundle-backed live_test calls must not load legacy Python agents")
-
     monkeypatch.setattr(main, "call_llm_router", fake_call_llm_router)
-    monkeypatch.setattr(main, "load_agent", fail_load_agent)
 
     result = await run_agent(
         request_slug,
