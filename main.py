@@ -1412,6 +1412,16 @@ async def _run_arbitrage_verification_and_callback(
 # Routes
 # ---------------------------------------------------------------------------
 
+# CHUNK_4_RETRIEVAL: E4L Retrieval Contract route (master spec §9, Phase E). Kept in its own
+# module (retrieval_route.py) rather than inline here — main.py is already 3,550+ lines.
+# Mounted with the same GATEWAY_API_KEY guard every other non-public /agents/* route uses;
+# dependency is applied at mount time (not inside retrieval_route.py) to avoid a circular
+# import, since verify_gateway_key lives in this module.
+from retrieval_route import router as retrieval_router  # noqa: E402
+
+app.include_router(retrieval_router, dependencies=[Depends(verify_gateway_key)])
+
+
 @app.get("/health")
 async def health():
     return {"status": "ok", "service": "swarmsync-agent-gateway"}

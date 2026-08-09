@@ -120,3 +120,60 @@ disposable ralph workspace), per the acceptance criterion. — DONE
 `git diff --stat -- CLAUDE.md` confirms only `CLAUDE.md` changed this chunk (no accidental code
 edits). — DONE (gate green).
 <promise>CHUNK COMPLETE: CHUNK_3_DOCS</promise>
+
+[2026-08-08T01:05:00Z] CHUNK_3_DOCS code committed: `6e1b72f` (CLAUDE.md + .ralph state files —
+3 files changed).
+
+[2026-08-08T01:10:00Z] CHUNK_4_RETRIEVAL task 1: created `retrieval_store.py` — psycopg3
+connection/query layer following `job_store.py`'s exact fail-closed pattern
+(`_database_url()`/`_conn()`, `ASSISTANT_PG_DATABASE_URL` env var). `query_chunks()` implements
+hybrid ranking (ts_rank + optional pgvector `<=>` term) with metadata filters (status,
+entity) applied in WHERE before scoring, `updated DESC` only as an ORDER BY tiebreaker, and no
+GROUP BY/DISTINCT (contradiction surfacing preserved by construction, not by exception).
+Documented decision: `query_embedding` is an optional parameter — this workstream does not own
+an embedding provider (none exists anywhere in this repo's env surface, and adding one would be
+a new external dependency out of scope), so when omitted the vector term evaluates to a
+constant and ranking degrades to lexical-only; the SQL still carries the `<=>` term
+structurally so it's hybrid-capable the moment a caller supplies an embedding. Minimum
+`vault_chunks` column shape documented as a module docstring, matching the exact 13 columns
+named in CHUNK_4_RETRIEVAL's spec (Database Changes section). — DONE
+[2026-08-08T01:20:00Z] CHUNK_4_RETRIEVAL task 2: created `retrieval_route.py` — FastAPI
+`APIRouter` exposing `POST /retrieval/query`. Request/response Pydantic models match the
+contract exactly (`query, top_k=8, entity_filter=None, include_superseded=False` in;
+`chunk_id, content_sha256, citation, entity, type, status, updated, supersedes, score` per
+chunk out, plus top-level `index_updated_at, stale, refusal, reason, degraded,
+degraded_reason`). `citation` = `{vault_path}#{heading_path}` (no chunk-index suffix, unlike
+`chunk_id` which includes `@{chunk-index}` — matches the spec's own worked example). Decided
+and documented (for CHUNK_5_TESTS to lock in): `content_sha256` is trusted exactly as stored,
+never recomputed from `content_text` — this route is a thin reader over a derived index, not
+an integrity-verification layer. Refusal path: zero chunks scoring >= `RETRIEVAL_MIN_SCORE`
+(default 0.35) -> `{"refusal": true, "reason": "no vault answer found above threshold",
+"chunks": []}`, HTTP 200. — DONE
+[2026-08-08T01:25:00Z] CHUNK_4_RETRIEVAL task 3: connection-failure handling — any exception
+from `retrieval_store` (unset `ASSISTANT_PG_DATABASE_URL` or an unreachable connection) is
+caught in the route and mapped to the same refusal shape plus `"degraded": true,
+"degraded_reason": "assistant-tier PG unavailable"`, HTTP 200, never a 500. — DONE
+[2026-08-08T01:28:00Z] CHUNK_4_RETRIEVAL task 4: mounted into `main.py` via
+`app.include_router(retrieval_router, dependencies=[Depends(verify_gateway_key)])`, placed
+right after the `# Routes` section header, before `/health`. Dependency applied at mount time
+(not inside `retrieval_route.py`) specifically to avoid a circular import, since
+`verify_gateway_key` lives in `main.py` and `main.py` imports `retrieval_route`. — DONE
+[2026-08-08T01:30:00Z] CHUNK_4_RETRIEVAL task 5: added `ASSISTANT_PG_DATABASE_URL`,
+`RETRIEVAL_MIN_SCORE`, `RETRIEVAL_STALENESS_THRESHOLD_HOURS` to `.env.example` with the
+column-shape comment. — DONE
+[2026-08-08T01:35:00Z] CHUNK_4_RETRIEVAL validation: `python -m compileall -q main.py
+retrieval_route.py retrieval_store.py bundle_loader.py` — exit 0. Manual boot-safety check
+with `ASSISTANT_PG_DATABASE_URL` unset via `TestClient(main.app)`: `GET /health` -> 200;
+`POST /retrieval/query` with no auth -> 401; `POST /retrieval/query` with valid
+`GATEWAY_API_KEY` and DB unset -> HTTP 200, real JSON body:
+`{'chunks': [], 'index_updated_at': None, 'stale': False, 'refusal': True, 'reason': 'no vault
+answer found above threshold', 'degraded': True, 'degraded_reason': 'assistant-tier PG
+unavailable'}` — exact match with the spec's worked example. Grep-confirmed zero real
+`call_llm_router`/`httpx.AsyncClient`/LLM-provider calls in either new file (the one grep hit
+is a doc-comment referencing `main.py`'s function name, not a call). Targeted regression suite
+(`test_gateway_error_mapping.py tests/test_prohibited_tools.py tests/test_escrow_containment.py
+tests/test_gateway_key_guard.py test_bundle_tool_registry.py test_capability_cards.py
+test_admin_auth.py`) — 85 passed, 0 failed. Full repo `pytest -q` — 565 passed / 14 skipped / 3
+failed, same 3 pre-existing baseline failures as CHUNK_1 (confirmed unrelated, environment-only)
+— zero new regressions from mounting the router. — DONE (gate green).
+<promise>CHUNK COMPLETE: CHUNK_4_RETRIEVAL</promise>

@@ -1,12 +1,13 @@
 # Ralph State
 
-**Current Iteration:** 3
+**Current Iteration:** 4
 
-Current chunk: CHUNK_4_RETRIEVAL
-Current task: 0 of 5
-Last completed: CHUNK_3_DOCS — all 3 tasks done, validation gate green (compileall clean,
-  only CLAUDE.md touched). Agent count table now reads bundles=24 personas=60 guarded=24
-  unguarded=36, live-verified via the documented one-liner.
+Current chunk: CHUNK_5_TESTS
+Current task: 0 of 7
+Last completed: CHUNK_4_RETRIEVAL — all 5 tasks done, validation gate green. retrieval_route.py
+  + retrieval_store.py built and mounted into main:app; manually verified degraded-connection
+  path (HTTP 200, degraded:true) and gateway boot safety with ASSISTANT_PG_DATABASE_URL unset.
+  Zero regressions (565 passed/14 skipped/3 pre-existing-baseline failures, same as CHUNK_1).
 Status: IN_PROGRESS
 
 ## Instructions for ralph
