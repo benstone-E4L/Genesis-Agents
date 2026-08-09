@@ -66,3 +66,38 @@ manifest file, not caused by this chunk's code changes. — DONE (gate green, ev
 Committed: `ac0b520` (planning: IMPLEMENTATION_PLAN.md + this progress log). Code commit follows
 this entry.
 <promise>CHUNK COMPLETE: CHUNK_1_CLEANUP</promise>
+
+[2026-08-08T00:30:00Z] CHUNK_1_CLEANUP code committed: `9fbf8d6` (agent_loader.py deleted,
+main.py, test_gateway_error_mapping.py, .ralph state files — 5 files changed).
+
+[2026-08-08T00:35:00Z] CHUNK_2_REGISTRY task 1: read all 3 orphaned bundle JSONs
+(`skill_bundles/genesis-{domain,maintenance,pricing}.json`) for real `name`/`system_prompt`
+fields. — DONE
+[2026-08-08T00:38:00Z] CHUNK_2_REGISTRY task 2: added 3 entries to `main.py`'s `AGENT_PERSONAS`
+(`genesis_domain`, `genesis_maintenance`, `genesis_pricing`), each `(display_name, system_prompt)`
+excerpted verbatim from the bundle's own `system_prompt` (first few sentences, truncated at a
+natural sentence boundary — not the full multi-thousand-character tool-schema prompt, since every
+other `AGENT_PERSONAS` entry, including ones with a full bundle like HR/Legal, is a short 2-4
+sentence blurb by established convention; the bundle's full `system_prompt` is what actually runs
+once `load_bundle()` resolves, per `main.py`'s existing override logic — this dict entry is only
+the fallback/initial value). No invented sentences added. — DONE
+[2026-08-08T00:40:00Z] CHUNK_2_REGISTRY task 3: added 3 explicit entries to `bundle_loader.py`'s
+`BUNDLE_SLUG_ALIASES` (`genesis_domain/maintenance/pricing` -> `genesis-domain/maintenance/
+pricing`). — DONE
+[2026-08-08T00:41:00Z] CHUNK_2_REGISTRY task 4: grepped `BUNDLE_SLUG_ALIASES` for collisions —
+zero duplicate keys (real dict, structurally impossible); the only duplicate *values* found
+(`genesis-meta`, `genesis-hr`, `genesis-legal`, `genesis-data-pipeline`) are pre-existing,
+intentional multi-alias-to-one-bundle mappings, not touched by this chunk. — DONE
+[2026-08-08T00:42:00Z] CHUNK_2_REGISTRY task 5: verified directly via Python (not just HTTP):
+`bundle_loader.load_bundle("genesis_domain"/"genesis_maintenance"/"genesis_pricing")` all return
+non-None parsed JSON. — DONE
+[2026-08-08T00:43:00Z] CHUNK_2_REGISTRY task 6: confirmed `capability_cards.py::card_for()` has
+no per-slug registration table — it auto-derives directly from `load_bundle(slug)`, so no
+additional capability-card wiring was needed. Spot-checked `card_for()` for all 3 new slugs:
+all return real dicts (`slug`, `name` fields populated from the bundle). Also live-checked
+`GET /agents` via `TestClient(main.app)`: all 3 new slugs now present in the response. — DONE
+[2026-08-08T00:45:00Z] CHUNK_2_REGISTRY validation: `python -m compileall -q main.py
+bundle_loader.py` — exit 0. `pytest test_gateway_error_mapping.py test_bundle_tool_registry.py
+test_capability_cards.py tests/test_prohibited_tools.py tests/test_escrow_containment.py
+tests/test_gateway_key_guard.py -q` — 80 passed, 0 failed. — DONE (gate green).
+<promise>CHUNK COMPLETE: CHUNK_2_REGISTRY</promise>

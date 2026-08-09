@@ -22,6 +22,11 @@ BUNDLE_SLUG_ALIASES: dict[str, str] = {
     "genesis-data-pipeline": "genesis-data-pipeline",
     "genesis-ai-vision-api": "genesis-ai-vision",
     "genesis-workflow-automator": "genesis-workflow-automator",
+    # CHUNK_2_REGISTRY: explicit for defensive clarity — the naming convention
+    # (resolve_bundle_slug's underscore->hyphen rule) already resolves these.
+    "genesis_domain": "genesis-domain",
+    "genesis_maintenance": "genesis-maintenance",
+    "genesis_pricing": "genesis-pricing",
 }
 
 

@@ -1,12 +1,13 @@
 # Ralph State
 
-**Current Iteration:** 1
+**Current Iteration:** 2
 
-Current chunk: CHUNK_2_REGISTRY
-Current task: 0 of 6
-Last completed: CHUNK_1_CLEANUP — all 6 tasks done, validation gate green (70/70 targeted
-  tests passed; full-repo pytest 565 passed/14 skipped/3 pre-existing-baseline failures
-  unrelated to this chunk). Committed ac0b520 (planning) + code commit follows.
+Current chunk: CHUNK_3_DOCS
+Current task: 0 of 3
+Last completed: CHUNK_2_REGISTRY — all 6 tasks done, validation gate green (80/80 targeted
+  tests passed). 3 orphaned bundles (genesis-domain, genesis-maintenance, genesis-pricing) now
+  reachable from AGENT_PERSONAS + BUNDLE_SLUG_ALIASES; verified via load_bundle(), card_for(),
+  and a live GET /agents call.
 Status: IN_PROGRESS
 
 ## Instructions for ralph
