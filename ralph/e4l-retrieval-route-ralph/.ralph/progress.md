@@ -213,3 +213,35 @@ tests/test_prohibited_tools.py tests/test_escrow_containment.py tests/test_gatew
 zero new regressions. — DONE (gate green — this is the acceptance gate for the whole
 workstream's retrieval-route slice).
 <promise>CHUNK COMPLETE: CHUNK_5_TESTS</promise>
+
+[2026-08-08T02:00:00Z] CHUNK_5_TESTS code committed: `82d501e` (test_retrieval_route.py +
+.ralph state files — 3 files changed).
+
+[2026-08-08T02:05:00Z] CHUNK_6_EVALCLEANUP task 1: `git grep -i "evals/"` before deleting —
+found only this ralph workspace's own planning docs (guardrails.md, IMPLEMENTATION_PLAN.md,
+PROMPT_build.md, PROMPT_plan.md, README.ralph.md, the CHUNK_6 spec itself — all discussing the
+deletion decision, not live references) and one historical point-in-time audit report
+(`testing/HKO_TRUTH_AUDIT_REPORT.md`, describing repo state as of its own audit date) — neither
+is an active script, CI config, or maintained doc that depends on `evals/` existing. Confirmed
+`.github/workflows/` has zero references. — DONE
+[2026-08-08T02:07:00Z] CHUNK_6_EVALCLEANUP task 2: deleted `evals/` entirely (`run_evals.py`,
+`graders/`, `reports/`, `tasks/`) via `git rm -r --cached` + `rm -rf` (staged deletion, not left
+on disk untracked). — DONE
+[2026-08-08T02:08:00Z] CHUNK_6_EVALCLEANUP task 3: confirmed `eval/` (singular) untouched —
+zero diff, `git status --porcelain` shows only `evals/` paths as deleted. — DONE
+[2026-08-08T02:10:00Z] CHUNK_6_EVALCLEANUP validation: `python -m compileall -q .` — exit 0
+(confirms nothing in the live codebase imports anything from the deleted `evals/`). Re-ran
+`git grep -i "evals/"` post-deletion — same non-live hits only (this ralph workspace's own docs
++ the historical audit report), zero live references anywhere. `eval/`'s own suite
+(`pytest eval/tests -q`) — 262 passed, 1 skipped, unmodified. Full repo `pytest -q` — 581
+passed / 15 skipped / 3 failed — identical to the CHUNK_5 baseline (evals/ was never
+pytest-collected; deleting it changed nothing test-count-wise), same 3 pre-existing baseline
+failures, zero regressions. — DONE (gate green).
+<promise>CHUNK COMPLETE: CHUNK_6_EVALCLEANUP</promise>
+
+[2026-08-08T02:12:00Z] BUILD COMPLETE — all 6 chunks (CHUNK_1_CLEANUP, CHUNK_2_REGISTRY,
+CHUNK_3_DOCS, CHUNK_4_RETRIEVAL, CHUNK_5_TESTS, CHUNK_6_EVALCLEANUP) done, each with its own
+green validation gate and its own commit. No `- [ ]` items remain in IMPLEMENTATION_PLAN.md.
+Commits (in order, all local, none pushed — no remote configured on this repo):
+ac0b520, 9fbf8d6, 3f702a0, 6e1b72f, 3cd3cab, 82d501e, and this chunk's commit follows.
+<promise>BUILD COMPLETE</promise>
