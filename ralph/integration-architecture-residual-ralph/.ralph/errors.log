@@ -1,0 +1,3 @@
+# errors.log — ralph failure patterns
+# Format: [ISO_TIMESTAMP] CHUNK_ID task N: {description of failure}
+# ralph appends to this file; never truncates it.
