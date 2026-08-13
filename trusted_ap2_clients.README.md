@@ -16,6 +16,7 @@ The file is a single JSON object:
 - `description` — human-readable summary of the file's role.
 - `clients` — array of client records. Required fields per record:
   - `client_id` — short, stable, lowercase identifier (e.g. `cato`).
+  - `principal_id` / `tenant_id` — immutable owner identity bound to jobs and artifacts.
   - `name` — display name.
   - `pubkey_b64` — base64 Ed25519 public key (32 raw bytes encoded).
   - `algorithm` — currently always `ed25519`.
@@ -26,23 +27,17 @@ The file is a single JSON object:
 
 ## Current Auth Model
 
-Today the agents-gateway authenticates each request by comparing the
-`X-Agent-Api-Key` header against the `GATEWAY_API_KEY` environment
-variable (`apps/agents-gateway/main.py`, `verify_gateway_key()`). The
-signed envelope (payload + nonce + RFC3339 timestamp + Ed25519
-signature + `X-AP2-Pubkey` sidecar) is transmitted but not yet
-verified server-side.
+`POST /agents/{slug}/run` verifies the signed envelope (payload + nonce +
+RFC3339 timestamp + Ed25519 signature), consumes the nonce, and derives the
+principal and scopes from this registry. The shared gateway key remains a
+legacy compatibility credential but cannot read AP2-owned rows.
 
-## Forward-Compat Plan
+## Continuation Tokens
 
-A signature-verification middleware will land alongside the VCAP-AP2
-binding rollout. Once active, the middleware will:
-
-1. Look up the `X-AP2-Pubkey` header value in this registry.
-2. Reject the request if no entry matches or `enabled` is false.
-3. Re-derive the canonical signed bytes and verify the Ed25519
-   signature on the envelope using the registered key.
-4. Optionally enforce per-client `capabilities` against the route.
+Successful async submission returns a short-lived, audience-bound
+`principal_token` inside the queued JSON response. Pollers send it only as
+`X-Genesis-Principal-Token`; job and artifact routes verify expiry, scope,
+tenant, and owner. Tokens are never model input or log content.
 
 See `Protocols/VCAP-AP2-Binding-v1.0-draft.md` for the binding spec and
 canonical-bytes definition the middleware will use.

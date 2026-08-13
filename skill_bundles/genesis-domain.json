@@ -26,18 +26,6 @@
       "docstring": "Check if name is pronounceable based on vowel/consonant distribution."
     },
     {
-      "name": "create_payment_intent_mandate",
-      "docstring": "Create AP2 Intent Mandate for domain purchases (max N domains, max price per domain, validity window)."
-    },
-    {
-      "name": "_request_payment_consent_ap2",
-      "docstring": "Request AP2 payment consent for a specific domain registration via Intent \u00e2\u2020\u2019 Cart \u00e2\u2020\u2019 Approval flow."
-    },
-    {
-      "name": "select_and_register_domain",
-      "docstring": "Main workflow: generate candidates, select, register with AP2 payment consent, optionally configure DNS for GitHub Pages."
-    },
-    {
       "name": "get_cost_summary",
       "docstring": "Get domain cost summary including total_monthly_cost, total_domains, threshold_exceeded, and registered domain list."
     }
@@ -49,7 +37,6 @@
     "ap2_intent_mandate_id",
     "ap2_cart_mandate_id",
     "payment_consent_status",
-    "registration_success",
     "dns_configured",
     "github_pages_ready",
     "total_cost",

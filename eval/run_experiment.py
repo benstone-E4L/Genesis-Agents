@@ -17,8 +17,8 @@ HARD PRECONDITIONS — these abort the run, they are not warnings
    report the result as if it did.
 
 2. ``genesis_deploy_x402`` / ``deploy_agent`` are refused without
-   ``--allow-deploy``. They have REAL external side effects (Vercel/Netlify
-   pushes).
+   ``--allow-deploy``. They have REAL external side effects (GitHub commits,
+   pull requests and workspace shell execution).
 
 3. Money-domain slugs (finance / billing / commerce / pricing / payment /
    payout / invoice / escrow) are refused without ``--allow-money``. They are
@@ -281,7 +281,7 @@ def check_guards(
         if live_slug in DEPLOY_SLUGS and not allow_deploy:
             blocked.append(
                 f"  {ex.id}: {live_slug} has REAL external side effects "
-                "(Vercel/Netlify pushes). Override: --allow-deploy"
+                "(GitHub commits/PRs, workspace shell). Override: --allow-deploy"
             )
         if is_money_domain(live_slug) and not allow_money:
             blocked.append(

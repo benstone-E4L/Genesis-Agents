@@ -112,6 +112,78 @@ def _make_runtime_result(
     return result
 
 
+@pytest.fixture
+def marketplace_profile(monkeypatch):
+    """Run one test under the only profile in which escrow may move money.
+
+    escrow_guard fails closed on every other value including unset, and
+    worker.py re-checks escrow_permitted() at each call site. Tests that assert
+    an escrow call therefore describe marketplace behaviour, not E4L behaviour.
+    """
+    from escrow_guard import PROFILE_ENV_VAR, PROFILE_MARKETPLACE, escrow_permitted
+
+    monkeypatch.setenv(PROFILE_ENV_VAR, PROFILE_MARKETPLACE)
+    assert escrow_permitted() is True
+    yield
+
+
+# ---------------------------------------------------------------------------
+# TestEscrowBlockedInDefaultProfile
+# ---------------------------------------------------------------------------
+
+
+class TestEscrowBlockedInDefaultProfile:
+    """Negative controls for the profile the E4L build actually ships.
+
+    Without these, setting the marketplace profile above would just be a way to
+    make three failing tests pass. These prove the same three lifecycle events
+    move NO money when the profile is unset.
+    """
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        ("runtime_result_kwargs", "escrow_fn"),
+        [
+            ({}, "complete_escrow"),
+            ({"ok": False, "error": "max_turns_reached"}, "release_escrow"),
+            ({"ok": False, "error": "timeout", "elapsed_s": 310.0}, "release_escrow"),
+        ],
+        ids=["settle-on-success", "release-on-failure", "release-on-timeout"],
+    )
+    async def test_escrow_is_never_called_when_profile_is_unset(
+        self, monkeypatch, runtime_result_kwargs, escrow_fn
+    ):
+        from escrow_guard import PROFILE_ENV_VAR, escrow_permitted
+
+        monkeypatch.delenv(PROFILE_ENV_VAR, raising=False)
+        assert escrow_permitted() is False
+
+        job = _make_job(escrow_id="escrow-contained-001")
+        runtime_result = _make_runtime_result(
+            slug=job["agentSlug"], **runtime_result_kwargs
+        )
+
+        with (
+            patch("worker.update_job_status"),
+            patch("worker.heartbeat"),
+            patch("worker.fire_callback", new=AsyncMock(return_value=True)),
+        ):
+            with patch(
+                f"escrow_client.{escrow_fn}",
+                new=AsyncMock(return_value={"ok": True}),
+            ) as mock_escrow:
+                from agent_runtime import AgentRuntime
+
+                mock_runtime = MagicMock(spec=AgentRuntime)
+                mock_runtime.execute_agent = AsyncMock(return_value=runtime_result)
+
+                from worker import process_job
+
+                await process_job(job, mock_runtime)
+
+            mock_escrow.assert_not_awaited()
+
+
 # ---------------------------------------------------------------------------
 # TestSuccessfulJobLifecycle
 # ---------------------------------------------------------------------------
@@ -149,8 +221,14 @@ class TestSuccessfulJobLifecycle:
         assert "trace" in summary
 
     @pytest.mark.asyncio
-    async def test_escrow_settled_on_success_no_callback(self):
-        """When job succeeds and we own the escrow, complete_escrow is called."""
+    async def test_escrow_settled_on_success_no_callback(self, marketplace_profile):
+        """When job succeeds and we own the escrow, complete_escrow is called.
+
+        Escrow is a marketplace-profile behaviour. worker.py re-checks
+        escrow_permitted() at every call site, so this lifecycle only exists
+        under GENESIS_DEPLOYMENT_PROFILE=swarmsync-marketplace; the default
+        (E4L/Cato-facing) build is covered by TestEscrowBlockedInDefaultProfile.
+        """
         job = _make_job(escrow_id="escrow-abc")
         runtime_result = _make_runtime_result(slug=job["agentSlug"])
 
@@ -272,8 +350,11 @@ class TestAgentFailureLifecycle:
         assert failed_calls[0].kwargs.get("error_code") == "llm_call_failed"
 
     @pytest.mark.asyncio
-    async def test_escrow_released_on_failure(self):
-        """release_escrow is called when job fails and we own the escrow."""
+    async def test_escrow_released_on_failure(self, marketplace_profile):
+        """release_escrow is called when job fails and we own the escrow.
+
+        Marketplace profile only — see test_escrow_settled_on_success_no_callback.
+        """
         job = _make_job(escrow_id="escrow-fail-001")
         runtime_result = _make_runtime_result(ok=False, error="max_turns_reached")
 
@@ -395,8 +476,11 @@ class TestTimeoutLifecycle:
         assert failed_calls[0].kwargs.get("error_code") == "timeout"
 
     @pytest.mark.asyncio
-    async def test_timeout_triggers_escrow_release(self):
-        """Escrow is refunded when the job times out and we own the escrow."""
+    async def test_timeout_triggers_escrow_release(self, marketplace_profile):
+        """Escrow is refunded when the job times out and we own the escrow.
+
+        Marketplace profile only — see test_escrow_settled_on_success_no_callback.
+        """
         job = _make_job(escrow_id="escrow-timeout-001")
         runtime_result = _make_runtime_result(ok=False, error="timeout", elapsed_s=310.0)
 
@@ -489,7 +573,11 @@ class TestDisputeLifecycle:
             mock_conn_factory.return_value = mock_conn
 
             from job_store import update_job_status
-            result = update_job_status(job_id, "DISPUTED")
+            # A buyer may dispute an already-DELIVERED job, but only through the human-
+            # initiated route, which opts in explicitly. The default now refuses automatic
+            # transitions out of a terminal state (the reaper-vs-worker resurrection race).
+            assert update_job_status(job_id, "DISPUTED") is False
+            result = update_job_status(job_id, "DISPUTED", allow_terminal_override=True)
 
         assert result is True
 

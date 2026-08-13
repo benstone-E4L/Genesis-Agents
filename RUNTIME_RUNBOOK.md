@@ -7,7 +7,7 @@ sandbox isolation, the worker, and the live proof procedure.
 
 ```
 POST /agents/{slug}/run  (async agents return job_id + poll_url)
-  → genesis_jobs row (QUEUED)                 [Supabase Postgres, Prisma-owned]
+  → genesis_jobs row (QUEUED)                 [Genesis-owned Postgres]
   → in-process auto-worker claims it (RUNNING)  [GENESIS_WORKER_ENABLED=true]
   → AgentRuntime.execute_agent(job_id, session_id)
        • genesis_agent_sessions row (ACTIVE → COMPLETED/FAILED)   [durable]
@@ -21,23 +21,24 @@ POST /agents/{slug}/run  (async agents return job_id + poll_url)
   → job DELIVERED / DELIVERED_WITH_ARTIFACT_WARNING / FAILED / EXPIRED
 ```
 
-## Durable tables (Supabase Postgres, owned by SwarmSync.AI Prisma)
+## Durable tables (Genesis-owned Postgres)
 
-Migration: `SwarmSync.AI/apps/api/prisma/migrations/20260626000000_genesis_real_agent_runtime/`.
-Applied by the SwarmSync **API** Render deploy pre-step (`prisma migrate deploy`).
-**Never** create these with raw SQL / `db push` — that causes drift the CI
-(`prisma-drift-check.yml`, `db-sync-check.yml`) rejects.
+Genesis owns all six `genesis_*` runtime tables through
+`migrations/001_genesis_runtime.sql`. Apply that file transactionally with
+`psql -v ON_ERROR_STOP=1 -f migrations/001_genesis_runtime.sql` to a reviewed
+Genesis database URL. Do not use the Cato database or an operator's local DB.
 
 | Table | Purpose |
 |-------|---------|
+| `genesis_jobs` | Durable queue, lifecycle status, idempotency, and result metadata |
+| `genesis_job_events` | Append-only job status transitions |
 | `genesis_agent_sessions` | Restart-durable session record per invocation (status, workspace, trace, parent linkage) |
 | `genesis_agent_events` | Durable lifecycle events (mirrors `/tmp` JSONL) |
 | `genesis_job_relationships` | Parent→child delegation edges from `genesis_call` |
 | `genesis_artifacts` | Per-file artifact metadata (sha256/size/mime/uri/signed_url) |
 
-Genesis reads/writes via psycopg (`durable_store.py`). All writes are
-**best-effort**: if the migration isn't applied yet, Genesis logs once and falls
-back to file/in-memory so nothing breaks during rollout.
+Genesis reads/writes via psycopg (`job_store.py` and `durable_store.py`). The
+migration must pass a fresh-database CRUD proof before deployment.
 
 ## New endpoints
 
@@ -61,17 +62,13 @@ back to file/in-memory so nothing breaks during rollout.
   run in a fresh mount + network namespace — only the job workspace is mounted;
   `/etc`, `.env`, the repo, `/var/data`, and other jobs' files do not exist;
   `--unshare-net` removes networking. Reads of those paths fail with ENOENT.
-- **`process` tier (fallback):** new session/process-group (kill whole tree on
-  timeout), RLIMIT_CPU/AS/FSIZE/NPROC caps, minimal allow-listed env (no
-  secrets), cwd confined to workspace, and a static guard that blocks dangerous
-  commands, pipe-to-shell, and sensitive-path/traversal reads.
+- **`unavailable` tier (fail closed):** if bubblewrap cannot create the kernel
+  boundary, `workspace_shell` returns `secure_sandbox_unavailable` without
+  spawning the requested process.
 
-`GET /health/sandbox` reports which tier is active. **Render's native Python
-runtime has no `bwrap`**, so it runs the `process` tier. To get full kernel
-isolation, deploy Genesis via a Docker image with `apt-get install -y bubblewrap`
-(or run on a host where bubblewrap + unprivileged userns are available). Either
-tier blocks the escape attempts in `test_sandbox_manager.py` and
-`workspace_escape_live`.
+`GET /health/sandbox` reports the active state. Production shell tools require
+a host/container with bubblewrap and unprivileged user namespaces; without
+them, shell execution remains disabled.
 
 ## Worker (production)
 
@@ -84,11 +81,17 @@ graceful shutdown. Env: `GENESIS_WORKER_ENABLED`, `GENESIS_WORKER_INTERVAL_SECON
 
 ## Deploy + migrate procedure
 
-1. Merge the SwarmSync.AI branch (schema + migration).
-2. **Back up the DB** — run the `database-logical-backup` GitHub Actions workflow; confirm success.
-3. Deploy the SwarmSync **API** on Render (pre-deploy runs `prisma migrate deploy` → creates the 4 tables). Verify with `list_migrations` / `\dt genesis_*`.
-4. Deploy Genesis (push to its `main`; auto-deploys). Genesis starts fresh and picks up the tables.
-5. Verify: `GET /health/worker` (enabled, commit), `GET /health/sandbox` (isolation), `GET /health/browser`.
+1. **Back up the target Genesis database** and retain the restore identifier.
+2. Apply `migrations/001_genesis_runtime.sql` with `ON_ERROR_STOP=1`.
+3. Verify `\dt genesis_*` lists all six owned tables and run the committed
+   fresh-Postgres CRUD integration test.
+4. Deploy Genesis only after those checks pass.
+5. Verify `GET /health/worker`, `GET /health/sandbox`, and `GET /health/browser`.
+
+Rollback is restore-first: stop Genesis workers, restore the pre-migration
+Genesis database backup, and redeploy the prior application revision. The
+migration deliberately has no automated `DROP TABLE` rollback because that
+would destroy runtime jobs, sessions, events, relationships, and artifacts.
 
 ## Live proof
 

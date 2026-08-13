@@ -22,9 +22,12 @@ backend is only ever queried when the caller supplies `requesting_principal` (pe
 filtering has no identity to check without it — fails closed by omission, per this
 workstream's PERMISSION-FILTER-FAILS-CLOSED guardrail) and `domain_hint` is not `"vault"`.
 
-Auth: mounted by main.py with `dependencies=[Depends(verify_gateway_key)]` (same GATEWAY_API_KEY
-guard every other non-public /agents/* route uses). This module intentionally does not import
-from main.py, to avoid a circular import (main.py imports this module to mount it).
+Auth: identical to how Genesis authenticates agent invocation — a signed AP2 envelope verified
+against `trusted_ap2_clients.json` (scope `retrieval.query`), or a short-lived continuation token
+from a prior AP2 handshake. The shared GATEWAY_API_KEY alone is never sufficient here. See
+`_retrieval_principal` for the envelope binding contract. This module intentionally does not
+import from main.py, to avoid a circular import (main.py imports this module to mount it), so the
+shared verification primitives live in runtime/request_auth.py.
 """
 from __future__ import annotations
 
@@ -33,7 +36,7 @@ import os
 from datetime import datetime, timezone
 from typing import Any, Literal, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, Header, HTTPException, Request
 from pydantic import BaseModel
 
 import knowledge_backbone
@@ -45,6 +48,102 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 _REFUSAL_REASON = "no vault answer found above threshold"
+_MAX_CONTENT_CHARS = 4000
+
+
+RETRIEVAL_SCOPE = "retrieval.query"
+
+# The exact request fields a signed retrieval envelope must cover in `payload.params`. `query`
+# itself is bound separately as `payload.task`. Every field here changes what the route reads or
+# returns, so leaving any of them unsigned would let an in-flight attacker widen a query's blast
+# radius (e.g. flip domain_hint "vault" -> "any", or raise top_k) under a still-valid signature.
+_SIGNED_SCOPE_FIELDS = (
+    "top_k",
+    "entity_filter",
+    "include_superseded",
+    "domain_hint",
+    "requesting_principal",
+)
+
+
+def _signed_retrieval_binding(body: Any) -> tuple[str, dict[str, Any]]:
+    """Project a raw request body into the (task, params) the envelope must have signed.
+
+    Normalizes through RetrievalQueryRequest so defaults are applied identically on both sides —
+    an omitted `entity_filter` binds as null, exactly as the route will read it.
+    """
+    from runtime.request_auth import AuthenticationError
+
+    if not isinstance(body, dict):
+        raise AuthenticationError("ap2_envelope_invalid")
+    try:
+        parsed = RetrievalQueryRequest.model_validate(body)
+    except Exception as exc:
+        raise AuthenticationError("ap2_params_invalid") from exc
+    return parsed.query, {name: getattr(parsed, name) for name in _SIGNED_SCOPE_FIELDS}
+
+
+async def _retrieval_principal(
+    request: Request,
+    x_genesis_principal_token: str | None = Header(default=None, alias="X-Genesis-Principal-Token"),
+    x_ap2_version: str | None = Header(default=None, alias="X-AP2-Version"),
+    x_ap2_pubkey: str | None = Header(default=None, alias="X-AP2-Pubkey"),
+):
+    """Authenticate retrieval the same way Genesis authenticates agent invocation.
+
+    Two accepted paths, in priority order:
+
+    1. A signed AP2 envelope (X-AP2-Version / X-AP2-Pubkey present) — the same envelope shape,
+       trusted-client registry, nonce store and clock-skew window that /agents/{slug}/run uses via
+       verify_ap2_envelope. Retrieval has no agent slug, so the envelope binds
+       `payload.agent == "retrieval.query"`, `payload.task == <query text>` and `payload.params ==
+       <retrieval scope>`; the signature therefore covers the query itself, not just an envelope.
+    2. A short-lived continuation token from a prior AP2 handshake — unchanged, so callers already
+       holding a principal token keep working.
+
+    The shared GATEWAY_API_KEY is deliberately NOT sufficient on either path: it carries no
+    principal, so knowledge_backbone results could not be permission-filtered per requester.
+    """
+    from runtime.request_auth import (
+        RETRIEVAL_ENVELOPE_AGENT,
+        AuthenticationError,
+        assert_envelope_binds,
+        verify_ap2_envelope,
+        verify_principal_token,
+    )
+
+    if x_ap2_version or x_ap2_pubkey:
+        try:
+            body = await request.json()
+            principal = verify_ap2_envelope(
+                body,
+                header_version=x_ap2_version,
+                header_pubkey=x_ap2_pubkey,
+                required_scope=RETRIEVAL_SCOPE,
+            )
+            task, params = _signed_retrieval_binding(body)
+            assert_envelope_binds(body, agent=RETRIEVAL_ENVELOPE_AGENT, task=task, params=params)
+            return principal
+        except AuthenticationError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+
+    if not x_genesis_principal_token:
+        raise HTTPException(status_code=401, detail="principal token required")
+    try:
+        principal = verify_principal_token(x_genesis_principal_token)
+    except AuthenticationError as exc:
+        raise HTTPException(status_code=401, detail=str(exc)) from exc
+    if not principal.has_scope(RETRIEVAL_SCOPE):
+        raise HTTPException(status_code=403, detail="principal scope denied")
+    return principal
+
+
+def _safe_content(value: Any) -> str:
+    """Bound and redact retrieval text while retaining citation/hash binding."""
+    from audit import _sanitize
+
+    text = str(_sanitize(str(value or "")))
+    return text[:_MAX_CONTENT_CHARS]
 
 
 def _min_score() -> float:
@@ -80,6 +179,7 @@ class RetrievalChunk(BaseModel):
     updated: Optional[str] = None
     supersedes: list[str] = []
     score: float
+    content: str = ""
     # CHUNK_4_RETRIEVAL additions (spec §12). "vault" chunks (the pre-existing contract) leave
     # every field below at its default — only "knowledge_backbone" chunks populate them.
     source: Literal["vault", "knowledge_backbone"] = "vault"
@@ -136,6 +236,7 @@ def _row_to_chunk(row: dict[str, Any]) -> RetrievalChunk:
         updated=_isoformat(row.get("updated")),
         supersedes=list(row.get("supersedes") or []),
         score=float(row.get("score", 0.0)),
+        content=_safe_content(row.get("content_text")),
     )
 
 
@@ -181,6 +282,7 @@ def _row_to_kb_chunk(row: dict[str, Any]) -> RetrievalChunk:
         modified_at=_isoformat(row.get("modified_at")),
         content_hash=row.get("content_hash"),
         staleness_flag=row.get("staleness_flag"),
+        content=_safe_content(row.get("content_text") or row.get("content")),
     )
 
 
@@ -208,7 +310,9 @@ def _query_knowledge_backbone(
 
 
 @router.post("/retrieval/query", response_model=RetrievalQueryResponse)
-async def retrieval_query(body: RetrievalQueryRequest) -> RetrievalQueryResponse:
+async def retrieval_query(
+    body: RetrievalQueryRequest, principal=Depends(_retrieval_principal)
+) -> RetrievalQueryResponse:
     try:
         rows = retrieval_store.query_chunks(
             body.query,
@@ -239,7 +343,7 @@ async def retrieval_query(body: RetrievalQueryRequest) -> RetrievalQueryResponse
     partial_reason: Optional[str] = None
     if body.domain_hint != "vault":
         kb_chunks, partial, partial_reason = _query_knowledge_backbone(
-            body.query, top_k=body.top_k, principal=body.requesting_principal, min_score=min_score
+            body.query, top_k=body.top_k, principal=principal.principal_id, min_score=min_score
         )
 
     all_chunks = vault_chunks + kb_chunks

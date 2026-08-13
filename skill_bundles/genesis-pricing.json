@@ -15,24 +15,12 @@
   ],
   "tool_methods_from_source": [
     {
-      "name": "purchase_dataset",
-      "docstring": "Buy a market dataset from provider at price for records count. AP2-approved + x402 charged at 0.1% of price."
-    },
-    {
       "name": "run_elasticity_experiment",
       "docstring": "Run a price-elasticity experiment on a cloud cluster; logs experiment summary with cost, expected uplift, roi_delta."
     },
     {
       "name": "deploy_pricing_update",
       "docstring": "Deploy a pricing change to a channel (in-app, ads, etc.) at a given risk level. AP2-approved."
-    },
-    {
-      "name": "generate_pricing_report",
-      "docstring": "Generate a pricing BI report for a period with N dashboards at per-seat cost. AP2-approved."
-    },
-    {
-      "name": "run_pricing_cycle",
-      "docstring": "Full pricing cycle: dataset purchase + elasticity experiment + deployment + report, returning aggregated AP2 receipts."
     },
     {
       "name": "shutdown",

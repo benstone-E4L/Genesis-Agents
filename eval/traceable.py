@@ -1,4 +1,14 @@
-"""LangSmith instrumentation for Genesis agent runs.
+"""Tracing instrumentation for Genesis agent runs (Phoenix, formerly LangSmith).
+
+Migration status: Arize Phoenix replaces LangSmith in this harness's role. When
+a Phoenix collector is configured, :func:`tracing_enabled` reports False and the
+LangSmith path stays dormant, so the same agent inputs and outputs are never
+double-shipped to two vendors. The LangSmith code below is retained, not dead:
+:mod:`eval.run_experiment` still depends on LangSmith *datasets and experiments*,
+which have no drop-in equivalent here without adding the Phoenix client package.
+Per-run tracing has migrated; dataset/experiment orchestration has not.
+
+
 
 Why the plain ``@traceable`` decorator and not an SDK integration: Genesis is a
 FastAPI service that makes raw HTTP calls to the SwarmSync router. There is no
@@ -39,16 +49,36 @@ RUN_TREE_GETTER: Callable[[], Any] | None = None
 _FALSEY = {"0", "false", "no", "off", ""}
 
 
+def phoenix_enabled() -> bool:
+    """True when Arize Phoenix is configured as the eval tracing backend."""
+    try:
+        from runtime import phoenix_tracing
+
+        return phoenix_tracing.tracing_enabled()
+    except Exception:
+        return False
+
+
 def tracing_enabled() -> bool:
-    """True only when LangSmith is both configured and not explicitly disabled.
+    """True only when LangSmith is configured, enabled, and not superseded.
 
     Requires ``LANGSMITH_API_KEY``. ``LANGSMITH_TRACING`` may be used to turn
     tracing off while the key stays in the environment.
+
+    **Phoenix supersedes LangSmith.** Phoenix takes over LangSmith's role for
+    E4L evaluation, so when a Phoenix collector is configured this returns False
+    and the LangSmith path stays dormant. The two are deliberately mutually
+    exclusive: running both would double-ship the same agent inputs and outputs
+    to two vendors. Setting ``LANGSMITH_TRACING=1`` explicitly forces LangSmith
+    back on for a side-by-side comparison during the migration.
     """
     if not (os.getenv("LANGSMITH_API_KEY") or "").strip():
         return False
     flag = os.getenv("LANGSMITH_TRACING")
     if flag is not None and flag.strip().lower() in _FALSEY:
+        return False
+    forced = flag is not None and flag.strip().lower() not in _FALSEY
+    if phoenix_enabled() and not forced:
         return False
     return True
 
@@ -104,6 +134,59 @@ def _attach_metadata(metadata: Mapping[str, Any]) -> None:
             run_tree.metadata = dict(redact(dict(metadata)))
         else:
             current.update(redact(dict(metadata)))
+    except Exception:
+        # Observability must never break execution.
+        return
+
+
+#: Attributes from :func:`build_metadata` that are safe to publish verbatim —
+#: ids, counts, latencies, verdicts. Everything else in the metadata dict is
+#: withheld unless content tracing is explicitly enabled.
+_PHOENIX_SAFE_METADATA_KEYS = (
+    "slug", "requested_slug", "slug_resolution", "mode", "elapsed_ms",
+    "http_status", "attempts", "outcome", "determinate", "error_kind", "warmed",
+)
+
+
+def _emit_phoenix_span(
+    result: AgentRunResult,
+    extra_metadata: Mapping[str, Any] | None,
+    inputs: Mapping[str, Any],
+) -> None:
+    """Record the eval run as an OpenInference AGENT span. Never raises.
+
+    Both layers of protection are preserved from the LangSmith path. Everything
+    here has already been through :func:`eval.redaction.redact`, and on top of
+    that the free-text fields (the task and the agent's response) are withheld
+    entirely unless content tracing is switched on — ``redact`` removes
+    *secrets*, but an agent response can still quote confidential E4L material
+    that has not been cleared for a third-party backend.
+    """
+    try:
+        from runtime import phoenix_tracing
+
+        metadata = build_metadata(result, extra_metadata)
+        outputs = build_outputs(result)
+        attributes: dict[str, Any] = {
+            f"genesis.eval.{key}": metadata.get(key)
+            for key in _PHOENIX_SAFE_METADATA_KEYS
+        }
+        attributes.update({
+            "genesis.eval.ok": outputs.get("ok"),
+            "genesis.eval.agent_name": outputs.get("agent_name"),
+            # Free text: gated, and redacted again on the way out.
+            phoenix_tracing.INPUT_VALUE: phoenix_tracing.safe_content(
+                redact_text(str(inputs.get("task", "")))
+            ),
+            phoenix_tracing.OUTPUT_VALUE: phoenix_tracing.safe_content(
+                redact_text(str(outputs.get("response") or ""))
+            ),
+            "genesis.eval.error_message": phoenix_tracing.safe_content(
+                redact_text(str(outputs.get("error_message") or ""))
+            ),
+        })
+        with phoenix_tracing.span(RUN_NAME, kind="AGENT", attributes=attributes):
+            pass
     except Exception:
         # Observability must never break execution.
         return
@@ -203,6 +286,7 @@ async def traced_agent_run(
             raise _redacted_copy(exc) from None
         holder["result"] = result
         _attach_metadata(build_metadata(result, extra_metadata))
+        _emit_phoenix_span(result, extra_metadata, safe_inputs)
         return build_outputs(result)
 
     runner = _wrap_traceable(_core)

@@ -8,6 +8,25 @@ import pytest
 
 from main import RunRequest, _llm_api_key, _llm_api_url, _raise_for_runtime_failure, run_agent
 
+
+def _test_principal():
+    """run_agent resolves its principal via Depends() under FastAPI.
+
+    These tests call the handler directly, so they must supply the principal
+    the dependency would have produced. Passing the AP2 identity (not the
+    legacy gateway one) keeps the owner-scoping path under test.
+    """
+    from runtime.request_auth import Principal
+
+    return Principal(
+        principal_id="service:cato",
+        tenant_id="e4l",
+        client_id="cato",
+        scopes=frozenset({"agent.invoke", "job.read"}),
+        auth_method="ap2",
+        expires_at=0,
+    )
+
 _REPO_ROOT = Path(__file__).resolve().parent
 _MAIN_PY = _REPO_ROOT / "main.py"
 _TOOLS_DIR = _REPO_ROOT / "tools"
@@ -30,7 +49,19 @@ _DIRECT_LLM_HOSTS = (
 #   - vision_tool.py: GPT-4o vision API (no SwarmSync vision route yet). Tracked
 #     for router migration; gated behind OPENAI_API_KEY and only reachable via
 #     the vision agent's tool calls, never the persona/negotiate path.
-_KNOWN_DIRECT_LLM_FILES = {"vision_tool.py"}
+# Files permitted to name an LLM provider host directly. Each entry is a deliberate decision,
+# not an oversight — the guard exists so a bypass cannot be added silently.
+#
+#   vision_tool.py  — pre-existing: OpenAI vision has no SwarmSync equivalent.
+#   agent_runtime.py — OPERATOR DECISION (2026-08-12): the SwarmSync gateway key is dead
+#       (401 "Invalid or disabled API key" from api.swarmsync.ai), so no agent could run at all.
+#       Rather than rotate a key we do not control, Genesis can now speak the Anthropic Messages
+#       API directly, selected by GENESIS_LLM_PROVIDER (or an api.anthropic.com URL). The
+#       SwarmSync/OpenAI path is UNCHANGED and remains the documented default in .env.example —
+#       this is an added provider, not a bypass of routing. The single occurrence in
+#       agent_runtime.py is the docstring for _is_anthropic; the wire format itself lives in
+#       runtime/anthropic_wire.py.
+_KNOWN_DIRECT_LLM_FILES = {"vision_tool.py", "agent_runtime.py"}
 
 
 def test_runtime_failure_raises_non_200_status():
@@ -113,8 +144,12 @@ def test_known_direct_llm_exceptions_still_exist():
     """Guard the allowlist against silent drift: if a known direct-provider file
     is removed or migrated to the router, update _KNOWN_DIRECT_LLM_FILES so the
     'no bypass' claim stays accurate."""
+    # Resolve against the SAME surface the bypass scan walks (repo root + tools/), not tools/
+    # alone — otherwise an allowlisted root-level file like agent_runtime.py reads as "missing"
+    # and the guard fails for the wrong reason.
     for name in _KNOWN_DIRECT_LLM_FILES:
-        path = _TOOLS_DIR / name
+        candidates = [_TOOLS_DIR / name, _REPO_ROOT / name]
+        path = next((p for p in candidates if p.exists()), candidates[0])
         assert path.exists(), f"allowlisted bypass file missing: {name} — update _KNOWN_DIRECT_LLM_FILES"
         text = path.read_text(encoding="utf-8")
         assert any(host in text for host in _DIRECT_LLM_HOSTS), (
@@ -195,6 +230,7 @@ async def test_conduit_heavy_run_requests_enqueue_async_jobs(
     def fail_get_runtime():
         raise AssertionError("async bundles must not execute AgentRuntime during /run")
 
+    monkeypatch.setenv("GENESIS_PRINCIPAL_TOKEN_KEY", "unit-test-principal-token-key-0123456789")
     monkeypatch.setattr(main, "_JOB_STORE_OK", True)
     monkeypatch.setattr(main, "create_job", fake_create_job)
     monkeypatch.setattr(main, "_get_runtime", fail_get_runtime)
@@ -202,6 +238,7 @@ async def test_conduit_heavy_run_requests_enqueue_async_jobs(
     result = await run_agent(
         request_slug,
         RunRequest(prompt="Perform a real browser-heavy task", task={"scope": "smoke"}),
+        principal=_test_principal(),
     )
 
     payload = json.loads(result.response)
@@ -211,10 +248,19 @@ async def test_conduit_heavy_run_requests_enqueue_async_jobs(
     assert payload["status"] == "QUEUED"
     assert payload["poll_url"] == "/agents/jobs/cqueued123"
 
+    # The queued response must carry the owner-scoped continuation token, or
+    # Cato cannot poll its own job without re-presenting the service-wide
+    # gateway key to whatever host the poll_url names.
+    from runtime.request_auth import verify_principal_token
+
+    polled = verify_principal_token(payload["principal_token"])
+    assert polled.principal_id == "service:cato"
+    assert polled.tenant_id == "e4l"
+    assert polled.has_scope("job.read")
+
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("request_slug", ["onboarding_agent", "genesis_hr_x402"])
-async def test_hr_aliases_use_same_canonical_bundle_in_live_test(monkeypatch, request_slug):
+async def test_hr_alias_uses_canonical_hr_bundle_in_live_test(monkeypatch):
     import main
 
     async def fake_call_llm_router(system_prompt, user_prompt):
@@ -224,10 +270,39 @@ async def test_hr_aliases_use_same_canonical_bundle_in_live_test(monkeypatch, re
     monkeypatch.setattr(main, "call_llm_router", fake_call_llm_router)
 
     result = await run_agent(
-        request_slug,
-        RunRequest(prompt="Create an onboarding checklist", mode="live_test"),
+        "genesis_hr_x402",
+        RunRequest(prompt="Draft an HR policy summary", mode="live_test"),
+        principal=_test_principal(),
     )
 
     payload = json.loads(result.response)
-    assert result.agentName == "Genesis HR Agent"
     assert payload["slug"] == "genesis-hr"
+
+
+@pytest.mark.asyncio
+async def test_onboarding_alias_resolves_to_its_own_bundle_not_hr(monkeypatch):
+    """genesis-onboarding was orphaned by an alias pointing at genesis-hr.
+
+    The alias silently served an HR system prompt to onboarding callers while
+    leaving genesis-onboarding unreachable, so the bundle's own tool policy and
+    budget never applied. Each slug must load its own reviewed bundle.
+    """
+    import main
+
+    seen = {}
+
+    async def fake_call_llm_router(system_prompt, user_prompt):
+        seen["system_prompt"] = system_prompt
+        return {"text": "onboarding response"}
+
+    monkeypatch.setattr(main, "call_llm_router", fake_call_llm_router)
+
+    result = await run_agent(
+        "onboarding_agent",
+        RunRequest(prompt="Create an onboarding checklist", mode="live_test"),
+        principal=_test_principal(),
+    )
+
+    payload = json.loads(result.response)
+    assert payload["slug"] == "genesis-onboarding"
+    assert "Human Resources operations specialist" not in seen["system_prompt"]

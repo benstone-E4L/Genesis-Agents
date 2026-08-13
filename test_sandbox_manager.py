@@ -1,8 +1,8 @@
-"""Unit tests for runtime.sandbox_manager — process-tier guarantees.
+"""Unit tests for runtime.sandbox_manager security boundaries.
 
-These run locally (no DB, no network). They prove the static-guard + process
-sandbox blocks escapes, scrubs secrets, confines cwd, and enforces timeouts.
-On a host with bubblewrap these same guards apply plus kernel FS isolation.
+These run locally (no DB, no network). Static denials always apply. Shell
+dispatch occurs only with a working bubblewrap kernel boundary and otherwise
+fails closed.
 """
 from __future__ import annotations
 
@@ -24,9 +24,14 @@ def jobdir(tmp_path: Path) -> Path:
 
 def test_safe_command_runs(jobdir):
     r = sm.run_in_sandbox("job1", "echo hello-sandbox", job_dir=jobdir)
-    assert r["ok"] is True
-    assert "hello-sandbox" in r["stdout"]
-    assert r["isolation"] in ("bwrap", "process")
+    if sm._bwrap_works():
+        assert r["ok"] is True
+        assert "hello-sandbox" in r["stdout"]
+        assert r["isolation"] == "bwrap"
+    else:
+        assert r["ok"] is False
+        assert r["error"] == "secure_sandbox_unavailable"
+        assert r["isolation"] == "unavailable"
 
 
 def test_etc_passwd_blocked(jobdir):
@@ -65,7 +70,7 @@ def test_cwd_escape_blocked(jobdir):
     assert r["error"] == "path_escape_blocked"
 
 
-@pytest.mark.skipif(not _POSIX, reason="uses POSIX $VAR expansion; sandbox target is Linux")
+@pytest.mark.skipif(not _POSIX or not sm._bwrap_works(), reason="requires functional Linux bwrap")
 def test_secret_env_scrubbed(jobdir):
     # A secret-looking env var must NOT reach the sandbox.
     r = sm.run_in_sandbox(
@@ -90,8 +95,8 @@ def test_lifecycle_create_status_destroy(jobdir, monkeypatch):
     monkeypatch.setenv("GENESIS_WORKSPACE_ROOT", str(jobdir.parent))
     desc = sm.create_sandbox("lifejob")
     assert desc["ok"] is True
-    assert desc["isolation"] in ("bwrap", "process")
+    assert desc["isolation"] in ("bwrap", "unavailable")
     st = sm.sandbox_status("lifejob")
-    assert st["isolation"] in ("bwrap", "process")
+    assert st["isolation"] in ("bwrap", "unavailable")
     out = sm.destroy_sandbox("lifejob", cleanup_policy="purge")
     assert "ok" in out

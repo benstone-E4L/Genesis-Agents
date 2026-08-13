@@ -13,37 +13,55 @@ if str(PROJECT_ROOT) not in sys.path:
 
 class TestToolRiskClassification:
     def test_known_tools_have_risk_classes(self):
-        from runtime.tool_policy import TOOL_RISK
-        assert "file_write" in TOOL_RISK
-        assert "genesis_call" in TOOL_RISK
-        assert "workspace_shell" in TOOL_RISK
-        assert "conduit" in TOOL_RISK
+        from runtime.tool_policy import TOOL_RISK_BY_NAME
+        assert "file_write" in TOOL_RISK_BY_NAME
+        assert "genesis_call" in TOOL_RISK_BY_NAME
+        assert "workspace_shell" in TOOL_RISK_BY_NAME
+        assert "conduit" in TOOL_RISK_BY_NAME
 
     def test_unknown_tool_is_admin_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_ADMIN
-        assert get_tool_risk("totally_unknown_tool_xyz") == RISK_ADMIN, (
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_ADMIN
+        assert get_tool_risk_by_name("totally_unknown_tool_xyz") == RISK_ADMIN, (
             "Unknown tools must default to RISK_ADMIN (fail-closed)"
         )
 
     def test_genesis_call_is_subagent_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_SUBAGENT
-        assert get_tool_risk("genesis_call") == RISK_SUBAGENT
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_SUBAGENT
+        assert get_tool_risk_by_name("genesis_call") == RISK_SUBAGENT
 
     def test_workspace_shell_is_shell_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_SHELL
-        assert get_tool_risk("workspace_shell") == RISK_SHELL
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_SHELL
+        assert get_tool_risk_by_name("workspace_shell") == RISK_SHELL
 
     def test_file_write_is_filesystem_write_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_FILESYSTEM_WRITE
-        assert get_tool_risk("file_write") == RISK_FILESYSTEM_WRITE
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_FILESYSTEM_WRITE
+        assert get_tool_risk_by_name("file_write") == RISK_FILESYSTEM_WRITE
 
-    def test_vercel_deploy_is_deployment_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_DEPLOYMENT
-        assert get_tool_risk("vercel_deploy") == RISK_DEPLOYMENT
+    def test_github_tool_is_deployment_risk(self):
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_DEPLOYMENT
+        assert get_tool_risk_by_name("github_tool") == RISK_DEPLOYMENT
+
+    def test_removed_hosting_deploy_names_fail_closed(self):
+        """vercel_deploy/netlify_deploy were deleted (E4L runs on Azure only).
+        If either name is ever reintroduced without a deliberate risk-map entry
+        it must land on the fail-closed default, never inherit deployment."""
+        from runtime.tool_policy import (
+            RISK_ADMIN,
+            TOOL_RISK_BY_NAME,
+            get_tool_risk_by_name,
+        )
+        for name in ("vercel_deploy", "netlify_deploy"):
+            assert name not in TOOL_RISK_BY_NAME
+            assert get_tool_risk_by_name(name) == RISK_ADMIN
 
     def test_finance_is_payment_risk(self):
-        from runtime.tool_policy import get_tool_risk, RISK_PAYMENT
-        assert get_tool_risk("finance") == RISK_PAYMENT
+        from runtime.tool_policy import get_tool_risk_by_name, RISK_PAYMENT
+        assert get_tool_risk_by_name("finance_sync_bank_fees") == RISK_PAYMENT
+
+    def test_only_one_production_risk_map_exists(self):
+        import runtime.tool_policy as policy
+        assert not hasattr(policy, "TOOL_RISK")
+        assert hasattr(policy, "TOOL_RISK_BY_NAME")
 
 
 class TestSlugPermissions:

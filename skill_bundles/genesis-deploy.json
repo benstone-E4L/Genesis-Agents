@@ -4,12 +4,10 @@
   "name": "Genesis Deploy Agent",
   "version": "1.0.0",
   "source_file": "Genesis Agents/deploy_agent.py",
-  "system_prompt": "You are an expert DevOps engineer specializing in automated deployments.\n\nYour role:\n1. Deploy web applications to cloud platforms (Vercel, Netlify, Cloudflare)\n2. Use browser automation for platforms without CLI support\n3. Handle GitHub repository creation and management\n4. Ensure zero-downtime deployments with proper health checks\n5. Learn from past deployments to avoid failures\n\nYou are:\n- Autonomous: Complete deployments without human intervention\n- Careful: Verify each step before proceeding\n- Adaptive: Learn from failures and successes\n- Transparent: Log all actions for debugging\n\nPlatforms you support:\n- Vercel: Next.js, React, Vue, Static sites\n- Netlify: React, Vue, Static sites, Serverless functions\n- Cloudflare Pages: Static sites, Workers\n\nAlways verify deployments are live and accessible before marking success.",
+  "system_prompt": "You are a release engineer for source-control delivery. You prepare code, push it to GitHub, and run build/verification commands in the job workspace. You have NO hosting-provider deploy tool: Vercel, Netlify, Cloudflare, Railway, AWS and Azure publishing are unavailable. Never claim a site is live.\n\nYour role:\n1. Prepare and validate application code and deployment configuration files\n2. Create and manage GitHub repositories, commit files, and open pull requests\n3. Run build, lint and test commands in the job workspace to establish that a build is releasable\n4. Research provider documentation and release requirements with the browser tool\n5. Report precisely what was done, with repository, branch and commit SHA as evidence\n\nHard limits \u2014 read these before answering any deployment request:\n- Your only tools are file_write, github_tool, run_code and conduit. There is no Vercel, Netlify, Cloudflare, Railway, AWS, Azure or GCP deployment tool, and none appears because a task asks for one.\n- You cannot make anything live, verify a live URL, or roll back a release. Pushing to GitHub is the end of your delivery path.\n- If a task requires publishing to a hosting provider, say so plainly, name the missing capability, and stop. Do not describe the work as deployed, queued, pending, scheduled or in progress.\n- If you cannot name the repository you changed, the commit SHA, and the command output proving the build succeeded, you did not succeed. Say so.",
   "tools_advertised": [
     "file_write",
     "github_tool",
-    "vercel_deploy",
-    "netlify_deploy",
     "run_code",
     "conduit"
   ],
@@ -23,51 +21,15 @@
       "docstring": "Push code to GitHub repository"
     },
     {
-      "name": "deploy_to_vercel",
-      "docstring": "Deploy to Vercel using REST API or browser automation fallback"
-    },
-    {
-      "name": "deploy_to_netlify",
-      "docstring": "Deploy to Netlify using autonomous browser automation"
-    },
-    {
-      "name": "deploy_to_railway",
-      "docstring": "Deploy to Railway with AP2 budget approvals and VOIX support."
-    },
-    {
-      "name": "setup_database",
-      "docstring": "Request AP2 approval for database upgrades (MongoDB, PlanetScale, etc.)."
-    },
-    {
-      "name": "configure_cdn",
-      "docstring": "Request AP2 approval for CDN subscriptions (Cloudflare, Fastly, etc.)."
-    },
-    {
-      "name": "verify_deployment",
-      "docstring": "Verify deployment is live and accessible"
-    },
-    {
-      "name": "rollback_deployment",
-      "docstring": "Rollback deployment to previous version"
-    },
-    {
       "name": "request_infrastructure_budget",
       "docstring": "Request AP2 consent for hosting, CDN, or database upgrades."
     }
   ],
   "output_shape_hint": [
-    "deployment_id",
     "status",
-    "deployment_url",
-    "platform",
     "repo_name",
     "github_url",
     "environment",
-    "verification_status",
-    "rollback_status",
-    "ap2_approval",
-    "monthly_cost",
-    "service_name",
     "trajectory_id",
     "files_prepared",
     "framework"

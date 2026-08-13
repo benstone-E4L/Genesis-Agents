@@ -23,14 +23,39 @@ import retrieval_store
 
 client = TestClient(main.app)
 
-_AUTH_HEADERS = {"x-agent-api-key": "test-gateway-key"}
+# /retrieval/query authenticates a signed, owner-scoped principal token — the
+# service-wide gateway key is deliberately NOT sufficient (it carries no
+# principal, so knowledge could not be permission-filtered per requester).
+_PRINCIPAL_TOKEN_KEY = "unit-test-principal-token-key-0123456789"
+_GATEWAY_ONLY_HEADERS = {"x-agent-api-key": "test-gateway-key"}
+_AUTH_HEADERS: dict[str, str] = {}
+
+
+def _issue_test_token(*, scopes=("retrieval.query",), tenant_id="e4l"):
+    from runtime.request_auth import Principal, issue_principal_token
+
+    return issue_principal_token(
+        Principal(
+            principal_id="service:cato",
+            tenant_id=tenant_id,
+            client_id="cato",
+            scopes=frozenset(scopes),
+            auth_method="ap2",
+            expires_at=0,
+        ),
+        key=_PRINCIPAL_TOKEN_KEY,
+    )
 
 
 @pytest.fixture(autouse=True)
 def _gateway_key(monkeypatch):
     monkeypatch.setenv("GATEWAY_API_KEY", "test-gateway-key")
     monkeypatch.delenv("AGENT_GATEWAY_SECRET", raising=False)
+    monkeypatch.setenv("GENESIS_PRINCIPAL_TOKEN_KEY", _PRINCIPAL_TOKEN_KEY)
+    _AUTH_HEADERS.clear()
+    _AUTH_HEADERS.update({"X-Genesis-Principal-Token": _issue_test_token()})
     yield
+    _AUTH_HEADERS.clear()
 
 
 def _row(
@@ -104,6 +129,22 @@ def test_chunk_id_and_citation_format(monkeypatch):
     assert chunk["chunk_id"] == "knowledge/finance/entity-structure.md#the-entity-map@0"
     assert chunk["citation"] == "knowledge/finance/entity-structure.md#the-entity-map"
     assert chunk["content_sha256"] == "a" * 64
+    assert chunk["content"] == "E4L is structured as..."
+
+
+def test_content_is_bounded_and_redacted(monkeypatch):
+    secret = "sk-ant-never-return-this-value"
+    _mock_store(
+        monkeypatch,
+        rows=[_row(content_text=f"safe prefix Bearer abcdefghijklmnop {secret} " + "x" * 5000)],
+    )
+    client = TestClient(main.app)
+    resp = client.post("/retrieval/query", json={"query": "entity structure"}, headers=_AUTH_HEADERS)
+    assert resp.status_code == 200
+    content = resp.json()["chunks"][0]["content"]
+    assert len(content) <= 4000
+    assert secret not in content
+    assert "abcdefghijklmnop" not in content
 
 
 # ---------------------------------------------------------------------------
@@ -322,6 +363,55 @@ def test_auth_required_correct_key_accepted(monkeypatch):
     _mock_store(monkeypatch, [_row()])
     resp = client.post("/retrieval/query", json={"query": "anything"}, headers=_AUTH_HEADERS)
     assert resp.status_code == 200
+
+
+def test_shared_gateway_key_alone_cannot_read_knowledge(monkeypatch):
+    """The service-wide key yields no principal, so it must not read knowledge.
+
+    Permission filtering is per-requester (retrieval_route._query_knowledge_backbone).
+    A credential every caller shares cannot express "who is asking", so accepting
+    it here would return one tenant's chunks to any key holder.
+    """
+    _mock_store(monkeypatch, [_row()])
+    resp = client.post(
+        "/retrieval/query", json={"query": "anything"}, headers=_GATEWAY_ONLY_HEADERS
+    )
+    assert resp.status_code == 401, resp.text
+
+
+def test_principal_without_retrieval_scope_is_denied(monkeypatch):
+    _mock_store(monkeypatch, [_row()])
+    token = _issue_test_token(scopes=("agent.invoke",))
+    resp = client.post(
+        "/retrieval/query",
+        json={"query": "anything"},
+        headers={"X-Genesis-Principal-Token": token},
+    )
+    assert resp.status_code == 403, resp.text
+
+
+def test_forged_principal_token_is_rejected(monkeypatch):
+    """A token signed with any other key must never authenticate."""
+    from runtime.request_auth import Principal, issue_principal_token
+
+    _mock_store(monkeypatch, [_row()])
+    forged = issue_principal_token(
+        Principal(
+            principal_id="service:attacker",
+            tenant_id="e4l",
+            client_id="attacker",
+            scopes=frozenset({"retrieval.query"}),
+            auth_method="ap2",
+            expires_at=0,
+        ),
+        key="an-entirely-different-key-0123456789abcd",
+    )
+    resp = client.post(
+        "/retrieval/query",
+        json={"query": "anything"},
+        headers={"X-Genesis-Principal-Token": forged},
+    )
+    assert resp.status_code == 401, resp.text
 
 
 # ---------------------------------------------------------------------------

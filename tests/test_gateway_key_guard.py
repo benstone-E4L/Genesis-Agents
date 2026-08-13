@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 import pytest
+from fastapi.testclient import TestClient
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -52,17 +53,25 @@ class TestGatewayKeyBootGuard:
             "in lifespan(), matching the documented startup guard ordering"
         )
 
+    def test_source_does_not_claim_missing_key_is_open_dev_mode(self):
+        import inspect
+
+        source = inspect.getsource(main)
+        assert "open to anonymous callers (dev mode)" not in source
+        assert "protected routes fail closed" in source
+
 
 class TestVerifyGatewayKeyDependency:
     """verify_gateway_key() itself is unchanged behavior (per-request check) --
     these pin it stays correct now that the docstring changed, not the logic."""
 
     @pytest.mark.asyncio
-    async def test_no_key_configured_accepts_any_caller(self, monkeypatch):
-        """This path is unreachable in a running instance (lifespan refuses to
-        boot first) -- pinned anyway since it is still real, callable code."""
+    async def test_no_key_configured_fails_closed(self, monkeypatch):
         monkeypatch.delenv("GATEWAY_API_KEY", raising=False)
-        await main.verify_gateway_key(x_agent_api_key=None, x_agent_gateway_secret=None)
+        from fastapi import HTTPException
+        with pytest.raises(HTTPException) as exc_info:
+            await main.verify_gateway_key(x_agent_api_key=None, x_agent_gateway_secret=None)
+        assert exc_info.value.status_code == 503
 
     @pytest.mark.asyncio
     async def test_correct_key_is_accepted(self, monkeypatch):
@@ -78,3 +87,45 @@ class TestVerifyGatewayKeyDependency:
         with pytest.raises(HTTPException) as exc_info:
             await main.verify_gateway_key(x_agent_api_key="wrong-key", x_agent_gateway_secret=None)
         assert exc_info.value.status_code == 401
+
+
+class TestProtectedGatewayRoutes:
+    @pytest.fixture
+    def client(self, monkeypatch):
+        monkeypatch.setenv("GATEWAY_API_KEY", "route-test-key")
+        return TestClient(main.app)
+
+    @pytest.mark.parametrize(
+        ("method", "path", "json_body"),
+        [
+            ("get", "/jobs/job-abc/artifacts", None),
+            ("get", "/artifacts/job-abc/report.txt", None),
+            ("get", "/proofs/proof-abc/verify", None),
+            (
+                "post",
+                "/agents/genesis-research/negotiate",
+                {
+                    "event": "NEGOTIATE",
+                    "negotiation_id": "n-1",
+                    "requester_agent_id": "cato",
+                    "requester_agent_name": "Cato",
+                    "responder_agent_id": "genesis-research",
+                    "requested_service": "research",
+                    "budget": 0,
+                    "callback_url": "https://api.swarmsync.ai/ap2/gateway/respond",
+                },
+            ),
+        ],
+    )
+    def test_unauthenticated_sensitive_route_returns_401(self, client, method, path, json_body):
+        response = getattr(client, method)(path, json=json_body) if json_body else getattr(client, method)(path)
+        assert response.status_code == 401, response.text
+
+    def test_persona_only_slug_cannot_bypass_bundle_runtime(self, client):
+        response = client.post(
+            "/agents/review-responder/run",
+            headers={"X-Agent-Api-Key": "route-test-key"},
+            json={"prompt": "act without a bundle"},
+        )
+        assert response.status_code == 404, response.text
+        assert response.json()["detail"] == "agent_bundle_required"

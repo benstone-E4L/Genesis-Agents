@@ -26,7 +26,7 @@
     },
     {
       "name": "_get_deploy_prompt",
-      "docstring": "Construct a prompt for the deploy sub-agent: TypeScript deployment config for Vercel/Netlify."
+      "docstring": "Construct a prompt for the deploy sub-agent: TypeScript build and GitHub release configuration. No hosting-provider deploy tool exists."
     },
     {
       "name": "_get_api_prompt",

@@ -24,6 +24,20 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 
+@pytest.fixture(autouse=True)
+def _isolated_audit(tmp_path, monkeypatch):
+    from runtime import genesis_audit
+
+    monkeypatch.setenv("GENESIS_AUDIT_DB_PATH", str(tmp_path / "genesis-audit.db"))
+    if genesis_audit._instance is not None:
+        genesis_audit._instance.close()
+    genesis_audit._instance = None
+    yield
+    if genesis_audit._instance is not None:
+        genesis_audit._instance.close()
+    genesis_audit._instance = None
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------

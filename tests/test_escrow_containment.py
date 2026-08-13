@@ -55,6 +55,12 @@ class TestFailClosedDefault:
         monkeypatch.setenv(PROFILE_ENV_VAR, PROFILE_MARKETPLACE)
         assert escrow_permitted() is True
 
+    def test_no_agent_policy_can_grant_payment(self):
+        from runtime.tool_policy import DEFAULT_ALLOWED_RISKS, RISK_PAYMENT, SLUG_ALLOWED_RISKS
+
+        assert RISK_PAYMENT not in DEFAULT_ALLOWED_RISKS
+        assert all(RISK_PAYMENT not in risks for risks in SLUG_ALLOWED_RISKS.values())
+
 
 class TestCatoFacingBuildRefusesToStart:
     def test_negative_control_cato_build_with_escrow_client_present_raises(self, monkeypatch):

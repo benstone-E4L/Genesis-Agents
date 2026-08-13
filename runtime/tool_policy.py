@@ -7,7 +7,7 @@ Risk classes (from least to most privileged):
   browser           — browser automation (Conduit/Patchright)
   shell             — arbitrary shell execution in workspace
   subagent          — spawns another Genesis agent
-  deployment        — pushes to external hosting (Vercel, Netlify, etc.)
+  deployment        — pushes code or config to an external system (GitHub, DNS)
   payment           — financial operations
   admin             — system configuration, infrastructure changes
 """
@@ -32,84 +32,45 @@ RISK_ADMIN = "admin"
 # no tool may be dispatched with it. assert_prohibitions_intact() enforces both.
 RISK_PROHIBITED = "prohibited"
 
-# Per-tool risk class assignments
-# Unknown tools default to RISK_ADMIN (fail-closed).
-TOOL_RISK: dict[str, str] = {
-    "file_write": RISK_FILESYSTEM_WRITE,
-    "code_format": RISK_READ_ONLY,
-    "genesis_call": RISK_SUBAGENT,
-    "conduit": RISK_BROWSER,
-    "workspace_shell": RISK_SHELL,
-    "web_search": RISK_NETWORK,
-    "web_fetch": RISK_NETWORK,
-    "web": RISK_NETWORK,
-    "github": RISK_NETWORK,
-    "vercel_deploy": RISK_DEPLOYMENT,
-    "netlify_deploy": RISK_DEPLOYMENT,
-    "deploy": RISK_DEPLOYMENT,
-    "domain": RISK_DEPLOYMENT,
-    "finance": RISK_PAYMENT,
-    "billing": RISK_PAYMENT,
-    "commerce": RISK_PAYMENT,
-    "email": RISK_NETWORK,
-    "vision": RISK_NETWORK,
-    "data_pipeline": RISK_FILESYSTEM_WRITE,
-    "sandbox": RISK_ADMIN,
-    "hr": RISK_ADMIN,
-    "pricing": RISK_READ_ONLY,
-    "workflow": RISK_ADMIN,
-}
-
 # Per-slug allowed risk sets
 # An agent may use a tool only if the tool's risk class appears in its allowed set.
 SLUG_ALLOWED_RISKS: dict[str, frozenset[str]] = {
-    "genesis-meta": frozenset(
-        {RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SUBAGENT, RISK_BROWSER}
-    ),
-    "genesis-builder": frozenset(
-        {
-            RISK_READ_ONLY,
-            RISK_FILESYSTEM_WRITE,
-            RISK_SHELL,
-            RISK_BROWSER,
-            RISK_DEPLOYMENT,
-            RISK_NETWORK,
-        }
-    ),
-    "genesis-research": frozenset({RISK_READ_ONLY, RISK_NETWORK}),
-    # RISK_PAYMENT removed here per FINANCE-TOOL-CONTRACTS.md Section 7 Phase
-    # 3 (exact prescribed text: "remove RISK_PAYMENT from genesis-finance,
-    # leaving it frozenset({RISK_READ_ONLY, RISK_NETWORK})") and Phase 5
-    # ("RISK_PAYMENT remains permanently unreachable"). The mismatch is
-    # corrected and payment enforcement is switched OFF, not on, in the same
-    # commit. Enforced by test_tool_policy_matrix.py and the boot assertion.
-    # finance_sync_bank_fees/finance_import_x402_transactions (RISK_PAYMENT in
-    # TOOL_RISK_BY_NAME) are consequently unreachable for every slug — no
-    # caller-visible behavior changes, since both already unconditionally
-    # return not_implemented (Section 5).
-    "genesis-finance": frozenset({RISK_READ_ONLY, RISK_NETWORK}),
-    "genesis-deploy": frozenset(
-        {
-            RISK_READ_ONLY,
-            RISK_FILESYSTEM_WRITE,
-            RISK_SHELL,
-            RISK_DEPLOYMENT,
-            RISK_NETWORK,
-        }
-    ),
-    "genesis-qa": frozenset(
-        {
-            RISK_READ_ONLY,
-            RISK_FILESYSTEM_WRITE,
-            RISK_SHELL,
-            RISK_BROWSER,
-            RISK_NETWORK,
-        }
-    ),
+    "genesis-ai-vision": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-analyst": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-billing": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-builder": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SHELL, RISK_BROWSER, RISK_DEPLOYMENT, RISK_NETWORK}),
+    "genesis-commerce": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-content": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-data-pipeline": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SHELL, RISK_BROWSER}),
+    "genesis-deploy": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SHELL, RISK_DEPLOYMENT, RISK_NETWORK, RISK_BROWSER}),
+    # DNS deployment remains denied. It requires the same explicit deployment
+    # approval path as the dedicated deploy agent before it can be enabled.
+    "genesis-domain": frozenset({RISK_READ_ONLY, RISK_BROWSER}),
+    "genesis-email": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    # Payment stays permanently unreachable; read/report/file tools work.
+    "genesis-finance": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK}),
+    "genesis-hr": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-legal": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-maintenance": frozenset({RISK_READ_ONLY, RISK_BROWSER}),
+    "genesis-marketing": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-meta": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SUBAGENT, RISK_BROWSER}),
+    "genesis-onboarding": frozenset({RISK_READ_ONLY, RISK_BROWSER}),
+    "genesis-pricing": frozenset({RISK_READ_ONLY, RISK_BROWSER}),
+    "genesis-qa": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SHELL, RISK_BROWSER, RISK_NETWORK}),
+    "genesis-research": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-security": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_SHELL, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-seo": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-support": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
+    "genesis-workflow-automator": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
 }
 
 # Agents not in SLUG_ALLOWED_RISKS get only read_only access (fail-closed default).
 DEFAULT_ALLOWED_RISKS: frozenset[str] = frozenset({RISK_READ_ONLY})
+
+# E4L standing order: agents may draft email but never transmit it. These
+# names stay registered so bundles retain their schemas, while server policy
+# denies dispatch regardless of the slug's broader network grant.
+HUMAN_ONLY_TOOLS: frozenset[str] = frozenset({"send_email"})
 
 
 # ---------------------------------------------------------------------------
@@ -289,13 +250,6 @@ def assert_prohibitions_intact(registry: dict | None = None) -> None:
         raise RuntimeError("DEFAULT_ALLOWED_RISKS grants RISK_PAYMENT")
 
 
-def get_tool_risk(tool_name: str) -> str:
-    """Return the risk class for tool_name. Unknown tools return RISK_ADMIN (fail-closed)."""
-    if tool_name in PROHIBITED_TOOLS:
-        return RISK_PROHIBITED
-    return TOOL_RISK.get(tool_name, RISK_ADMIN)
-
-
 # ---------------------------------------------------------------------------
 # docs/FINANCE-TOOL-CONTRACTS.md Section 7 Phase 1 — shadow-mode remediation
 # of the TOOL_RISK compound-name mismatch (TOOL_RISK above is keyed on bare
@@ -328,8 +282,6 @@ TOOL_RISK_BY_NAME: dict[str, str] = {
     "workspace_shell": RISK_SHELL,
     "web_search": RISK_NETWORK,
     "web_fetch": RISK_NETWORK,
-    "vercel_deploy": RISK_DEPLOYMENT,
-    "netlify_deploy": RISK_DEPLOYMENT,
 
     # finance_tool.py — APPROVAL_REQUIRED (mode per FINANCE-TOOL-CONTRACTS.md
     # Section 8): mutates a real financial record. Classified RISK_PAYMENT so
@@ -425,9 +377,7 @@ def get_tool_risk_by_name(tool_name: str) -> str:
     """Section 7 Phase 3: this IS the enforcement path now.
 
     ``check_tool_policy``/``is_tool_allowed`` call this, not the legacy
-    ``get_tool_risk``/``TOOL_RISK``. ``get_tool_risk`` and ``TOOL_RISK`` are
-    kept only as the historical, bare-category-word table for reference and
-    for tests that pin the pre-Phase-3 shape; they no longer decide anything.
+    This is the sole production tool-risk authority.
 
     Unknown tools return RISK_ADMIN (fail-closed) — a newly-registered tool
     with no explicit entry here is denied, not silently permissive.
@@ -439,6 +389,8 @@ def get_tool_risk_by_name(tool_name: str) -> str:
 
 def is_tool_allowed(agent_slug: str, tool_name: str) -> bool:
     """Return True if agent_slug is permitted to call tool_name."""
+    if tool_name in HUMAN_ONLY_TOOLS:
+        return False
     risk = get_tool_risk_by_name(tool_name)
     allowed = SLUG_ALLOWED_RISKS.get(agent_slug, DEFAULT_ALLOWED_RISKS)
     return risk in allowed
@@ -458,6 +410,15 @@ def check_tool_policy(agent_slug: str, tool_name: str) -> dict:
             "allowed_risks": sorted(SLUG_ALLOWED_RISKS.get(agent_slug, DEFAULT_ALLOWED_RISKS)),
             "prohibition_group": prohibition_group(tool_name),
             "error": "tool_policy_denied",
+        }
+    if tool_name in HUMAN_ONLY_TOOLS:
+        return {
+            "ok": False,
+            "tool_name": tool_name,
+            "agent_slug": agent_slug,
+            "risk_class": get_tool_risk_by_name(tool_name),
+            "allowed_risks": sorted(SLUG_ALLOWED_RISKS.get(agent_slug, DEFAULT_ALLOWED_RISKS)),
+            "error": "human_action_required",
         }
     # Section 7 Phase 3: enforcement now reads TOOL_RISK_BY_NAME (registered
     # names, hand-written, no prefixes) instead of the legacy bare-word

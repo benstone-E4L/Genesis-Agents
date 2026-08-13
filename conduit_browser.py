@@ -11,19 +11,43 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import os
+import ipaddress
+import socket
+from urllib.parse import urlsplit
 from pathlib import Path
 from typing import Any
 
 log = logging.getLogger(__name__)
 
-# Memory-lean Chromium flags. On a memory-constrained instance, leaking or
-# over-provisioning Chromium is the #1 OOM cause. --single-process collapses
-# the renderer into one process (big RAM saving); opt out with
-# GENESIS_BROWSER_SINGLE_PROCESS=false if a site needs the multi-process model.
+SUPPORTED_ACTIONS = frozenset({
+    "navigate", "screenshot", "extract_main", "click", "type_text",
+    "accessibility_snapshot", "web_search",
+})
+
+
+def validate_public_url(url: str) -> str:
+    """Allow only public HTTP(S) destinations; fail closed on DNS errors."""
+    parsed = urlsplit(url)
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username:
+        raise ValueError("unsafe_url")
+    host = parsed.hostname.rstrip(".").lower()
+    if host == "localhost" or host.endswith(".localhost"):
+        raise ValueError("unsafe_url")
+    try:
+        addresses = {item[4][0] for item in socket.getaddrinfo(host, parsed.port or 443)}
+    except OSError as exc:
+        raise ValueError("url_resolution_failed") from exc
+    for raw in addresses:
+        ip = ipaddress.ip_address(raw)
+        if not ip.is_global:
+            raise ValueError("unsafe_url")
+    return url
+
+# Memory-lean Chromium flags that preserve Chromium's process sandbox.  Never
+# add ``--no-sandbox`` or ``--single-process``: both turn a browser compromise
+# into a host-level compromise on the production worker.
 def _chromium_args() -> list[str]:
-    args = [
-        "--no-sandbox",
+    return [
         "--disable-dev-shm-usage",
         "--disable-gpu",
         "--disable-extensions",
@@ -35,9 +59,6 @@ def _chromium_args() -> list[str]:
         "--no-zygote",
         "--mute-audio",
     ]
-    if os.getenv("GENESIS_BROWSER_SINGLE_PROCESS", "true").lower() in {"1", "true", "yes"}:
-        args.append("--single-process")
-    return args
 
 
 class ConduitBridge:
@@ -75,7 +96,17 @@ class ConduitBridge:
             args=_chromium_args(),
         )
         self._page = await self._browser.new_page()
+        await self._page.route("**/*", self._guard_route)
         log.info("ConduitBridge started session=%s", self.session_id)
+
+    async def _guard_route(self, route: Any) -> None:
+        """Apply the public-URL policy to every request, including redirects."""
+        try:
+            validate_public_url(str(route.request.url))
+        except ValueError:
+            await route.abort("blockedbyclient")
+            return
+        await route.continue_()
 
     async def ensure_started(self) -> None:
         """Start Chromium on demand (first browser action)."""
@@ -104,11 +135,13 @@ class ConduitBridge:
 
     async def execute(self, args: dict[str, Any]) -> str:
         action = args.get("action", "")
+        if action not in SUPPORTED_ACTIONS:
+            return json.dumps({"ok": False, "error": "unsupported_action"})
         if self._page is None:
             return json.dumps({"ok": False, "error": "bridge_not_started"})
         try:
             if action == "navigate":
-                url = args.get("url", "")
+                url = validate_public_url(str(args.get("url", "")))
                 await self._page.goto(url, wait_until="domcontentloaded", timeout=30000)
                 return json.dumps({
                     "ok": True,
@@ -122,10 +155,6 @@ class ConduitBridge:
             elif action == "extract_main":
                 text = await self._page.inner_text("body")
                 return json.dumps({"ok": True, "text": text[:8000]})
-            elif action == "eval":
-                code = args.get("code", "")
-                result = await self._page.evaluate(code)
-                return json.dumps({"ok": True, "result": result})
             elif action == "click":
                 selector = args.get("selector", "")
                 await self._page.click(selector, timeout=10000)

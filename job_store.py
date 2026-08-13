@@ -15,6 +15,12 @@ log = logging.getLogger(__name__)
 
 UNSUPPORTED_PSYCOPG_QUERY_PARAMS = {"connection_limit", "pgbouncer"}
 
+# A job that has reached one of these has been settled, refunded, written off or reaped.
+# update_job_status refuses to move it again — see the guard in that function.
+TERMINAL_JOB_STATUSES: frozenset[str] = frozenset(
+    {"DELIVERED", "FAILED", "SETTLED", "REFUNDED", "EXPIRED"}
+)
+
 
 def _database_url() -> str:
     """Return a psycopg-compatible Postgres URL for Genesis job storage.
@@ -77,13 +83,15 @@ def create_job(
     webhook_url: str | None = None,
     webhook_secret: str | None = None,
     escrow_id: str | None = None,
+    tenant_id: str | None = None,
+    owner_principal_id: str | None = None,
 ) -> dict[str, Any]:
     job_id = _gen_id()
     with _conn() as conn, conn.cursor() as cur:
         # idempotency check
         if idempotency_key:
             cur.execute(
-                "SELECT id, status FROM genesis_jobs WHERE idempotency_key = %s",
+                'SELECT id, status FROM genesis_jobs WHERE "idempotencyKey" = %s',
                 (idempotency_key,),
             )
             existing = cur.fetchone()
@@ -92,15 +100,15 @@ def create_job(
         cur.execute(
             """
             INSERT INTO genesis_jobs
-              (id, "agentSlug", "buyerWalletId", "buyerClientId", prompt, params,
+              (id, "agentSlug", "buyerWalletId", "buyerClientId", "tenantId", "ownerPrincipalId", prompt, params,
                status, "priceTierCents", "idempotencyKey", "webhookUrl",
                "webhookSecret", "escrowId", "outputArtifactUris",
                "createdAt", "updatedAt")
-            VALUES (%s, %s, %s, %s, %s, %s::jsonb, 'QUEUED', %s, %s, %s, %s, %s, '{}', NOW(), NOW())
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s::jsonb, 'QUEUED', %s, %s, %s, %s, %s, '{}', NOW(), NOW())
             RETURNING id, status, "createdAt"
             """,
             (
-                job_id, agent_slug, buyer_wallet_id, buyer_client_id, prompt,
+                job_id, agent_slug, buyer_wallet_id, buyer_client_id, tenant_id, owner_principal_id, prompt,
                 json.dumps(params or {}), price_tier_cents, idempotency_key,
                 webhook_url, webhook_secret, escrow_id,
             ),
@@ -133,19 +141,39 @@ def create_child_job(
     auto-worker (which only claims QUEUED) from re-running it. The caller
     finalizes status via update_job_status() once the child returns. Idempotent
     on child_job_id.
+
+    Ownership is INHERITED from the parent row, not left NULL. A child created with
+    NULL "tenantId"/"ownerPrincipalId" is a tenant-scoping hole in both directions:
+    runtime.request_auth.owns_resource treats a both-NULL row as owned by the LEGACY
+    gateway principal, so (a) the AP2 principal who submitted the parent is refused
+    access to its own delegated work, and (b) any bearer of the shared GATEWAY_API_KEY
+    can read every child job's prompt and params — which carry the parent's resolved
+    context. Delegation must not launder a tenant-scoped job into an unowned one.
+
+    "lastHeartbeatAt" is seeded at insert for the same reason claim_* seeds it: the
+    reaper's NULL branch would otherwise EXPIRE a child the instant it is created.
     """
     merged_params = dict(params or {})
     merged_params["_parent_job_id"] = parent_job_id
     with _conn() as conn, conn.cursor() as cur:
         cur.execute(
+            'SELECT "tenantId", "ownerPrincipalId" FROM genesis_jobs WHERE id = %s',
+            (parent_job_id,),
+        )
+        parent = cur.fetchone() or {}
+        cur.execute(
             """
             INSERT INTO genesis_jobs
               (id, "agentSlug", prompt, params, status, "outputArtifactUris",
-               "startedAt", "createdAt", "updatedAt")
-            VALUES (%s, %s, %s, %s::jsonb, 'RUNNING', '{}', NOW(), NOW(), NOW())
+               "tenantId", "ownerPrincipalId",
+               "startedAt", "lastHeartbeatAt", "createdAt", "updatedAt")
+            VALUES (%s, %s, %s, %s::jsonb, 'RUNNING', '{}', %s, %s, NOW(), NOW(), NOW(), NOW())
             ON CONFLICT (id) DO NOTHING
             """,
-            (child_job_id, agent_slug, prompt, json.dumps(merged_params)),
+            (
+                child_job_id, agent_slug, prompt, json.dumps(merged_params),
+                parent.get("tenantId"), parent.get("ownerPrincipalId"),
+            ),
         )
         cur.execute(
             """
@@ -176,6 +204,7 @@ def update_job_status(
     error_message: str | None = None,
     result_summary: str | None = None,
     output_artifact_uris: list[str] | None = None,
+    allow_terminal_override: bool = False,
 ) -> bool:
     set_clauses = ['status = %s', '"updatedAt" = NOW()']
     params: list = [new_status]
@@ -206,6 +235,25 @@ def update_job_status(
         if not row:
             return False
         from_status = row["status"]
+        # Automatic transitions out of a terminal state are refused. Without this, a job the
+        # reaper already marked EXPIRED is silently resurrected to DELIVERED when the worker
+        # finishes it a moment later — the row then claims success while the event log shows
+        # EXPIRED -> DELIVERED, and any settlement decision keyed on status acts on a job that
+        # was already written off.
+        #
+        # This is deliberately NOT a blanket lifecycle rule. Human/admin-initiated moves are
+        # legitimate after a terminal state — a buyer may dispute an already-SETTLED job (see
+        # main.py's dispute route) — so those call sites opt in with allow_terminal_override.
+        # The default is closed, because the race is automatic and the override is not.
+        if (
+            from_status in TERMINAL_JOB_STATUSES
+            and new_status != from_status
+            and not allow_terminal_override
+        ):
+            log.warning(
+                "refusing terminal job transition job=%s %s -> %s", job_id, from_status, new_status
+            )
+            return False
         cur.execute(
             f'UPDATE genesis_jobs SET {", ".join(set_clauses)} WHERE id = %s',
             params,
@@ -240,6 +288,7 @@ def claim_job_by_id(job_id: str) -> dict[str, Any] | None:
             UPDATE genesis_jobs
             SET status = 'RUNNING',
                 "startedAt" = COALESCE("startedAt", NOW()),
+                "lastHeartbeatAt" = NOW(),
                 "updatedAt" = NOW()
             WHERE id = %s AND status = 'QUEUED'
             RETURNING *
@@ -276,6 +325,7 @@ def claim_queued_jobs(limit: int = 5) -> list[dict[str, Any]]:
             UPDATE genesis_jobs
             SET status = 'RUNNING',
                 "startedAt" = COALESCE("startedAt", NOW()),
+                "lastHeartbeatAt" = NOW(),
                 "updatedAt" = NOW()
             WHERE id IN (SELECT id FROM claimed)
             RETURNING *
@@ -298,20 +348,34 @@ def claim_queued_jobs(limit: int = 5) -> list[dict[str, Any]]:
 
 
 def expire_stale_running_jobs(stale_minutes: int = 5) -> int:
-    """Mark RUNNING jobs without heartbeat in N minutes as EXPIRED."""
+    """Mark RUNNING jobs whose heartbeat has gone silent for N minutes as EXPIRED.
+
+    Two corrections over the naive version:
+
+    1. A NULL "lastHeartbeatAt" is NOT treated as instantly stale. run_tick claims up to
+       WORKER_CONCURRENCY jobs at once and then processes them SERIALLY, so jobs 2..N sit in
+       RUNNING before their own heartbeat loop starts. The naive NULL branch reaped those
+       live, about-to-run jobs on the very next tick. NULL now falls back to "startedAt",
+       which claim_* and create_child_job always set, so the same N-minute grace applies.
+    2. stale_minutes is a bound parameter via make_interval instead of being f-string
+       interpolated into the SQL text.
+    """
+    minutes = int(stale_minutes)
     with _conn() as conn, conn.cursor() as cur:
         cur.execute(
-            f"""
+            """
             UPDATE genesis_jobs
             SET status = 'EXPIRED',
                 "completedAt" = NOW(),
                 "updatedAt" = NOW(),
                 "errorCode" = 'stale_heartbeat',
-                "errorMessage" = 'No heartbeat for {stale_minutes}+ minutes'
+                "errorMessage" = 'No heartbeat for ' || %s::text || '+ minutes'
             WHERE status = 'RUNNING'
-              AND ("lastHeartbeatAt" IS NULL OR "lastHeartbeatAt" < NOW() - INTERVAL '{stale_minutes} minutes')
+              AND COALESCE("lastHeartbeatAt", "startedAt", "createdAt")
+                  < NOW() - make_interval(mins => %s)
             RETURNING id
             """,
+            (minutes, minutes),
         )
         expired_ids = [r["id"] for r in cur.fetchall()]
         for jid in expired_ids:

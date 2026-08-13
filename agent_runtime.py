@@ -1,6 +1,7 @@
 """Genesis agent runtime - multi-turn LLM loop with tool dispatch, per-slug parameterized."""
 from __future__ import annotations
 import json
+import hmac
 import logging
 import os
 import time
@@ -34,6 +35,49 @@ except Exception:
         pass
 
 try:
+    from runtime import phoenix_tracing as _phoenix
+    _PHOENIX_OK = True
+except Exception:  # pragma: no cover - the module is stdlib-only at import time
+    _PHOENIX_OK = False
+
+    class _phoenix:  # type: ignore[no-redef]
+        """Null tracer. Observability is never allowed to break the runtime."""
+
+        SPAN_KIND = INPUT_VALUE = OUTPUT_VALUE = "noop"
+        LLM_MODEL_NAME = LLM_PROVIDER = "noop"
+        LLM_TOKEN_PROMPT = LLM_TOKEN_COMPLETION = LLM_TOKEN_TOTAL = "noop"
+        TOOL_NAME = "noop"
+
+        @staticmethod
+        def span(*_a: Any, **_k: Any) -> Any:
+            from contextlib import nullcontext
+            return nullcontext(None)
+
+        @staticmethod
+        def set_attributes(*_a: Any, **_k: Any) -> None:
+            pass
+
+        @staticmethod
+        def record_error(*_a: Any, **_k: Any) -> None:
+            pass
+
+        @staticmethod
+        def safe_content(*_a: Any, **_k: Any) -> None:
+            return None
+
+        @staticmethod
+        def emit_completed_span(*_a: Any, **_k: Any) -> Any:
+            return None
+
+        @staticmethod
+        def get_tracer() -> Any:
+            return None
+
+        @staticmethod
+        def current_trace_id() -> Any:
+            return None
+
+try:
     from runtime.tool_policy import check_tool_policy
     _POLICY_OK = True
 except Exception:
@@ -47,14 +91,14 @@ except Exception:
 # ImportError is not a prohibition. runtime.tool_policy is pure standard
 # library, so this import cannot fail anywhere agent_runtime itself imports.
 from runtime.tool_policy import (  # noqa: E402
-    DEFAULT_ALLOWED_RISKS,
-    SLUG_ALLOWED_RISKS,
+    RISK_DEPLOYMENT,
+    RISK_READ_ONLY,
     assert_prohibitions_intact,
-    get_tool_risk_by_name,
     is_prohibited,
     prohibition_group,
 )
 from tools._envelope import prohibited_refusal  # noqa: E402
+from runtime.genesis_audit import append_tool_event, append_tool_intent
 
 # Phase 3/6: durable session + relationship store (Postgres-backed, best-effort).
 try:
@@ -77,17 +121,47 @@ DEFAULT_SWARMSYNC_MODEL = "auto"
 OPENROUTER_HOST_MARKERS = ("openrouter.ai",)
 
 
-def _check_success_criteria(criteria: list[dict] | None, result: dict) -> dict[str, Any]:
+def _llm_client_session(timeout: "Any") -> "Any":
+    """Build the ClientSession every LLM call uses.
+
+    Uses ThreadedResolver (the OS resolver via a thread pool) rather than
+    aiohttp's default async resolver: on Windows the default resolver returns
+    "Could not contact DNS servers" for hosts the OS resolves fine, which
+    surfaced as errorCode=llm_call_failed on every agent run. Cato hit and
+    fixed the identical defect — see cato/tools/genesis.py::_ensure_session.
+    """
+    import aiohttp
+
+    connector = aiohttp.TCPConnector(
+        resolver=aiohttp.ThreadedResolver(),
+        family=0,  # IPv4 + IPv6 — let the OS pick
+        ssl=True,
+    )
+    return aiohttp.ClientSession(timeout=timeout, connector=connector)
+
+
+def _check_success_criteria(
+    criteria: list[dict] | None,
+    result: dict,
+    *,
+    require_tool_evidence: bool = False,
+) -> dict[str, Any]:
     """Validate result against bundle's success_criteria. Returns {ok, failed: [...]}.
 
     Supported criteria types:
       - non_empty           : response must be non-empty.
       - contains_keys       : response (JSON-parseable) must contain `keys`.
       - max_latency_s       : result.elapsed_s must be <= configured seconds.
+      - min_successful_tool_calls: trace must contain at least N successful calls.
     Unknown types are ignored (forward-compatible).
     """
-    if not criteria:
-        criteria = [{"type": "non_empty"}]
+    criteria = list(criteria or [{"type": "non_empty"}])
+    if require_tool_evidence and not any(
+        c.get("type") == "min_successful_tool_calls" for c in criteria
+    ):
+        # A bundle may add prose/shape/latency criteria, but it cannot opt out
+        # of execution evidence while advertising tools.
+        criteria.append({"type": "min_successful_tool_calls", "config": {"count": 1}})
     failed: list[dict[str, Any]] = []
     for c in criteria:
         ct = c.get("type")
@@ -114,7 +188,30 @@ def _check_success_criteria(criteria: list[dict] | None, result: dict) -> dict[s
                     "type": ct,
                     "reason": f"elapsed {elapsed}s > {max_s}s",
                 })
+        elif ct == "min_successful_tool_calls":
+            minimum = int((c.get("config") or {}).get("count", 1))
+            calls = ((result.get("trace") or {}).get("tool_calls") or [])
+            successful = sum(1 for call in calls if call.get("ok") is True)
+            if successful < minimum:
+                failed.append({
+                    "type": ct,
+                    "reason": f"successful tool calls {successful} < {minimum}",
+                })
     return {"ok": len(failed) == 0, "failed": failed}
+
+
+def _deployment_side_effect_authorized(params: dict[str, Any]) -> tuple[dict[str, str], dict[str, Any]]:
+    """Strip the signed action grant and owner context before model exposure."""
+    clean = dict(params or {})
+    context = {
+        "grant": str(clean.pop("_action_grant", "") or ""),
+        "principal_id": str(clean.pop("_request_principal_id", "") or ""),
+        "tenant_id": str(clean.pop("_request_tenant_id", "") or ""),
+    }
+    # Reject and strip the obsolete static credential rather than supporting a
+    # compatibility path that recreates bearer-token deployment authority.
+    clean.pop("_deployment_approval_token", None)
+    return context, clean
 
 # Lazy module init
 _DEFAULTS_REGISTERED = False
@@ -137,7 +234,45 @@ class AgentRuntime:
     def __init__(self, llm_url: str, llm_key: str):
         self.llm_url = llm_url
         self.llm_key = llm_key
+        # Cumulative resources already consumed by DELEGATED children, keyed by the
+        # delegating parent's job_id. Without this, a parent that calls genesis_call N times
+        # hands each child the same "remaining" budget: the parent's own total_tokens only
+        # counts its OWN turns, and conduit_budget_cents was passed as the parent's full
+        # configured ceiling rather than what is left. Nine siblings therefore inherited
+        # 9x the ceiling and the delegation budget was advisory, not enforced.
+        self._delegated_tokens_spent: dict[str, int] = {}
+        self._delegated_cents_spent: dict[str, int] = {}
         _ensure_tools_registered()
+
+    def remaining_delegation_budget(
+        self, job_id: str, *, token_budget: int, total_tokens: int, cost_budget_cents: int
+    ) -> tuple[int, int]:
+        """What is genuinely LEFT for the next delegated child of this job.
+
+        Extracted from the tool-dispatch context so the per-tree (not per-child) ceiling is
+        directly testable — the bug it fixes is invisible in any single call.
+        """
+        spent_tokens = self._delegated_tokens_spent.get(job_id, 0)
+        spent_cents = self._delegated_cents_spent.get(job_id, 0)
+        return (
+            max(0, int(token_budget) - int(total_tokens) - spent_tokens),
+            max(0, int(cost_budget_cents) - spent_cents),
+        )
+
+    def record_delegated_spend(
+        self, parent_job_id: str | None, *, tokens: int = 0, cents: int = 0
+    ) -> None:
+        """Charge a child's resource use back to the delegating parent's remaining budget."""
+        if not parent_job_id:
+            return
+        if tokens:
+            self._delegated_tokens_spent[parent_job_id] = (
+                self._delegated_tokens_spent.get(parent_job_id, 0) + max(0, int(tokens))
+            )
+        if cents:
+            self._delegated_cents_spent[parent_job_id] = (
+                self._delegated_cents_spent.get(parent_job_id, 0) + max(0, int(cents))
+            )
 
     async def execute_agent(
         self,
@@ -149,6 +284,101 @@ class AgentRuntime:
         session_id: Optional[str] = None,
         parent_job_id: Optional[str] = None,
         parent_session_id: Optional[str] = None,
+        delegation_chain: tuple[str, ...] = (),
+        delegation_depth: int = 0,
+        delegated_allowed_risks: frozenset[str] | None = None,
+        inherited_token_budget: int | None = None,
+        inherited_cost_budget_cents: int | None = None,
+    ) -> dict[str, Any]:
+        """Traced entry point. Delegates to :meth:`_execute_agent_inner`.
+
+        Wrapping rather than inlining the span keeps the 600-line implementation
+        untouched and its many early returns intact — every one of them still
+        flows through here, so the span always closes with the real outcome.
+        Nested delegation (``genesis_call``) re-enters this method, so child
+        agents appear as child spans of their parent automatically.
+
+        The full parameter list is repeated rather than collapsed into
+        ``**kwargs`` because the worker contract is asserted by signature
+        introspection (``test_runtime_hardening.TestAgentRuntimeSignature``) —
+        adding a trace must not change the public shape of this method.
+        """
+        kwargs: dict[str, Any] = {
+            "job_id": job_id,
+            "session_id": session_id,
+            "parent_job_id": parent_job_id,
+            "parent_session_id": parent_session_id,
+            "delegation_chain": delegation_chain,
+            "delegation_depth": delegation_depth,
+            "delegated_allowed_risks": delegated_allowed_risks,
+            "inherited_token_budget": inherited_token_budget,
+            "inherited_cost_budget_cents": inherited_cost_budget_cents,
+        }
+        with _phoenix.span(
+            f"agent.{slug}",
+            kind="AGENT",
+            attributes={
+                "genesis.agent.slug": slug,
+                "genesis.job.id": job_id,
+                "genesis.session.id": session_id,
+                "genesis.parent_job.id": parent_job_id,
+                "genesis.delegation.depth": delegation_depth,
+                _phoenix.INPUT_VALUE: _phoenix.safe_content(task),
+            },
+        ) as sp:
+            result = await self._execute_agent_inner(slug, task, params, **kwargs)
+            try:
+                self._annotate_agent_span(sp, result)
+            except Exception:  # pragma: no cover - annotation must never fail a run
+                pass
+            return result
+
+    @staticmethod
+    def _annotate_agent_span(sp: Any, result: dict[str, Any]) -> None:
+        """Copy the run's structured outcome onto the Phoenix span."""
+        if sp is None or not isinstance(result, dict):
+            return
+        usage = result.get("resource_usage") or {}
+        trace = result.get("trace") or {}
+        tool_calls = trace.get("tool_calls") or []
+        criteria = result.get("success_criteria_eval") or {}
+        _phoenix.set_attributes(sp, {
+            "genesis.run.ok": bool(result.get("ok")),
+            "genesis.run.error": result.get("error"),
+            "genesis.job.id": result.get("job_id"),
+            "genesis.turn.count": result.get("turns"),
+            "genesis.llm.calls": usage.get("llm_calls"),
+            "genesis.files_written": usage.get("files_written"),
+            _phoenix.LLM_TOKEN_TOTAL: usage.get("total_tokens"),
+            "genesis.tool_calls.count": len(tool_calls),
+            "genesis.tool_calls.failed": sum(
+                1 for t in tool_calls if isinstance(t, dict) and not t.get("ok")
+            ),
+            "genesis.tool_calls.names": [
+                str(t.get("tool_name")) for t in tool_calls if isinstance(t, dict)
+            ],
+            # The success-criteria verdict is the thing an operator actually
+            # wants to filter on in Phoenix: "show me runs that failed the bar".
+            "genesis.success_criteria.ok": criteria.get("ok"),
+            "genesis.success_criteria.failed": [str(f) for f in (criteria.get("failed") or [])],
+            _phoenix.OUTPUT_VALUE: _phoenix.safe_content(result.get("response")),
+        })
+
+    async def _execute_agent_inner(
+        self,
+        slug: str,
+        task: str,
+        params: dict[str, Any],
+        *,
+        job_id: Optional[str] = None,
+        session_id: Optional[str] = None,
+        parent_job_id: Optional[str] = None,
+        parent_session_id: Optional[str] = None,
+        delegation_chain: tuple[str, ...] = (),
+        delegation_depth: int = 0,
+        delegated_allowed_risks: frozenset[str] | None = None,
+        inherited_token_budget: int | None = None,
+        inherited_cost_budget_cents: int | None = None,
     ) -> dict[str, Any]:
         """Execute one agent invocation. Returns structured result."""
         bundle = load_bundle(slug)
@@ -157,6 +387,18 @@ class AgentRuntime:
 
         job_id = job_id or f"job-{uuid.uuid4().hex[:12]}"
         session_id = session_id or str(uuid.uuid4())
+
+        bundle = dict(bundle)
+        if inherited_token_budget is not None:
+            bundle["token_budget"] = min(
+                int(bundle.get("token_budget", inherited_token_budget)),
+                max(0, int(inherited_token_budget)),
+            )
+        if inherited_cost_budget_cents is not None:
+            bundle["conduit_budget_cents"] = min(
+                int(bundle.get("conduit_budget_cents", inherited_cost_budget_cents)),
+                max(0, int(inherited_cost_budget_cents)),
+            )
 
         # Phase 2/6: Register workspace and set initial sandbox status
         if _WS_MANAGER_OK:
@@ -207,7 +449,17 @@ class AgentRuntime:
                     from conduit_sessions import load_session
                     sess_result = load_session(job_id=job_id)
                     if sess_result.get("ok") and sess_result.get("session_data"):
-                        buyer_session = sess_result["session_data"]
+                        # The local Patchright bridge has no reviewed cookie
+                        # import API. Refuse the entire job instead of silently
+                        # dropping a buyer credential and claiming success.
+                        from conduit_sessions import delete_session
+                        delete_session(job_id=job_id)
+                        return {
+                            "ok": False,
+                            "error": "buyer_session_injection_unsupported",
+                            "slug": slug,
+                            "job_id": job_id,
+                        }
                         log.info(
                             "loading buyer session for job %s (concierge mode)",
                             job_id,
@@ -281,7 +533,12 @@ class AgentRuntime:
 
         _result: dict[str, Any] | None = None
         try:
-            _result = await self._run_loop(bundle, task, params, job_id, job_dir, bridge, session_id)
+            _result = await self._run_loop(
+                bundle, task, params, job_id, job_dir, bridge, session_id,
+                delegation_chain=delegation_chain,
+                delegation_depth=delegation_depth,
+                delegated_allowed_risks=delegated_allowed_risks,
+            )
             return _result
         finally:
             if bridge is not None:
@@ -319,6 +576,10 @@ class AgentRuntime:
         job_dir: Path,
         bridge: Any,
         session_id: str = "",
+        *,
+        delegation_chain: tuple[str, ...] = (),
+        delegation_depth: int = 0,
+        delegated_allowed_risks: frozenset[str] | None = None,
     ) -> dict[str, Any]:
         slug = bundle["slug"]
         last_swarmsync: dict[str, Any] | None = None
@@ -331,13 +592,18 @@ class AgentRuntime:
         emit_event(job_id, "agent.started", {"session_id": session_id, "agent_slug": slug})
 
         system_prompt = bundle["system_prompt"]
-        user_prompt = task + (f"\n\nAdditional params: {json.dumps(params)}" if params else "")
+        deployment_context, safe_params = _deployment_side_effect_authorized(params)
+        user_prompt = task + (f"\n\nAdditional params: {json.dumps(safe_params)}" if safe_params else "")
 
         messages: list[dict[str, Any]] = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt},
         ]
-        tools = tool_schemas_for(tools_advertised)
+        # Denied/prohibited schemas never enter the model prompt. This prevents
+        # wasted turns and closes the gap where the dispatcher denied a tool
+        # only after the LLM had already been invited to call it.
+        model_tools = [name for name in tools_advertised if check_tool_policy(slug, name)["ok"]]
+        tools = tool_schemas_for(model_tools)
 
         started = time.time()
         turn = 0
@@ -453,7 +719,11 @@ class AgentRuntime:
                 # Phase 11 — validate success_criteria against the structured
                 # result. If any fail, mark the job FAILED so the worker can
                 # refund escrow (Phase 6) and reputation tracking updates.
-                criteria_eval = _check_success_criteria(success_criteria, result)
+                criteria_eval = _check_success_criteria(
+                    success_criteria,
+                    result,
+                    require_tool_evidence=bool(tools_advertised),
+                )
                 result["success_criteria_eval"] = criteria_eval
                 if not criteria_eval["ok"]:
                     result["ok"] = False
@@ -524,9 +794,10 @@ class AgentRuntime:
 
                 tc_started = time.time()
                 tool_result: dict[str, Any]
+                tool_executed = False
                 # Layer 4 — prohibition pre-check. Runs BEFORE check_tool_policy
                 # and before any tool is invoked, and is independent of TOOL_RISK
-                # and SLUG_ALLOWED_RISKS, so a mistake in the risk table cannot
+                # and slug risk grants, so a mistake in the risk table cannot
                 # reach a prohibited tool. This is also the only place slug-scoped
                 # prohibition is evaluated.
                 tool = None if is_prohibited(fn_name, slug) else get_tool(fn_name)
@@ -558,21 +829,6 @@ class AgentRuntime:
                 else:
                     # Phase 8: policy check before execution
                     _policy = check_tool_policy(slug, fn_name)
-                    # FINANCE-TOOL-CONTRACTS.md Section 7 Phase 1 — shadow-mode
-                    # comparison only. Does not affect _policy or tool_result
-                    # below in any way; enforcement stays on check_tool_policy/
-                    # legacy TOOL_RISK until Section 7 Phase 3 lands.
-                    _shadow_new_risk = get_tool_risk_by_name(fn_name)
-                    emit_event(job_id, "tool.policy.shadow", {
-                        "tool_name": fn_name,
-                        "agent_slug": slug,
-                        "legacy_risk": _policy.get("risk_class"),
-                        "new_risk": _shadow_new_risk,
-                        "would_allow_legacy": _policy["ok"],
-                        "would_allow_new": _shadow_new_risk
-                        in SLUG_ALLOWED_RISKS.get(slug, DEFAULT_ALLOWED_RISKS),
-                        "session_id": session_id,
-                    })
                     if not _policy["ok"]:
                         emit_event(job_id, "tool.blocked", {
                             "tool_name": fn_name,
@@ -586,6 +842,43 @@ class AgentRuntime:
                             "tool": fn_name,
                             "risk_class": _policy.get("risk_class"),
                         }
+                    elif (
+                        delegated_allowed_risks is not None
+                        and _policy.get("risk_class") not in delegated_allowed_risks
+                    ):
+                        tool_result = {
+                            "ok": False,
+                            "error": "delegation_privilege_escalation",
+                            "tool": fn_name,
+                            "risk_class": _policy.get("risk_class"),
+                        }
+                    elif _policy.get("risk_class") == RISK_DEPLOYMENT:
+                        try:
+                            from runtime.action_grants import consume_action_grant
+                            consume_action_grant(
+                                deployment_context["grant"],
+                                principal_id=deployment_context["principal_id"],
+                                tenant_id=deployment_context["tenant_id"],
+                                tool=fn_name,
+                                args=args,
+                            )
+                            deployment_authorized = True
+                        except Exception:
+                            deployment_authorized = False
+                    if _policy.get("risk_class") == RISK_DEPLOYMENT and not deployment_authorized:
+                        emit_event(job_id, "tool.blocked", {
+                            "tool_name": fn_name,
+                            "agent_slug": slug,
+                            "risk_class": RISK_DEPLOYMENT,
+                            "reason": "deployment_approval_required",
+                            "session_id": session_id,
+                        })
+                        tool_result = {
+                            "ok": False,
+                            "error": "deployment_approval_required",
+                            "tool": fn_name,
+                            "risk_class": RISK_DEPLOYMENT,
+                        }
                     # Phase 11 — file_write quota enforced BEFORE the call.
                     elif fn_name == "file_write" and files_written >= MAX_FILES_WRITTEN:
                         tool_result = {
@@ -595,39 +888,90 @@ class AgentRuntime:
                             "limit": MAX_FILES_WRITTEN,
                         }
                     else:
-                        # Inject context: bridge, job_dir, runtime, parent_job_id, session_id
-                        ctx = {
-                            "_bridge": bridge,
-                            "_job_dir": job_dir,
-                            "_runtime": self,
-                            "_parent_job_id": job_id,
-                            "_session_id": session_id,
-                            "_parent_agent_slug": slug,
-                        }
-                        emit_event(job_id, "tool.called", {
-                            "tool_name": fn_name,
-                            "session_id": session_id,
-                            "turn": turn,
-                        })
-                        try:
-                            tool_result = await tool(**args, **ctx)
-                            # Phase 11 — count successful file writes.
-                            if (
-                                fn_name == "file_write"
-                                and isinstance(tool_result, dict)
-                                and tool_result.get("ok")
-                            ):
-                                files_written += 1
-                        except Exception as e:
-                            log.exception("tool %s raised", fn_name)
-                            tool_result = {
-                                "ok": False,
-                                "error": "tool_exception",
-                                "type": type(e).__name__,
-                                "message": str(e),
+                        if _policy.get("risk_class") != RISK_READ_ONLY:
+                            try:
+                                append_tool_intent(
+                                    session_id=session_id,
+                                    tool_name=fn_name,
+                                    inputs=args,
+                                )
+                            except Exception:
+                                log.exception(
+                                    "Genesis audit preflight failed job=%s tool=%s",
+                                    job_id,
+                                    fn_name,
+                                )
+                                tool_result = {
+                                    "ok": False,
+                                    "error": "audit_preflight_failed",
+                                    "tool": fn_name,
+                                }
+                                tool = None
+                        if tool is None:
+                            pass
+                        else:
+                            _remaining_budget = self.remaining_delegation_budget(
+                                job_id,
+                                token_budget=token_budget,
+                                total_tokens=total_tokens,
+                                cost_budget_cents=int(bundle.get("conduit_budget_cents", 0)),
+                            )
+                            # Inject context: bridge, job_dir, runtime, parent_job_id, session_id
+                            ctx = {
+                                "_bridge": bridge,
+                                "_job_dir": job_dir,
+                                "_runtime": self,
+                                "_parent_job_id": job_id,
+                                "_session_id": session_id,
+                                "_parent_agent_slug": slug,
+                                "_delegation_chain": (*delegation_chain, slug),
+                                "_delegation_depth": delegation_depth,
+                                # Subtract what earlier siblings already spent, or the
+                                # ceiling applies per-child instead of per-tree.
+                                "_remaining_token_budget": _remaining_budget[0],
+                                "_remaining_cost_budget_cents": _remaining_budget[1],
                             }
+                            emit_event(job_id, "tool.called", {
+                                "tool_name": fn_name,
+                                "session_id": session_id,
+                                "turn": turn,
+                            })
+                            try:
+                                tool_executed = True
+                                tool_result = await tool(**args, **ctx)
+                                # Phase 11 — count successful file writes.
+                                if (
+                                    fn_name == "file_write"
+                                    and isinstance(tool_result, dict)
+                                    and tool_result.get("ok")
+                                ):
+                                    files_written += 1
+                            except Exception as e:
+                                log.exception("tool %s raised", fn_name)
+                                tool_result = {
+                                    "ok": False,
+                                    "error": "tool_exception",
+                                    "type": type(e).__name__,
+                                    "message": str(e),
+                                }
 
                 tc_finished = time.time()
+
+                if tool_executed:
+                    try:
+                        append_tool_event(
+                            session_id=session_id,
+                            tool_name=fn_name,
+                            inputs=args,
+                            outputs=tool_result if isinstance(tool_result, dict) else {"ok": False},
+                        )
+                    except Exception:
+                        log.exception("Genesis audit append failed job=%s tool=%s", job_id, fn_name)
+                        tool_result = {
+                            "ok": False,
+                            "error": "audit_append_failed",
+                            "tool": fn_name,
+                        }
 
                 # Build structured trace record
                 record: dict[str, Any] = {
@@ -684,6 +1028,42 @@ class AgentRuntime:
 
                 tool_call_records.append(record)
 
+                # One Phoenix span per tool call. Emitted here because this is the
+                # single point every dispatch branch (blocked, sandboxed, executed,
+                # delegated, errored) converges on, so no outcome can be missed.
+                try:
+                    _phoenix.emit_completed_span(
+                        f"tool.{fn_name or 'unknown'}",
+                        kind="TOOL",
+                        start_time_s=record.get("started_at"),
+                        end_time_s=record.get("finished_at"),
+                        ok=bool(record.get("ok")),
+                        # Status text is a span field like any other, so it must go
+                        # through the same content gate. Raw result_summary can hold
+                        # retrieved knowledge_backbone text; never send it uncleared.
+                        error_message=(
+                            None if record.get("ok")
+                            else (_phoenix.safe_content(record.get("result_summary"))
+                                  or "tool_call_failed")
+                        ),
+                        attributes={
+                            _phoenix.TOOL_NAME: fn_name,
+                            "genesis.tool.call_id": tc_id,
+                            "genesis.tool.executed": tool_executed,
+                            "genesis.tool.ok": bool(record.get("ok")),
+                            "genesis.tool.elapsed_s": record.get("elapsed_s"),
+                            "genesis.turn": turn,
+                            "genesis.agent.slug": slug,
+                            "genesis.job.id": job_id,
+                            "genesis.tool.target_agent_slug": record.get("target_agent_slug"),
+                            "genesis.tool.child_job_id": record.get("child_job_id"),
+                            _phoenix.INPUT_VALUE: _phoenix.safe_content(record.get("arguments")),
+                            _phoenix.OUTPUT_VALUE: _phoenix.safe_content(record.get("result_summary")),
+                        },
+                    )
+                except Exception:  # pragma: no cover - tracing must never break dispatch
+                    pass
+
                 # Append tool result message
                 messages.append({
                     "role": "tool",
@@ -703,6 +1083,74 @@ class AgentRuntime:
             },
         }
 
+    def _is_anthropic(self) -> bool:
+        """Provider selection: explicit env signal first, URL detection as the fallback.
+
+        GENESIS_LLM_PROVIDER is authoritative when set, so an operator can force either path
+        without editing a URL. Otherwise an api.anthropic.com URL selects the Anthropic wire
+        format — pointing at Anthropic and getting OpenAI-shaped requests is never intended.
+        """
+        from runtime.anthropic_wire import is_anthropic_url
+
+        declared = (os.getenv("GENESIS_LLM_PROVIDER") or "").strip().lower()
+        if declared:
+            return declared == "anthropic"
+        return is_anthropic_url(self.llm_url)
+
+    async def _call_anthropic(
+        self, model: str, messages: list, tools: list, max_tokens: int
+    ) -> dict[str, Any]:
+        """POST /v1/messages, returning the OpenAI-shaped dict the agent loop expects."""
+        import aiohttp
+
+        from runtime.anthropic_wire import (
+            ANTHROPIC_FALLBACK_MODELS,
+            ANTHROPIC_VERSION,
+            build_anthropic_request,
+            from_anthropic_response,
+            translate_model_id,
+        )
+
+        env_model = (os.getenv("GENESIS_LLM_MODEL") or "").strip()
+        chosen = env_model if (env_model and env_model != "auto") else model
+        candidates: list[str] = []
+        for candidate in (translate_model_id(chosen), *ANTHROPIC_FALLBACK_MODELS):
+            if candidate and candidate not in candidates:
+                candidates.append(candidate)
+
+        headers = {
+            "x-api-key": self.llm_key,
+            "anthropic-version": ANTHROPIC_VERSION,
+            "content-type": "application/json",
+        }
+        url = self.llm_url if self.llm_url.rstrip("/").endswith("/v1/messages") else (
+            self.llm_url.rstrip("/") + "/v1/messages"
+        )
+
+        timeout = aiohttp.ClientTimeout(total=120)
+        last_error = "unknown"
+        async with _llm_client_session(timeout) as session:
+            for routed_model in candidates:
+                body = build_anthropic_request(
+                    model=routed_model, messages=messages, tools=tools, max_tokens=max_tokens
+                )
+                async with session.post(url, headers=headers, json=body) as resp:
+                    if resp.status in (200, 201):
+                        return from_anthropic_response(await resp.json())
+                    text = await resp.text()
+                    last_error = f"LLM HTTP {resp.status}: {text[:500]}"
+                    # Only a model-availability or capacity problem is worth retrying on another
+                    # model. A 401/403 is the same for every model, and retrying it three times
+                    # just buries the real cause.
+                    if resp.status in (404, 429, 529):
+                        log.warning(
+                            "anthropic call failed status=%s model=%s; trying next model",
+                            resp.status, routed_model,
+                        )
+                        continue
+                    raise RuntimeError(last_error)
+        raise RuntimeError(last_error)
+
     async def _call_llm(
         self,
         model: str,
@@ -710,8 +1158,60 @@ class AgentRuntime:
         tools: list,
         max_tokens: int,
     ) -> dict[str, Any]:
-        """Call the configured LLM endpoint. OpenAI-format request/response."""
+        """Traced wrapper over :meth:`_call_llm_inner`.
+
+        This is deliberately the instrumentation point for *both* providers.
+        ``_call_llm_inner`` is where the Anthropic-vs-gateway fork happens, so a
+        span opened here captures the direct-Anthropic path and the OpenAI-shaped
+        SwarmSync gateway path identically — including the model actually routed
+        to after fallback, which is read back off the response rather than
+        assumed from the request.
+        """
+        provider = "anthropic" if self._is_anthropic() else "openai_gateway"
+        with _phoenix.span(
+            "llm.completion",
+            kind="LLM",
+            attributes={
+                _phoenix.LLM_PROVIDER: provider,
+                _phoenix.LLM_MODEL_NAME: model,
+                "llm.invocation_parameters.max_tokens": max_tokens,
+                "llm.tools.count": len(tools or []),
+                "llm.messages.count": len(messages or []),
+                _phoenix.INPUT_VALUE: _phoenix.safe_content(messages),
+            },
+        ) as sp:
+            response = await self._call_llm_inner(model, messages, tools, max_tokens)
+            try:
+                usage = (response or {}).get("usage") or {}
+                _phoenix.set_attributes(sp, {
+                    # Routed model: after fallback this can differ from `model`.
+                    "llm.model_name.routed": (response or {}).get("model"),
+                    _phoenix.LLM_TOKEN_PROMPT: usage.get("prompt_tokens"),
+                    _phoenix.LLM_TOKEN_COMPLETION: usage.get("completion_tokens"),
+                    _phoenix.LLM_TOKEN_TOTAL: usage.get("total_tokens"),
+                    _phoenix.OUTPUT_VALUE: _phoenix.safe_content(response),
+                })
+            except Exception:  # pragma: no cover
+                pass
+            return response
+
+    async def _call_llm_inner(
+        self,
+        model: str,
+        messages: list,
+        tools: list,
+        max_tokens: int,
+    ) -> dict[str, Any]:
+        """Call the configured LLM endpoint.
+
+        Two providers, selected explicitly. The agent loop always speaks OpenAI shape; the
+        Anthropic branch translates at the wire and translates the response back, so nothing
+        downstream (trace, budget accounting, tool dispatch) has to know which provider ran.
+        """
         import aiohttp
+
+        if self._is_anthropic():
+            return await self._call_anthropic(model, messages, tools, max_tokens)
 
         allow_openrouter_fallback = os.getenv("GENESIS_ALLOW_OPENROUTER_FALLBACK", "").lower() in {
             "1",
@@ -746,7 +1246,7 @@ class AgentRuntime:
 
         timeout = aiohttp.ClientTimeout(total=120)
         last_error = "unknown"
-        async with aiohttp.ClientSession(timeout=timeout) as session:
+        async with _llm_client_session(timeout) as session:
             for routed_model in deduped:
                 body: dict[str, Any] = {
                     "model": routed_model,

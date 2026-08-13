@@ -17,24 +17,12 @@
   ],
   "tool_methods_from_source": [
     {
-      "name": "run_payroll_batch",
-      "docstring": "Run a payroll batch for employee_count at cost_per_employee. AP2-gated + x402 charged at 0.05% of total."
-    },
-    {
-      "name": "process_vendor_invoice",
-      "docstring": "Schedule a vendor invoice payment with category tagging. AP2-approved + x402 charged at 0.02% of amount."
-    },
-    {
       "name": "sync_bank_fees",
       "docstring": "Reconcile bank fees against an account. AP2-approved + x402 charged at 0.1% of fee."
     },
     {
       "name": "generate_finance_report",
       "docstring": "Generate monthly accounting analytics with tooling cost. AP2-approved + x402 charged at 0.1% of tooling cost."
-    },
-    {
-      "name": "run_finance_close",
-      "docstring": "Full monthly close: payroll + vendor invoice + bank fee sync + report, returning aggregated AP2 receipts."
     },
     {
       "name": "shutdown",

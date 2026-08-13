@@ -1,12 +1,25 @@
 """genesis_call - internal agent-to-agent dispatch for the meta orchestrator."""
 from __future__ import annotations
+import asyncio
+import inspect
 import logging
 import uuid
 from typing import Any
 
 from . import register_tool
+from bundle_loader import load_bundle
+from runtime.tool_policy import DEFAULT_ALLOWED_RISKS, SLUG_ALLOWED_RISKS
 
 log = logging.getLogger(__name__)
+
+MAX_DELEGATION_DEPTH = 3
+DELEGATION_TARGETS: dict[str, frozenset[str]] = {
+    "genesis-meta": frozenset({
+        "genesis-research", "genesis-finance", "genesis-pricing",
+        "genesis-legal", "genesis-analyst", "genesis-content",
+        "genesis-marketing", "genesis-seo", "genesis-support",
+    }),
+}
 
 # Durable persistence is best-effort; delegation must work even without a DB.
 try:
@@ -57,6 +70,28 @@ def _persist_child_finish(*, child_job_id, child_ok):
             log.debug("relationship_update failed", exc_info=True)
 
 
+CHILD_HEARTBEAT_INTERVAL_S = 30.0
+
+
+async def _child_heartbeat(child_job_id: str) -> None:
+    """Keep a delegated child's heartbeat fresh while it runs.
+
+    A child job is inserted directly as RUNNING and executes INLINE — nothing else ever
+    heartbeats it. Only the parent's worker heartbeat loop runs, and it beats the PARENT's
+    job id. So any delegated subtree that outlives the reaper's stale window was guaranteed
+    to be marked EXPIRED / stale_heartbeat mid-flight, corrupting the delegation trace that
+    GET /agents/jobs/{parent}/trace reconstructs.
+    """
+    if job_store is None:
+        return
+    while True:
+        await asyncio.sleep(CHILD_HEARTBEAT_INTERVAL_S)
+        try:
+            job_store.heartbeat(child_job_id)
+        except Exception:  # noqa: BLE001
+            log.debug("child heartbeat failed for %s", child_job_id, exc_info=True)
+
+
 async def genesis_call(
     *,
     agent: str,
@@ -66,6 +101,10 @@ async def genesis_call(
     _parent_job_id: str | None = None,
     _session_id: str | None = None,
     _parent_agent_slug: str | None = None,
+    _delegation_chain: tuple[str, ...] = (),
+    _delegation_depth: int = 0,
+    _remaining_token_budget: int | None = None,
+    _remaining_cost_budget_cents: int | None = None,
     **kwargs: Any,
 ) -> dict[str, Any]:
     """Dispatch to another Genesis agent. _runtime is injected by the caller's agent_runtime instance.
@@ -82,6 +121,18 @@ async def genesis_call(
             "target_agent_slug": agent,
         }
 
+    target_bundle = load_bundle(agent)
+    if target_bundle is None:
+        return {"ok": False, "error": "delegation_target_not_allowed", "target_agent_slug": agent}
+    canonical_target = target_bundle["slug"]
+    if canonical_target not in DELEGATION_TARGETS.get(_parent_agent_slug or "", frozenset()):
+        return {"ok": False, "error": "delegation_target_not_allowed", "target_agent_slug": agent}
+    if _delegation_depth >= MAX_DELEGATION_DEPTH:
+        return {"ok": False, "error": "delegation_depth_exceeded", "target_agent_slug": agent}
+    if canonical_target in _delegation_chain or canonical_target == _parent_agent_slug:
+        return {"ok": False, "error": "delegation_cycle_detected", "target_agent_slug": agent}
+    parent_risks = SLUG_ALLOWED_RISKS.get(_parent_agent_slug or "", DEFAULT_ALLOWED_RISKS)
+
     child_job_id = f"child-{uuid.uuid4().hex[:12]}"
     child_session_id = str(uuid.uuid4())
     _persist_child_start(
@@ -89,12 +140,30 @@ async def genesis_call(
         task=task, parent_job_id=_parent_job_id, parent_session_id=_session_id,
         parent_slug=_parent_agent_slug, params=params,
     )
+    hb_task = asyncio.create_task(_child_heartbeat(child_job_id))
     try:
         result = await _runtime.execute_agent(
-            agent, task, params or {}, job_id=child_job_id, session_id=child_session_id,
+            canonical_target, task, params or {}, job_id=child_job_id, session_id=child_session_id,
             parent_job_id=_parent_job_id, parent_session_id=_session_id,
+            delegation_chain=(*_delegation_chain, _parent_agent_slug or ""),
+            delegation_depth=_delegation_depth + 1,
+            delegated_allowed_risks=parent_risks,
+            inherited_token_budget=_remaining_token_budget,
+            inherited_cost_budget_cents=_remaining_cost_budget_cents,
         )
         child_ok = bool(result.get("ok"))
+        # Charge the child's real usage back to the parent so the NEXT sibling inherits a
+        # genuinely smaller ceiling. Best-effort: a runtime without the ledger (older or
+        # stubbed) must not break delegation.
+        try:
+            usage = result.get("resource_usage") or {}
+            charged = _runtime.record_delegated_spend(
+                _parent_job_id, tokens=int(usage.get("total_tokens", 0) or 0)
+            )
+            if inspect.isawaitable(charged):  # tolerate AsyncMock/awaitable test doubles
+                await charged
+        except Exception:  # noqa: BLE001
+            log.warning("could not record delegated spend for parent %s", _parent_job_id)
         _persist_child_finish(child_job_id=child_job_id, child_ok=child_ok)
         child_response = str(result.get("response", ""))
         # child_session_id may also appear in the child trace if hardening is active
@@ -127,6 +196,10 @@ async def genesis_call(
             "message": str(e),
             "agent": agent,
         }
+    finally:
+        # Never leak the pump: an orphaned heartbeat would keep a finished child's row
+        # looking alive to the reaper forever.
+        hb_task.cancel()
 
 
 GENESIS_CALL_SCHEMA = {

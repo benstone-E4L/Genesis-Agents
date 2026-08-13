@@ -24,6 +24,7 @@ import hashlib
 import json
 import logging
 import sqlite3
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -31,12 +32,11 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
-# Default paths — mirror the ~/.conduit convention used by audit.py
+# Default paths — Genesis-owned; never read an operator's Cato database.
 # ---------------------------------------------------------------------------
 
-_CONDUIT_DATA_DIR = Path.home() / ".conduit"
-_DEFAULT_DB_PATH = _CONDUIT_DATA_DIR / "cato.db"
-_DEFAULT_ANCHOR_STORE = _CONDUIT_DATA_DIR / "anchors.jsonl"
+_DEFAULT_DB_PATH: Path | None = None
+_DEFAULT_ANCHOR_STORE: Path | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -89,14 +89,14 @@ class AnchorLogger:
     Computes, stores, and verifies daily Merkle-tree anchors over the
     agents-gateway audit log.
 
-    The underlying audit DB (cato.db) is opened read-only for all query
+    The underlying Genesis audit DB is opened read-only for all query
     operations — this class never writes to it.  Anchor records are written
     to a separate append-only JSONL file.
 
     Parameters
     ----------
     db_path:
-        Path to the SQLite audit database.  Defaults to ~/.conduit/cato.db.
+        Path to the SQLite audit database. Defaults to ~/.genesis/genesis-audit.db.
     anchor_store_path:
         Path to the append-only JSONL anchor store.
         Defaults to ~/.conduit/anchors.jsonl.
@@ -107,8 +107,14 @@ class AnchorLogger:
         db_path: Optional[Path] = None,
         anchor_store_path: Optional[Path] = None,
     ) -> None:
-        self._db_path: Path = db_path or _DEFAULT_DB_PATH
-        self._anchor_store: Path = anchor_store_path or _DEFAULT_ANCHOR_STORE
+        configured_db = (os.getenv("GENESIS_AUDIT_DB_PATH") or "").strip()
+        configured_anchor = (os.getenv("GENESIS_ANCHOR_STORE_PATH") or "").strip()
+        if db_path is None and not configured_db:
+            raise RuntimeError("GENESIS_AUDIT_DB_PATH or db_path is required")
+        if anchor_store_path is None and not configured_anchor:
+            raise RuntimeError("GENESIS_ANCHOR_STORE_PATH or anchor_store_path is required")
+        self._db_path = db_path or Path(configured_db)
+        self._anchor_store = anchor_store_path or Path(configured_anchor)
 
     # ------------------------------------------------------------------
     # Internal helpers

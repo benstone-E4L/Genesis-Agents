@@ -147,14 +147,25 @@ def test_builder_bundle_tools():
 
 
 def test_deploy_bundle_tools():
-    """genesis-deploy must advertise github_tool, vercel_deploy, netlify_deploy, all registered."""
+    """genesis-deploy must advertise only the delivery tools it actually has.
+
+    vercel_deploy/netlify_deploy were removed (E4L deploys to Azure only, and
+    those tools took live credentials for platforms it does not use). The bundle
+    must not re-advertise them, and its public description must not promise a
+    hosting deploy it cannot perform.
+    """
     bundle = _load_bundle("genesis-deploy")
     advertised = bundle.get("tools_advertised", [])
 
-    required = {"github_tool", "vercel_deploy", "netlify_deploy"}
+    required = {"file_write", "github_tool", "run_code", "conduit"}
     missing_from_bundle = required - set(advertised)
     assert not missing_from_bundle, (
         f"genesis-deploy bundle is missing expected tools: {missing_from_bundle}"
+    )
+
+    removed = {"vercel_deploy", "netlify_deploy"} & set(advertised)
+    assert not removed, (
+        f"genesis-deploy re-advertises deleted hosting-deploy tools: {removed}"
     )
 
     unregistered = [t for t in advertised if get_tool(t) is None]
@@ -162,10 +173,17 @@ def test_deploy_bundle_tools():
         f"genesis-deploy advertises tools not in registry: {unregistered}"
     )
 
-    # Confirm each of the three critical deploy tools resolves to a callable
     for name in required:
         fn = get_tool(name)
         assert callable(fn), f"get_tool('{name}') returned non-callable: {fn!r}"
+
+    # capability_cards.card_for() publishes system_prompt[:300] as the public
+    # marketplace description — the disclaimer has to survive that truncation.
+    card_description = bundle["system_prompt"][:300].lower()
+    assert "no hosting-provider deploy tool" in card_description, (
+        "genesis-deploy's marketplace description must state, inside the first "
+        "300 characters, that it cannot deploy to a hosting provider"
+    )
 
 
 def test_qa_bundle_tools():
@@ -204,3 +222,155 @@ def test_meta_bundle_has_genesis_call():
     fn_block = schemas[0].get("function", {})
     assert fn_block.get("name") == "genesis_call"
     assert fn_block.get("description"), "genesis_call schema has empty description"
+
+
+# ---------------------------------------------------------------------------
+# Bundle truthfulness — general rules, not per-agent special cases
+#
+# A skill bundle is an advertisement. capability_cards.card_for() publishes
+# system_prompt[:300] and output_shape_hint verbatim on the public marketplace
+# card, and tool_methods_from_source is read by humans and by agents reasoning
+# about what a slug can do. docs/FINANCE-TOOL-CONTRACTS.md Section 6.2 Layer 6
+# already filters PROHIBITED_TOOLS out of _tool_descriptions(); that filter
+# never reached the bundle files themselves, which is how 13 permanently
+# prohibited operations (run_payroll_batch, activate_payment_gateway,
+# purchase_dataset, ...) stayed advertised in four money-domain bundles.
+#
+# These tests pin the general rule so the rot cannot return in any bundle.
+# ---------------------------------------------------------------------------
+
+# Domain prefixes used by the registered tool names. A legacy agent source
+# method is the same operation as `<prefix><method>`, so both forms must be
+# checked against the prohibition list.
+_TOOL_NAME_PREFIXES = (
+    "finance_", "billing_", "commerce_", "pricing_", "domain_", "escrow_client.",
+)
+
+# Names the legacy agent sources used for operations the prohibition list holds
+# under a different spelling. These are recorded explicitly rather than matched
+# by fuzzy suffix rules, which produced false positives ("report" matching
+# pricing_generate_pricing_report, "domain" matching commerce_register_domain).
+# Each entry is a reviewed judgement, not an inference.
+_PROHIBITED_ALIASES: dict[str, str] = {
+    "select_and_register_domain": "domain_select_and_register",
+    "create_payment_intent_mandate": "domain_create_intent_mandate",
+    "_request_payment_consent_ap2": "domain_create_intent_mandate",
+    "registration_success": "domain_register",
+}
+
+
+def _bare(prohibited_name: str) -> str:
+    for prefix in _TOOL_NAME_PREFIXES:
+        if prohibited_name.startswith(prefix):
+            return prohibited_name[len(prefix):]
+    return prohibited_name
+
+
+def _advertised_names(bundle: dict) -> list[tuple[str, str]]:
+    """Every name a bundle publishes, tagged with the field it came from."""
+    out: list[tuple[str, str]] = []
+    for m in bundle.get("tool_methods_from_source") or []:
+        out.append(("tool_methods_from_source", m.get("name", "")))
+    for t in bundle.get("tools_advertised") or []:
+        out.append(("tools_advertised", t))
+    for k in bundle.get("output_shape_hint") or []:
+        out.append(("output_shape_hint", k))
+    return out
+
+
+def test_no_bundle_advertises_a_permanently_prohibited_operation():
+    """No bundle field may name an operation PROHIBITED_TOOLS forbids.
+
+    This is Section 6.2 Layer 6 applied to the bundle files. A prohibited
+    operation must not be advertised under its registered name, under its bare
+    (prefix-stripped) name, or under a recorded legacy alias — the marketplace
+    must not advertise an operation that cannot and must not run.
+    """
+    from runtime.tool_policy import PROHIBITED_TOOLS
+
+    forbidden = set(PROHIBITED_TOOLS) | {_bare(p) for p in PROHIBITED_TOOLS}
+
+    offenders: list[str] = []
+    for bundle in _load_all_bundles():
+        slug = bundle.get("slug", "<unknown>")
+        for field, name in _advertised_names(bundle):
+            if name in forbidden:
+                offenders.append(f"  {slug}.{field}: '{name}' is a prohibited operation")
+            elif name in _PROHIBITED_ALIASES:
+                target = _PROHIBITED_ALIASES[name]
+                offenders.append(
+                    f"  {slug}.{field}: '{name}' is the legacy alias of prohibited '{target}'"
+                )
+
+    assert not offenders, (
+        "skill bundles advertise permanently prohibited operations:\n"
+        + "\n".join(offenders)
+    )
+
+
+# Hosting-provider delivery markers. vercel_deploy/netlify_deploy were deleted
+# (E4L deploys to Azure only) and no replacement exists, so NO bundle may claim
+# a hosting deploy, a deployment URL, or a rollback in any published field.
+# Substring markers are deliberately specific: a bare "platform" would match
+# genesis-content's legitimate subscribe_video_platform.
+_HOSTING_DEPLOY_SUBSTRINGS = (
+    "netlify", "vercel", "railway", "deploy_to_", "cloudflare_pages",
+    "rollback_deployment", "verify_deployment", "configure_cdn",
+)
+_HOSTING_DEPLOY_EXACT = frozenset({
+    "vercel_deploy", "netlify_deploy", "deployment_url", "deployment_id",
+    "platform", "verification_status", "rollback_status",
+})
+
+
+def test_no_bundle_claims_a_hosting_provider_deployment():
+    """No bundle may advertise a hosting deploy it cannot perform.
+
+    There is no Vercel/Netlify/Railway/CDN deploy tool in the registry and none
+    is planned in this repo, so any bundle naming one is advertising a
+    capability the runtime cannot deliver. Deleting the tools without deleting
+    the advertisement is the exact defect this guards.
+    """
+    offenders: list[str] = []
+    for bundle in _load_all_bundles():
+        slug = bundle.get("slug", "<unknown>")
+        for field, name in _advertised_names(bundle):
+            low = name.lower()
+            if low in _HOSTING_DEPLOY_EXACT:
+                offenders.append(f"  {slug}.{field}: '{name}' claims a hosting deployment")
+                continue
+            for marker in _HOSTING_DEPLOY_SUBSTRINGS:
+                if marker in low:
+                    offenders.append(
+                        f"  {slug}.{field}: '{name}' claims a hosting deployment (marker '{marker}')"
+                    )
+                    break
+
+    assert not offenders, (
+        "skill bundles claim hosting-provider deployments that no registered "
+        "tool can perform:\n" + "\n".join(offenders)
+    )
+
+
+def test_tool_methods_from_source_entries_are_wellformed():
+    """Every provenance entry must carry a real name and a real docstring.
+
+    The referenced source_file agents are not in this repo, so this field
+    cannot be validated against its stated source. Structural validity is the
+    floor: an unnamed or undocumented entry is unreviewable, and an
+    unreviewable capability claim is how the prohibited operations above went
+    unnoticed.
+    """
+    malformed: list[str] = []
+    for bundle in _load_all_bundles():
+        slug = bundle.get("slug", "<unknown>")
+        for i, entry in enumerate(bundle.get("tool_methods_from_source") or []):
+            if not isinstance(entry, dict):
+                malformed.append(f"  {slug}[{i}]: not an object")
+                continue
+            if not (entry.get("name") or "").strip():
+                malformed.append(f"  {slug}[{i}]: empty name")
+            if not (entry.get("docstring") or "").strip():
+                malformed.append(f"  {slug}[{i}]: '{entry.get('name')}' has no docstring")
+
+    assert not malformed, "malformed tool_methods_from_source entries:\n" + "\n".join(malformed)

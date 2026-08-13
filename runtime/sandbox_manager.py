@@ -17,16 +17,9 @@ Isolation tiers
      * ``--die-with-parent`` → the sandbox dies if the gateway dies.
    This is the configuration used on the Render paid instance.
 
-2. ``process`` — hardened process sandbox (no kernel FS namespace). Used only
-   when bwrap is unavailable:
-     * new session / process group (``os.setsid``) so a timeout kills the WHOLE
-       process tree (``os.killpg``), defeating backgrounded children.
-     * RLIMIT_CPU / RLIMIT_AS / RLIMIT_FSIZE / RLIMIT_NPROC resource caps.
-     * cwd confined to the workspace; minimal allow-listed env (no secrets).
-     * a static command guard that blocks workspace escapes and reads of
-       sensitive absolute paths. This is best-effort defense-in-depth and is
-       NOT equal to container isolation — sandbox_status() reports
-       isolation="process".
+2. ``unavailable`` — fail closed. Process-only isolation cannot provide a
+   filesystem or network security boundary, so commands are never dispatched
+   when bwrap is absent or non-functional.
 
 Every run additionally enforces: a dangerous-command blocklist, a
 pipe-to-shell guard, an absolute-timeout with hard kill, output truncation, and
@@ -131,12 +124,12 @@ def _bwrap_works() -> bool:
     except Exception:
         _BWRAP_OK = False
     if not _BWRAP_OK:
-        log.warning("bwrap present but non-functional on this host; using process sandbox")
+        log.error("bwrap present but non-functional; shell execution is disabled")
     return _BWRAP_OK
 
 
 def isolation_mode() -> str:
-    return "bwrap" if _bwrap_works() else "process"
+    return "bwrap" if _bwrap_works() else "unavailable"
 
 
 def _job_dir(job_id: str) -> Path:
@@ -329,16 +322,17 @@ def run_in_sandbox(
 
     clamped = min(max(1, int(timeout_s)), _MAX_TIMEOUT_S)
     run_env = _merge_extra_env(_safe_env(workspace), env)
-    use_bwrap = _bwrap_works()
+    if not _bwrap_works():
+        return {
+            "ok": False,
+            "error": "secure_sandbox_unavailable",
+            "isolation": "unavailable",
+            "message": "shell execution requires a functional bwrap boundary",
+        }
 
-    if use_bwrap:
-        argv = _build_bwrap_argv(workspace, run_cwd, run_env, command)
-        popen_kwargs: dict[str, Any] = {"env": {}}  # bwrap --clearenv + --setenv controls env
-        preexec = os.setsid if _IS_POSIX else None
-    else:
-        argv = ["/bin/sh", "-c", command] if _IS_POSIX else ["cmd", "/c", command]
-        popen_kwargs = {"env": run_env, "cwd": str(run_cwd)}
-        preexec = _set_rlimits if _IS_POSIX else None
+    argv = _build_bwrap_argv(workspace, run_cwd, run_env, command)
+    popen_kwargs: dict[str, Any] = {"env": {}}  # bwrap --clearenv + --setenv controls env
+    preexec = os.setsid if _IS_POSIX else None
 
     started = time.time()
     try:

@@ -12,7 +12,7 @@ the catalogue split (24 bundle-backed / 60 catalogued slugs / 36 unguarded perso
 - `agent_runtime.py` — AgentRuntime class (ConduitBridge + LLM orchestration)
 - `bundle_loader.py` — loads skill bundles from `skill_bundles/`
 - `skill_bundles/*.json` — agent persona, system prompt, tools, budget per agent
-- `conduit/` — git submodule: browser automation layer (Patchright)
+- `conduit_browser.py` — repository-owned restricted Patchright bridge
 
 ## Routing
 All agents call the SwarmSync router at `$LLM_API_URL` (default: `https://api.swarmsync.ai/v1/chat/completions`).
@@ -28,10 +28,10 @@ Builder, Research, Deploy, QA, and Meta use `job_mode: "async"`. Real `/agents/{
 ## Environment variables
 See `.env.example`. Critical: `LLM_API_KEY`, `LLM_API_URL`, `GENESIS_LLM_MODEL`, `AGENT_GATEWAY_SECRET`.
 
-## Conduit submodule
-```bash
-git submodule update --init --recursive
-```
+## Browser runtime
+
+Install Patchright from `requirements.txt`, then run `python -m patchright install chromium`.
+The removed Conduit submodule and `conduit-browser` package are not runtime dependencies.
 
 ## Running locally
 ```bash

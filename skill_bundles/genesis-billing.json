@@ -14,24 +14,12 @@
   ],
   "tool_methods_from_source": [
     {
-      "name": "purchase_dataset",
-      "docstring": "Underlying source method. Used by Billing as AR ledger import (subscriptions, open invoices) at provider/price/records."
-    },
-    {
       "name": "run_elasticity_experiment",
       "docstring": "Underlying source method. Used by Billing as a dunning/retry batch on the AR cluster; logs cost + expected recovery."
     },
     {
       "name": "deploy_pricing_update",
       "docstring": "Underlying source method. Used by Billing as a billing-plan-change deploy to a channel at a given risk level."
-    },
-    {
-      "name": "generate_pricing_report",
-      "docstring": "Underlying source method. Used by Billing as a RevOps dashboard-bundle generator for a period."
-    },
-    {
-      "name": "run_pricing_cycle",
-      "docstring": "Underlying source method. Used by Billing as a full billing cycle: AR import \u00e2\u2020\u2019 dunning \u00e2\u2020\u2019 plan change \u00e2\u2020\u2019 RevOps report."
     },
     {
       "name": "shutdown",

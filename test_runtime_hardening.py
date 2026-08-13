@@ -442,13 +442,17 @@ class TestWorkerDeliveryStatus:
 
 
 # ===========================================================================
-# C11 + C12: Tool registry — 4 new tools registered with valid schemas
+# C11 + C12: Tool registry — the workspace tools registered with valid schemas
 # ===========================================================================
 
 class TestNewToolRegistration:
-    """[C11, C12] Tool registration contract for the 4 new tools."""
+    """[C11, C12] Tool registration contract.
 
-    NEW_TOOLS = ["github_tool", "vercel_deploy", "netlify_deploy", "workspace_shell"]
+    Originally four tools; vercel_deploy and netlify_deploy were removed
+    (E4L deploys to Azure only), leaving github_tool and workspace_shell.
+    """
+
+    NEW_TOOLS = ["github_tool", "workspace_shell"]
 
     @pytest.fixture(autouse=True)
     def _register(self):

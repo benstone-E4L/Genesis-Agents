@@ -19,14 +19,39 @@ import retrieval_store
 
 client = TestClient(main.app)
 
-_AUTH_HEADERS = {"x-agent-api-key": "test-gateway-key"}
+# The knowledge_backbone permission filter is per-requester, so the route
+# authenticates a signed principal token rather than the service-wide gateway
+# key.  `principal_id` below is the identity the permission fixtures grant.
+_PRINCIPAL_TOKEN_KEY = "unit-test-principal-token-key-0123456789"
+_TEST_PRINCIPAL_ID = "user:ben@e4l.com"
+_AUTH_HEADERS: dict[str, str] = {}
+
+
+def _issue_test_token(principal_id: str = _TEST_PRINCIPAL_ID):
+    from runtime.request_auth import Principal, issue_principal_token
+
+    return issue_principal_token(
+        Principal(
+            principal_id=principal_id,
+            tenant_id="e4l",
+            client_id="cato",
+            scopes=frozenset({"retrieval.query"}),
+            auth_method="ap2",
+            expires_at=0,
+        ),
+        key=_PRINCIPAL_TOKEN_KEY,
+    )
 
 
 @pytest.fixture(autouse=True)
 def _gateway_key(monkeypatch):
     monkeypatch.setenv("GATEWAY_API_KEY", "test-gateway-key")
     monkeypatch.delenv("AGENT_GATEWAY_SECRET", raising=False)
+    monkeypatch.setenv("GENESIS_PRINCIPAL_TOKEN_KEY", _PRINCIPAL_TOKEN_KEY)
+    _AUTH_HEADERS.clear()
+    _AUTH_HEADERS.update({"X-Genesis-Principal-Token": _issue_test_token()})
     yield
+    _AUTH_HEADERS.clear()
 
 
 def _vault_row(**overrides):
@@ -119,21 +144,50 @@ def test_vault_only_question_never_calls_knowledge_backbone(monkeypatch):
     assert body["chunks"][0]["source"] == "vault"
 
 
-def test_no_requesting_principal_means_knowledge_backbone_never_queried(monkeypatch):
-    """Fails closed by omission: no principal supplied -> knowledge_backbone is skipped
-    entirely, not queried-and-filtered-to-empty."""
+def test_unauthenticated_request_never_reaches_knowledge_backbone(monkeypatch):
+    """Fails closed on identity: no verified principal -> 401 before any backend call.
+
+    Previously the identity came from the request body, so "no principal" was a
+    caller choice.  It is now an authentication outcome: the backend is not
+    reachable at all without a signed token.
+    """
     _mock_vault_store(monkeypatch, [])
     called = {"count": 0}
 
     def fail_if_called(query, *, top_k=8):
         called["count"] += 1
-        raise AssertionError("must not be called without requesting_principal")
+        raise AssertionError("must not be called for an unauthenticated request")
 
     monkeypatch.setattr(knowledge_backbone_store, "query_chunks", fail_if_called)
 
-    resp = client.post("/retrieval/query", json={"query": "anything"}, headers=_AUTH_HEADERS)
-    assert resp.status_code == 200
+    resp = client.post("/retrieval/query", json={"query": "anything"})
+    assert resp.status_code == 401, resp.text
     assert called["count"] == 0
+
+
+def test_body_requesting_principal_cannot_override_authenticated_identity(monkeypatch):
+    """A self-asserted body field must never widen what the token holder may read.
+
+    The chunk below is readable only by user:mallory@e4l.com.  The caller
+    authenticates as user:ben@e4l.com and claims to be mallory in the body; the
+    permission filter must still use the signed identity and drop the chunk.
+    """
+    _mock_vault_store(monkeypatch, [])
+    kb_row = _kb_row(
+        permissions_snapshot={"principals": ["user:mallory@e4l.com"], "public": False}
+    )
+    _mock_kb_backend(monkeypatch, [kb_row])
+
+    resp = client.post(
+        "/retrieval/query",
+        json={
+            "query": "vendor agreement",
+            "requesting_principal": "user:mallory@e4l.com",
+        },
+        headers=_AUTH_HEADERS,
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["chunks"] == []
 
 
 # ---------------------------------------------------------------------------

@@ -96,6 +96,25 @@ class TestExpectedPolicyMatrixFixture:
             "Section 7 Phase 5: RISK_PAYMENT must be permanently unreachable"
         )
 
+    def test_default_policy_remains_read_only(self):
+        from runtime.tool_policy import DEFAULT_ALLOWED_RISKS, RISK_READ_ONLY
+
+        assert DEFAULT_ALLOWED_RISKS == frozenset({RISK_READ_ONLY})
+
+    def test_every_bundle_has_a_slug_specific_policy(self):
+        from bundle_loader import list_bundles
+        from runtime.tool_policy import SLUG_ALLOWED_RISKS
+
+        assert set(list_bundles()) == set(SLUG_ALLOWED_RISKS)
+
+    def test_email_transmission_is_human_only_for_every_slug(self):
+        from runtime.tool_policy import SLUG_ALLOWED_RISKS, check_tool_policy
+
+        for slug in SLUG_ALLOWED_RISKS:
+            decision = check_tool_policy(slug, "send_email")
+            assert decision["ok"] is False
+            assert decision["error"] == "human_action_required"
+
     def test_every_prohibited_name_is_denied_to_every_slug_in_the_fixture(self):
         from runtime.tool_policy import PROHIBITED_TOOLS, SLUG_ALLOWED_RISKS
 

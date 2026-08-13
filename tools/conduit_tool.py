@@ -9,7 +9,7 @@ from . import register_tool
 log = logging.getLogger(__name__)
 
 try:
-    from conduit_browser import ConduitBridge  # PyPI package
+    from conduit_browser import ConduitBridge, SUPPORTED_ACTIONS
     _CONDUIT_AVAILABLE = True
 except ImportError:
     log.warning("conduit-browser not installed; conduit tool will return errors")
@@ -35,6 +35,8 @@ async def conduit_call(action: str, *, _bridge: "ConduitBridge | None" = None, *
             "error": "no_bridge_in_context",
             "message": "ConduitBridge not provided by runtime",
         }
+    if action not in SUPPORTED_ACTIONS:
+        return {"ok": False, "error": "unsupported_action", "action": action}
     try:
         # Lazy browser launch: Chromium starts only when a browser action is
         # actually requested, so file/shell/search-only jobs use no browser RAM.
@@ -45,7 +47,8 @@ async def conduit_call(action: str, *, _bridge: "ConduitBridge | None" = None, *
         result_str = await _bridge.execute(args)
         if isinstance(result_str, str):
             try:
-                return {"ok": True, "result": json.loads(result_str)}
+                parsed = json.loads(result_str)
+                return parsed if isinstance(parsed, dict) else {"ok": True, "result": parsed}
             except json.JSONDecodeError:
                 return {"ok": True, "result": result_str}
         return {"ok": True, "result": result_str}
@@ -59,22 +62,17 @@ CONDUIT_SCHEMA = {
     "function": {
         "name": "conduit",
         "description": (
-            "Audited browser automation, multi-engine web search, structured extraction, "
-            "screenshots, JS execution, form filling, marketplace adapters (LinkedIn, "
-            "Amazon, GitHub, HackerNews, Reddit), YouTube transcripts, and Ed25519-signed "
-            "proof bundles. Pass an action name and action-specific args."
+            "Restricted browser navigation, search, extraction, screenshots, clicking, "
+            "text entry, and accessibility snapshots. Private/local URLs and arbitrary "
+            "JavaScript execution are denied."
         ),
         "parameters": {
             "type": "object",
             "properties": {
                 "action": {
                     "type": "string",
-                    "description": (
-                        "Action to perform. Common: navigate, click, type_text, "
-                        "web_search, extract_main, screenshot, eval, scroll, "
-                        "marketplace_plan, marketplace_execute_job, youtube_transcript, "
-                        "accessibility_snapshot"
-                    ),
+                    "enum": sorted(SUPPORTED_ACTIONS),
+                    "description": "Action to perform.",
                 },
             },
             "required": ["action"],

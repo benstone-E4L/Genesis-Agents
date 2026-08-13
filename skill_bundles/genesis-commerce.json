@@ -16,24 +16,8 @@
   ],
   "tool_methods_from_source": [
     {
-      "name": "register_domain",
-      "docstring": "Register a domain through a registrar (Namecheap default) with AP2 budget approval and staged x402 authorization/capture."
-    },
-    {
-      "name": "activate_payment_gateway",
-      "docstring": "Activate a payment gateway (Stripe, etc.) with setup-fee AP2 approval and staged x402 certification payment."
-    },
-    {
       "name": "configure_tax_engine",
       "docstring": "Configure a tax-engine provider (Avalara default) with monthly-cost AP2 approval."
-    },
-    {
-      "name": "ship_fulfillment_batch",
-      "docstring": "Dispatch a fulfillment batch through a carrier (Shippo default) at per-order cost with AP2 approval."
-    },
-    {
-      "name": "launch_commerce_stack",
-      "docstring": "Coordinate full commerce-stack launch: domain + gateway + tax + fulfillment, returning aggregated AP2 receipts."
     },
     {
       "name": "shutdown",

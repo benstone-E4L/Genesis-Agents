@@ -275,8 +275,8 @@ Tool-level failure is signalled **inside the embedded JSON string in the
 * **Evaluable with tools (7)** — `genesis_research_x402`, `genesis_builder_x402`,
   `genesis_deploy_x402`, `genesis_qa_x402`, `genesis_meta_x402`,
   `genesis_meta_agent`, `genesis-data-pipeline-agent`.
-  * `genesis_deploy_x402` has **real external side effects** (Vercel/Netlify
-    pushes). It is quarantined in `guarded_do_not_run.jsonl` and the runner
+  * `genesis_deploy_x402` has **real external side effects** (GitHub commits
+    and pull requests, workspace shell). It is quarantined in `guarded_do_not_run.jsonl` and the runner
     refuses it without `--allow-deploy`.
   * 5 of the 7 are `job_mode: async`. A real (`--mode full`) call returns a
     `job_id` + `poll_url` envelope, not an answer, and you must poll
@@ -310,7 +310,7 @@ The runner refuses, before building any request:
 | Refused | Why | Override |
 | --- | --- | --- |
 | any slug not served by the live gateway | a typo returns a confident fallback answer, not a 404 | none — fix the dataset |
-| `genesis_deploy_x402`, `deploy_agent` | real external side effects (Vercel/Netlify pushes) | `--allow-deploy` |
+| `genesis_deploy_x402`, `deploy_agent` | real external side effects (GitHub commits/PRs, workspace shell) | `--allow-deploy` |
 | `genesis_finance_x402`, `genesis_billing_x402`, `genesis_commerce_x402`, `pricing_agent`, and anything matching the money-domain markers | denied at the Cato boundary; a score measures nothing | `--allow-money` |
 | `--mode full` | real runtime, real cost, async job envelopes this runner does not poll | `--i-understand-full-mode` |
 | a real run with no gateway credential | would silently produce auth errors and look like agent failures | use `--dry-run` or `--fake-client` |

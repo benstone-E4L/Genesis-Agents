@@ -16,7 +16,7 @@ BUNDLE_SLUG_ALIASES: dict[str, str] = {
     "genesis_meta_x402": "genesis-meta",
     "legal_agent": "genesis-legal",
     "genesis_legal_x402": "genesis-legal",
-    "onboarding_agent": "genesis-hr",
+    "onboarding_agent": "genesis-onboarding",
     "genesis_hr_x402": "genesis-hr",
     "genesis-data-pipeline-agent": "genesis-data-pipeline",
     "genesis-data-pipeline": "genesis-data-pipeline",

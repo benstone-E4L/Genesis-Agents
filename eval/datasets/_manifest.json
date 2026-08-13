@@ -64,7 +64,7 @@
     "genesis_finance_x402": "money-domain denylist at the Cato boundary — not evaluable",
     "genesis_billing_x402": "money-domain denylist at the Cato boundary — not evaluable",
     "genesis_commerce_x402": "money-domain denylist at the Cato boundary — not evaluable",
-    "genesis_deploy_x402": "real external side effects (Vercel/Netlify pushes) — quarantined, never in a scored set"
+    "genesis_deploy_x402": "real external side effects (GitHub commits/PRs, workspace shell) — quarantined, never in a scored set"
   },
 
   "slug_source": {

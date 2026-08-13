@@ -44,27 +44,20 @@ jobs:
           print("prohibition guard intact")
           PY
 
-      - name: Cato-facing build must not ship escrow_client
-        # Section 6.3 rule 3. Fails if escrow_client.py is present in a build
-        # that declares itself Cato-facing / E4L-relevant.
-        env:
-          GENESIS_DEPLOYMENT_PROFILE: cato
+      - name: Deliberate Cato escrow import must make boot fail
+        shell: bash
+        run: |
+          if GENESIS_DEPLOYMENT_PROFILE=cato python -c "from escrow_guard import assert_escrow_containment; assert_escrow_containment()"; then
+            echo "ERROR: Cato profile accepted the forbidden escrow_client module"
+            exit 1
+          fi
+          echo "negative control passed: forbidden escrow artifact was rejected"
+
+      - name: Marketplace source keeps escrow fail-closed by default
         run: |
           python - <<'PY'
-          import importlib.util, sys
-          if importlib.util.find_spec("escrow_client") is not None:
-              print(
-                  "escrow_client is importable in a Cato-facing build. "
-                  "It must be removed from the deployment artefact: it constructs "
-                  "and transmits funds movements with no human in the loop. "
-                  "See docs/FINANCE-TOOL-CONTRACTS.md Section 6.3.",
-                  file=sys.stderr,
-              )
-              sys.exit(1)
-          print("escrow_client absent from the Cato-facing build")
+          from escrow_guard import assert_escrow_containment, escrow_permitted
+          assert_escrow_containment()
+          assert escrow_permitted() is False
+          print("marketplace source defaults to escrow containment")
           PY
-        # This repo IS the SwarmSync marketplace source and still contains
-        # escrow_client.py, so this step is expected to fail here and to pass in
-        # the Cato-facing artefact. continue-on-error keeps it visible as a
-        # standing signal without blocking marketplace merges.
-        continue-on-error: true

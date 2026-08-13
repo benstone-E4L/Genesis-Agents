@@ -1,8 +1,8 @@
 """Durable store — Postgres-backed sessions, events, job relationships, artifacts.
 
 These tables (genesis_agent_sessions, genesis_agent_events,
-genesis_job_relationships, genesis_artifacts) are owned by the SwarmSync.AI
-Prisma schema and created by its migration `20260626000000_genesis_real_agent_runtime`.
+genesis_job_relationships, genesis_artifacts) are owned by this repository and
+created by `migrations/001_genesis_runtime.sql`.
 Genesis writes/reads rows directly via psycopg, reusing job_store's connection.
 
 CRITICAL: every WRITE is fire-and-forget on a single background thread. The

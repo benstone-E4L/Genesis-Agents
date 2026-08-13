@@ -7,10 +7,12 @@ log = logging.getLogger(__name__)
 
 _TOOLS: dict[str, Callable[..., Awaitable[dict[str, Any]]]] = {}
 _TOOL_SCHEMAS: dict[str, dict[str, Any]] = {}
-
-
 def register_tool(name: str, fn: Callable[..., Awaitable[dict[str, Any]]], schema: dict[str, Any]) -> None:
-    """Register a tool by name with its JSON schema."""
+    """Register a tool once; reject shadowing by another implementation."""
+    if name in _TOOLS:
+        if _TOOLS[name] is fn and _TOOL_SCHEMAS[name] == schema:
+            return
+        raise RuntimeError(f"duplicate tool registration: {name}")
     _TOOLS[name] = fn
     _TOOL_SCHEMAS[name] = schema
 
@@ -39,3 +41,4 @@ def register_default_tools() -> None:
                 log.debug("registered tool module: %s", module_name)
         except Exception:
             log.exception("failed to register tool module %s", module_name)
+            raise

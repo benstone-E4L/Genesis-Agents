@@ -1,11 +1,11 @@
 """
-cato/audit.py — Append-only, hash-chained audit log for CATO.
+Genesis append-only, hash-chained audit log.
 
 Every agent action is written here — never updated, never deleted.
 The SHA-256 chain allows tamper detection: verify_chain() walks
 every row and recomputes each row_hash from its fields + prev_hash.
 
-Storage: SQLite at {data_dir}/cato.db, table audit_log.
+Storage: SQLite at GENESIS_DATA_DIR/genesis-audit.db, table audit_log.
 
 Schema v2 (current)
 -------------------
@@ -30,6 +30,9 @@ import json
 import logging
 import sqlite3
 import time
+import os
+import re
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from pathlib import Path
 from typing import Any, Optional
 
@@ -70,30 +73,37 @@ _SENSITIVE_KEYS = frozenset({
     "bearer", "credential", "passwd", "passphrase",
 })
 
-_MAX_OUTPUT_CHARS = 2000
-
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _sanitize(value: Any, *, parent_key: str = "") -> Any:
+    """Recursively redact nested mappings/lists and credential-like strings."""
+    if any(s in parent_key.lower() for s in _SENSITIVE_KEYS):
+        return "[REDACTED]"
+    if isinstance(value, dict):
+        return {str(k): _sanitize(v, parent_key=str(k)) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_sanitize(v, parent_key=parent_key) for v in value]
+    if isinstance(value, str):
+        if value.startswith(("http://", "https://")):
+            parsed = urlsplit(value)
+            clean_query = []
+            for key, item in parse_qsl(parsed.query, keep_blank_values=True):
+                clean_query.append((key, "[REDACTED]" if any(s in key.lower() for s in _SENSITIVE_KEYS) else item))
+            value = urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(clean_query), parsed.fragment))
+        lower = value.lower().strip()
+        if lower.startswith(("bearer ", "sk-", "sk-ant-")):
+            return "[REDACTED]"
+        value = re.sub(r"(?i)bearer\s+[A-Za-z0-9._~+/-]{8,}", "Bearer [REDACTED]", value)
+        value = re.sub(r"\bsk-(?:ant-)?[A-Za-z0-9_-]{8,}", "[REDACTED]", value)
+        return value
+    return value
+
+
 def _sanitize_inputs(inputs: dict) -> dict:
-    """Remove any vault keys or sensitive values from inputs before logging."""
-    if not isinstance(inputs, dict):
-        return {}
-    clean: dict = {}
-    for k, v in inputs.items():
-        if any(s in k.lower() for s in _SENSITIVE_KEYS):
-            clean[k] = "[REDACTED]"
-        else:
-            clean[k] = v
-    return clean
-
-
-def _truncate(text: str, limit: int = _MAX_OUTPUT_CHARS) -> str:
-    if len(text) <= limit:
-        return text
-    return text[:limit] + f"... [truncated {len(text) - limit} chars]"
+    """Backward-compatible alias for recursive redaction."""
+    return _sanitize(inputs) if isinstance(inputs, dict) else {}
 
 
 def _digest(text: str) -> str:
@@ -155,7 +165,7 @@ class AuditLog:
 
     Usage::
 
-        log = AuditLog()
+        log = AuditLog(Path("/persistent/genesis-audit.db"))
         log.connect()
         row_id = log.log(
             session_id="sess-001",
@@ -170,8 +180,10 @@ class AuditLog:
     """
 
     def __init__(self, db_path: Optional[Path] = None) -> None:
-        from .platform import get_data_dir
-        self._db_path = db_path or (get_data_dir() / "cato.db")
+        configured = (os.getenv("GENESIS_AUDIT_DB_PATH") or "").strip()
+        if db_path is None and not configured:
+            raise RuntimeError("GENESIS_AUDIT_DB_PATH or db_path is required")
+        self._db_path = db_path or Path(configured)
         self._conn: Optional[sqlite3.Connection] = None
 
     def connect(self) -> None:
@@ -219,7 +231,7 @@ class AuditLog:
 
         action_type: "tool_call" | "llm_response" | "skill_load" | "error" | "spec_commitment"
         inputs: sanitized — vault keys are redacted automatically.
-        outputs: truncated to 2000 chars.
+        outputs: recursively redacted and retained in full.
         """
         self._ensure_connected()
         assert self._conn is not None
@@ -228,8 +240,9 @@ class AuditLog:
         safe_inputs = _sanitize_inputs(inputs if isinstance(inputs, dict) else {})
         inputs_json = json.dumps(safe_inputs, ensure_ascii=True)
 
-        raw_output = outputs if isinstance(outputs, str) else json.dumps(outputs, ensure_ascii=True)
-        outputs_json = _truncate(raw_output)
+        safe_outputs = _sanitize(outputs)
+        raw_output = safe_outputs if isinstance(safe_outputs, str) else json.dumps(safe_outputs, ensure_ascii=True)
+        outputs_json = raw_output
 
         # v2: compute digests before inserting so they can be stored and later
         # used for chain verification without touching the raw JSON columns.

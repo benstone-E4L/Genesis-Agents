@@ -83,3 +83,15 @@ class TestToolRiskByNameCoverage:
         assert check_tool_policy("genesis-meta", "genesis_call")["ok"] is True
         assert check_tool_policy("genesis-finance", "workspace_shell")["ok"] is False
         assert check_tool_policy("genesis-builder", "file_write")["ok"] is True
+
+    def test_side_effect_risks_are_not_granted_to_new_slugs(self):
+        from runtime.tool_policy import RISK_DEPLOYMENT, RISK_PAYMENT, SLUG_ALLOWED_RISKS
+
+        deployment_holders = {
+            slug for slug, risks in SLUG_ALLOWED_RISKS.items() if RISK_DEPLOYMENT in risks
+        }
+        payment_holders = {
+            slug for slug, risks in SLUG_ALLOWED_RISKS.items() if RISK_PAYMENT in risks
+        }
+        assert deployment_holders == {"genesis-builder", "genesis-deploy"}
+        assert payment_holders == set()

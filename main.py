@@ -231,6 +231,9 @@ async def lifespan(app: FastAPI):
     assert_gateway_key_configured()
     logger.info("gateway auth guard: GATEWAY_API_KEY is configured")
 
+    assert_auth_material_configured()
+    logger.info("signed-identity guard: AP2 nonce store and token keys are configured")
+
     cache_dir = os.path.expanduser("~/.cache/ms-playwright")
     has_browser = os.path.isdir(cache_dir) and any(True for _ in os.scandir(cache_dir))
     if not has_browser:
@@ -287,7 +290,7 @@ app.add_middleware(
     ],
     allow_credentials=False,
     allow_methods=["POST", "GET", "OPTIONS"],
-    allow_headers=["Content-Type", "Authorization", "X-Agent-Api-Key", "X-Agent-Gateway-Secret"],
+    allow_headers=["Content-Type", "Authorization", "X-Agent-Api-Key", "X-Agent-Gateway-Secret", "X-AP2-Version", "X-AP2-Pubkey", "X-Genesis-Principal-Token"],
 )
 
 
@@ -310,8 +313,9 @@ async def verify_gateway_key(
     """
     expected_api_key = os.getenv("GATEWAY_API_KEY")
     if not expected_api_key:
-        # Unreachable when the process actually booted; see lifespan() above.
-        return
+        # Fail closed even when the dependency is invoked outside the normal
+        # lifespan (tests, alternate ASGI hosts, or a misconfigured worker).
+        raise HTTPException(status_code=503, detail="Gateway authentication is not configured")
 
     # Accept if X-Agent-Api-Key matches (constant-time comparison prevents timing oracle)
     if hmac.compare_digest(x_agent_api_key or "", expected_api_key):
@@ -323,6 +327,155 @@ async def verify_gateway_key(
         return
 
     raise HTTPException(status_code=401, detail="Invalid or missing X-Agent-Api-Key")
+
+
+def assert_envelope_binds_request(body: dict[str, Any], route_slug: str) -> None:
+    """Bind the unsigned execution fields to the signed AP2 payload.
+
+    Cato signs ``{payload, nonce, timestamp}`` only, but Genesis executes from
+    the top-level ``prompt``/``task`` (RunRequest's real fields). Without this
+    binding an attacker who could modify the body in flight would keep a valid
+    signature while swapping the agent, the prompt, or the parameters — the
+    signature would prove nothing about what actually ran.
+
+    Raises AuthenticationError; separated from the dependency so the binding
+    itself is directly testable without a live signing key.
+    """
+    from runtime.request_auth import AuthenticationError, _eq
+
+    payload = body.get("payload") or {}
+    if not isinstance(payload, dict):
+        raise AuthenticationError("ap2_envelope_invalid")
+    # _eq compares UTF-8 bytes. hmac.compare_digest raises TypeError on any non-ASCII `str`, and
+    # the caller below only catches AuthenticationError — so a legitimate prompt containing "é"
+    # or "→" used to escape as an unhandled TypeError and surface as HTTP 500 rather than a
+    # clean 401/200. Prompts are free text; non-ASCII is normal, not an attack.
+    if not _eq(payload.get("agent"), route_slug):
+        raise AuthenticationError("ap2_agent_mismatch")
+    if not _eq(payload.get("task"), body.get("prompt")):
+        raise AuthenticationError("ap2_task_mismatch")
+    runtime_task = body.get("task") or {}
+    signed_params = payload.get("params") or {}
+    if not isinstance(runtime_task, dict) or not isinstance(signed_params, dict):
+        raise AuthenticationError("ap2_params_invalid")
+    # Cato adds an unsigned human-readable "description" to the runtime task.
+    # Strip it ONLY when it is absent from the signed params — otherwise a
+    # caller whose own params legitimately contain "description" has it dropped
+    # from one side of the comparison and gets an opaque 401 for a correctly
+    # signed request.
+    unsigned_runtime = dict(runtime_task)
+    if "description" not in signed_params:
+        unsigned_runtime.pop("description", None)
+    if unsigned_runtime != signed_params:
+        raise AuthenticationError("ap2_params_mismatch")
+
+
+async def verify_agent_principal(
+    request: Request,
+    x_ap2_version: str | None = Header(default=None, alias="X-AP2-Version"),
+    x_ap2_pubkey: str | None = Header(default=None, alias="X-AP2-Pubkey"),
+    x_agent_api_key: str | None = Header(default=None, alias="X-Agent-Api-Key"),
+    x_agent_gateway_secret: str | None = Header(default=None, alias="X-Agent-Gateway-Secret"),
+):
+    """Prefer verified AP2 identity; retain a constrained legacy gateway principal."""
+    from runtime.request_auth import AuthenticationError, legacy_gateway_principal, verify_ap2_envelope
+
+    if x_ap2_version or x_ap2_pubkey:
+        try:
+            body = await request.json()
+            principal = verify_ap2_envelope(
+                body, header_version=x_ap2_version, header_pubkey=x_ap2_pubkey,
+                required_scope="agent.invoke",
+            )
+            assert_envelope_binds_request(body, str(request.path_params.get("slug") or ""))
+            return principal
+        except AuthenticationError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+    await verify_gateway_key(x_agent_api_key, x_agent_gateway_secret)
+    return legacy_gateway_principal()
+
+
+async def verify_continuation_principal(
+    x_genesis_principal_token: str | None = Header(default=None, alias="X-Genesis-Principal-Token"),
+    x_agent_api_key: str | None = Header(default=None, alias="X-Agent-Api-Key"),
+    x_agent_gateway_secret: str | None = Header(default=None, alias="X-Agent-Gateway-Secret"),
+):
+    """Authenticate a poll/read with a scoped continuation token or legacy key."""
+    from runtime.request_auth import AuthenticationError, legacy_gateway_principal, verify_principal_token
+
+    if x_genesis_principal_token:
+        try:
+            return verify_principal_token(x_genesis_principal_token)
+        except AuthenticationError as exc:
+            raise HTTPException(status_code=401, detail=str(exc)) from exc
+    await verify_gateway_key(x_agent_api_key, x_agent_gateway_secret)
+    return legacy_gateway_principal()
+
+
+def _require_owned_job(principal, job: dict[str, Any] | None, scope: str = "job.read") -> dict[str, Any]:
+    from runtime.request_auth import owns_resource
+
+    if not job:
+        raise HTTPException(status_code=404, detail="job not found")
+    if not principal.has_scope(scope):
+        raise HTTPException(status_code=403, detail="principal scope denied")
+    if not owns_resource(principal, job):
+        raise HTTPException(status_code=403, detail="resource owner mismatch")
+    return job
+
+
+def _authorize_job_read(principal, job_id: str, scope: str = "job.read") -> None:
+    """Authorize a side-channel job read (/events, /trace, /sandbox).
+
+    These routes used to be gated on the shared GATEWAY_API_KEY alone, which meant the
+    owner-scoped principal token Genesis itself mints for a queued job could not read them —
+    a poller holding the ONLY credential legitimately scoped to that job got a 401.
+
+    Two paths, deliberately asymmetric:
+
+    * principal token / AP2 — authorized through _require_owned_job, so a token reads only its
+      own job. This is the tenant-scoped path and it is fail-closed: if the job store is
+      unavailable we cannot prove ownership, so we refuse rather than serve.
+    * legacy gateway key — preserved EXACTLY as before (no ownership check), because that is
+      the existing contract for these routes and tightening it here would break current
+      callers. legacy_gateway_principal() does not even carry `job.read`, so routing it through
+      _require_owned_job would 403 every existing caller.
+
+    The residual risk is unchanged, not introduced: a GATEWAY_API_KEY bearer can still read any
+    job's events/trace. That is the shared-key blast radius already logged in the failure-mode
+    audit, and narrowing it is a separate, deliberate decision.
+    """
+    if principal.auth_method == "legacy_gateway":
+        return
+    if not _JOB_STORE_OK or get_job is None:
+        raise HTTPException(status_code=503, detail="job_store unavailable")
+    _require_owned_job(principal, get_job(job_id), scope)
+
+
+def _scoped_runtime_params(body: Any, principal) -> dict[str, Any]:
+    """Accept only signed, bounded Ask E4L-resolved context for this tenant."""
+    params = dict(body.task) if isinstance(body.task, dict) else {}
+    raw_context = params.get("resolved_context", [])
+    if raw_context is None:
+        raw_context = []
+    if not isinstance(raw_context, list) or len(raw_context) > 8:
+        raise HTTPException(status_code=422, detail="resolved_context_invalid")
+    clean = []
+    from audit import _sanitize
+    for item in raw_context:
+        if not isinstance(item, dict):
+            raise HTTPException(status_code=422, detail="resolved_context_invalid")
+        if str(item.get("tenant_id") or principal.tenant_id) != principal.tenant_id:
+            raise HTTPException(status_code=403, detail="resolved_context_tenant_mismatch")
+        citation = str(item.get("citation") or "")[:512]
+        content_hash = str(item.get("content_sha256") or item.get("hash") or "")[:128]
+        content = str(_sanitize(str(item.get("content") or "")))[:4000]
+        if not citation or not content_hash or not content:
+            raise HTTPException(status_code=422, detail="resolved_context_evidence_required")
+        clean.append({"citation": citation, "content_sha256": content_hash, "content": content})
+    params["resolved_context"] = clean
+    params.pop("description", None)
+    return params
 
 
 def assert_gateway_key_configured() -> None:
@@ -345,25 +498,56 @@ def assert_gateway_key_configured() -> None:
         )
 
 
-_DEFAULT_ADMIN_EMAILS = "bullrushinvestments@gmail.com"
-_ADMIN_EMAILS_RAW = os.getenv("SWARMSYNC_ADMIN_EMAILS", _DEFAULT_ADMIN_EMAILS)
-ADMIN_EMAILS = [e.strip().lower() for e in _ADMIN_EMAILS_RAW.split(",") if e.strip()]
-if not ADMIN_EMAILS:
-    logger.warning(
-        "SWARMSYNC_ADMIN_EMAILS is empty — all /admin/* endpoints will return 503"
-    )
+# Every AP2 code path that mints or replay-protects an identity reads one of
+# these. They are asserted at boot rather than at first use because the failure
+# lands mid-request: issue_principal_token() is called AFTER create_job(), so a
+# missing key returns HTTP 500 to a caller whose job (and escrow reservation)
+# already exists, with no continuation token to poll it. Fail-to-boot beats
+# fail-mid-transaction.
+_REQUIRED_AUTH_ENV: tuple[tuple[str, int, str], ...] = (
+    ("GENESIS_AUTH_DB_PATH", 1, "AP2 nonce replay protection has nowhere to record consumed nonces"),
+    ("GENESIS_PRINCIPAL_TOKEN_KEY", 32, "queued jobs cannot be issued an owner-scoped polling token"),
+    ("GENESIS_ACTION_GRANT_KEY", 32, "single-use action grants cannot be verified, so deployment-class tools can never be authorized"),
+)
 
 
-async def require_admin(x_admin_email: str = Header(default="", alias="x-admin-email")) -> None:
-    """Header-based admin gate for /admin/* endpoints.
+def assert_auth_material_configured() -> None:
+    """Refuse to start without the secrets the signed-identity path requires."""
+    missing = [
+        f"{name} ({reason})"
+        for name, minimum, reason in _REQUIRED_AUTH_ENV
+        if len((os.getenv(name) or "").strip()) < minimum
+    ]
+    if missing:
+        raise RuntimeError(
+            "Refusing to start — signed-identity configuration is incomplete: "
+            + "; ".join(missing)
+            + ". See .env.example."
+        )
+    # A configured-but-unusable path is worse than an unset one: the boot guard passes and
+    # every AP2 request then dies mid-verification. Prove the nonce store can be opened and
+    # written NOW, while failing is still just a failed boot.
+    from runtime.request_auth import auth_db_is_usable
 
-    Uses SWARMSYNC_ADMIN_EMAILS env var (comma-separated emails), defaulting
-    to bullrushinvestments@gmail.com when the env var is not configured.
+    usable, reason = auth_db_is_usable()
+    if not usable:
+        raise RuntimeError(
+            "Refusing to start — GENESIS_AUTH_DB_PATH is set but the AP2 nonce store cannot "
+            f"be opened for writing ({reason}). On Render this usually means no persistent "
+            "disk is mounted at that path. Replay protection would be unavailable."
+        )
+
+
+async def require_admin(principal=Depends(verify_continuation_principal)) -> None:
+    """Admin is a signed principal scope, never a self-asserted identity header.
+
+    There is deliberately no email allowlist here.  The previous self-asserted
+    identity header and its env allowlist were removed: an unsigned string a
+    caller chooses is not a credential, and keeping the variable around would
+    imply a control that no longer runs.  Admin rights come from the ``admin``
+    scope on a verified principal, granted in ``trusted_ap2_clients.json``.
     """
-    if not ADMIN_EMAILS:
-        raise HTTPException(status_code=503, detail="Admin auth not configured")
-    email = (x_admin_email or "").strip().lower()
-    if not email or email not in ADMIN_EMAILS:
+    if not principal.has_scope("admin"):
         raise HTTPException(status_code=403, detail="admin access required")
 
 # ---------------------------------------------------------------------------
@@ -388,10 +572,10 @@ AGENT_PERSONAS: dict[str, tuple[str, str]] = {
     ),
     "genesis_deploy_x402": (
         "Genesis Deploy Agent",
-        "You are Genesis Deploy Agent, an expert in cloud infrastructure and CI/CD pipelines. "
-        "You handle deployments to AWS, GCP, Azure, Render, and Netlify using best practices "
-        "for reliability and security. Respond concisely and stay in character as a DevOps "
-        "engineer.",
+        "You are Genesis Deploy Agent, an expert in CI/CD pipelines and source-control "
+        "delivery. You prepare code and release configuration and push it to GitHub. You have "
+        "no hosting-provider deploy tool, so never claim a site is live. Respond concisely and "
+        "stay in character as a DevOps engineer.",
     ),
     "genesis_content_x402": (
         "Genesis Content Agent",
@@ -1130,7 +1314,10 @@ if not AGENT_GATEWAY_SECRET:
 
 _GATEWAY_API_KEY = os.getenv("GATEWAY_API_KEY")
 if not _GATEWAY_API_KEY:
-    logger.warning("GATEWAY_API_KEY is not set — /agents/{slug}/run and /a2a are open to anonymous callers (dev mode)")
+    logger.warning(
+        "GATEWAY_API_KEY is not set — protected routes fail closed and lifespan "
+        "startup will refuse service"
+    )
 
 # In-memory job store: job_id -> VerifyJobStatus dict
 # Persists only for the lifetime of the process (acceptable — Render restarts are rare,
@@ -1419,7 +1606,7 @@ async def _run_arbitrage_verification_and_callback(
 # import, since verify_gateway_key lives in this module.
 from retrieval_route import router as retrieval_router  # noqa: E402
 
-app.include_router(retrieval_router, dependencies=[Depends(verify_gateway_key)])
+app.include_router(retrieval_router)
 
 
 @app.get("/health")
@@ -1617,8 +1804,8 @@ async def health_sandbox():
         return {"ok": False, "error": str(exc)}
 
 
-@app.get("/agents/jobs/{job_id}/artifacts", dependencies=[Depends(verify_gateway_key)])
-async def get_job_artifacts(job_id: str):
+@app.get("/agents/jobs/{job_id}/artifacts")
+async def get_job_artifacts(job_id: str, principal=Depends(verify_continuation_principal)):
     """List artifacts for a completed job.
 
     Prefers the durable genesis_artifacts metadata (sha256 / size / mime /
@@ -1626,6 +1813,9 @@ async def get_job_artifacts(job_id: str):
     a live storage listing if no durable rows exist.
     """
     from artifact_store import list_artifacts, get_signed_url
+    if not _JOB_STORE_OK or get_job is None:
+        raise HTTPException(status_code=503, detail="job_store unavailable")
+    _require_owned_job(principal, get_job(job_id), "artifact.read")
 
     # Phase 4: durable metadata path (includes integrity checksums).
     try:
@@ -1737,8 +1927,8 @@ async def list_agents():
     }
 
 
-@app.post("/agents/{slug}/run", response_model=RunResponse, dependencies=[Depends(verify_gateway_key)])
-async def run_agent(slug: str, body: RunRequest):
+@app.post("/agents/{slug}/run", response_model=RunResponse)
+async def run_agent(slug: str, body: RunRequest, principal=Depends(verify_agent_principal)):
     persona = AGENT_PERSONAS.get(slug)
 
     if persona:
@@ -1759,6 +1949,29 @@ async def run_agent(slug: str, body: RunRequest):
         bundle_slug = resolve_bundle_slug(slug)
     except Exception:
         bundle_slug = slug
+    # Structured capability constraints are authorization inputs, not prose.
+    # Refuse prohibited names before bundle loading or any LLM call.
+    structured_task = body.task if isinstance(body.task, dict) else {}
+    constraints = structured_task.get("constraints") if isinstance(structured_task, dict) else {}
+    requested_tools = constraints.get("allowed_tools", []) if isinstance(constraints, dict) else []
+    if isinstance(requested_tools, list):
+        from runtime.tool_policy import is_prohibited
+        prohibited = sorted(str(name) for name in requested_tools if is_prohibited(str(name), bundle_slug))
+        if prohibited:
+            raise HTTPException(status_code=403, detail={"error": "prohibited_capability", "tools": prohibited})
+
+    # Persona entries are discovery copy, not executable security principals.
+    # Every runnable slug must resolve to a reviewed bundle so it cannot bypass
+    # the runtime's tool allowlist, budgets, escrow guard, and evidence checks.
+    if not _RUNTIME_IMPORT_OK or load_bundle is None:
+        raise HTTPException(status_code=503, detail="bundle_runtime_unavailable")
+    try:
+        executable_bundle = load_bundle(bundle_slug)
+    except Exception as exc:
+        logger.error("load_bundle failed for slug=%s: %s", slug, exc, exc_info=True)
+        raise HTTPException(status_code=503, detail="bundle_runtime_unavailable") from exc
+    if executable_bundle is None:
+        raise HTTPException(status_code=404, detail="agent_bundle_required")
 
     # External-escrow mode: when the marketplace (or any external coordinator)
     # is the escrow owner, the gateway must skip its OWN escrow init / complete /
@@ -1820,7 +2033,7 @@ async def run_agent(slug: str, body: RunRequest):
                 if not _JOB_STORE_OK or create_job is None:
                     raise HTTPException(status_code=503, detail="job_store_unavailable")
 
-                async_params = body.task if isinstance(body.task, dict) else {}
+                async_params = _scoped_runtime_params(body, principal)
                 async_prompt = user_prompt or (
                     json.dumps(body.task) if isinstance(body.task, dict) else ""
                 )
@@ -1876,6 +2089,8 @@ async def run_agent(slug: str, body: RunRequest):
                         buyer_wallet_id=buyer_wallet_id,
                         escrow_id=escrow_id_async,
                         webhook_url=body.callback_url,
+                        tenant_id=principal.tenant_id,
+                        owner_principal_id=principal.principal_id,
                     )
                 except Exception as exc:
                     # If WE reserved the escrow (not the marketplace) and we
@@ -1902,6 +2117,9 @@ async def run_agent(slug: str, body: RunRequest):
                     "poll_url": f"/agents/jobs/{job['id']}",
                     "idempotent_hit": job.get("idempotent_hit", False),
                 }
+                if principal.auth_method == "ap2":
+                    from runtime.request_auth import issue_principal_token
+                    queued_payload["principal_token"] = issue_principal_token(principal)
                 if escrow_id_async:
                     queued_payload["escrow_id"] = escrow_id_async
                 if external_escrow_id:
@@ -1914,9 +2132,7 @@ async def run_agent(slug: str, body: RunRequest):
 
             runtime = _get_runtime()
             if runtime is not None:
-                params = {}
-                if isinstance(body.task, dict):
-                    params = body.task
+                params = _scoped_runtime_params(body, principal)
 
                 # Phase 6 — escrow buyer funds before sync execution if a
                 # buyer wallet + price are supplied AND the bundle declares
@@ -2068,8 +2284,8 @@ async def run_agent(slug: str, body: RunRequest):
 # 6 escrow, 11 disputes) attach state transitions on top of this layer.
 # ============================================================================
 
-@app.post("/agents/{slug}/jobs", dependencies=[Depends(verify_gateway_key)])
-async def submit_job(slug: str, body: dict):
+@app.post("/agents/{slug}/jobs")
+async def submit_job(slug: str, body: dict, principal=Depends(verify_agent_principal)):
     """Submit an async job. Returns job_id immediately; client polls /agents/jobs/{job_id}.
 
     External-escrow integration: when `escrow_id` is in the body, the gateway
@@ -2102,6 +2318,8 @@ async def submit_job(slug: str, body: dict):
             webhook_url=webhook_url,
             buyer_client_id=buyer_client_id,
             escrow_id=external_escrow_id,
+            tenant_id=principal.tenant_id,
+            owner_principal_id=principal.principal_id,
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"job_create_failed: {e}")
@@ -2114,6 +2332,9 @@ async def submit_job(slug: str, body: dict):
     }
     if external_escrow_id:
         payload["external_escrow_id"] = external_escrow_id
+    if principal.auth_method == "ap2":
+        from runtime.request_auth import issue_principal_token
+        payload["principal_token"] = issue_principal_token(principal)
 
     if not job.get("idempotent_hit"):
         try:
@@ -2126,15 +2347,14 @@ async def submit_job(slug: str, body: dict):
     return payload
 
 
-@app.get("/agents/jobs/{job_id}", dependencies=[Depends(verify_gateway_key)])
-async def get_job_status(job_id: str):
+@app.get("/agents/jobs/{job_id}")
+async def get_job_status(job_id: str, principal=Depends(verify_continuation_principal)):
     """Poll a job's status + result."""
     if not _JOB_STORE_OK or get_job is None:
         raise HTTPException(status_code=503, detail="job_store unavailable")
 
     job = get_job(job_id)
-    if not job:
-        raise HTTPException(status_code=404, detail="job not found")
+    _require_owned_job(principal, job)
     # Serialize datetimes
     for k in ("createdAt", "updatedAt", "startedAt", "completedAt", "lastHeartbeatAt"):
         if job.get(k):
@@ -2142,13 +2362,14 @@ async def get_job_status(job_id: str):
     return job
 
 
-@app.get("/agents/jobs/{job_id}/events", dependencies=[Depends(verify_gateway_key)])
-async def get_job_events(job_id: str):
+@app.get("/agents/jobs/{job_id}/events")
+async def get_job_events(job_id: str, principal=Depends(verify_continuation_principal)):
     """Return persisted runtime events for a job (Phase 4 observability).
 
     Events are written to /tmp/jobs/{job_id}/logs/events.jsonl during execution.
     Returns [] if the job has no events yet (job not started or events file missing).
     """
+    _authorize_job_read(principal, job_id)
     try:
         from runtime.observability import get_events
         events = get_events(job_id)
@@ -2158,14 +2379,15 @@ async def get_job_events(job_id: str):
         raise HTTPException(status_code=500, detail=f"events_read_failed: {exc}")
 
 
-@app.get("/agents/jobs/{job_id}/sandbox", dependencies=[Depends(verify_gateway_key)])
-async def get_job_sandbox(job_id: str):
+@app.get("/agents/jobs/{job_id}/sandbox")
+async def get_job_sandbox(job_id: str, principal=Depends(verify_continuation_principal)):
     """Return sandbox lifecycle state + isolation tier for a job (Phase 2/6).
 
     States: CREATED → ACTIVE → FINALIZING → UPLOADED → CLEANED → FAILED.
     Includes the active isolation tier ("bwrap" for real kernel isolation,
     "process" for the hardened process sandbox). 404 if never registered.
     """
+    _authorize_job_read(principal, job_id)
     try:
         from runtime.workspace_manager import get_workspace
         from runtime.sandbox_manager import sandbox_status
@@ -2256,14 +2478,15 @@ async def get_session(session_id: str):
         raise HTTPException(status_code=500, detail=f"session_read_failed: {exc}")
 
 
-@app.get("/agents/jobs/{job_id}/trace", dependencies=[Depends(verify_gateway_key)])
-async def get_job_trace(job_id: str):
+@app.get("/agents/jobs/{job_id}/trace")
+async def get_job_trace(job_id: str, principal=Depends(verify_continuation_principal)):
     """Return the full parent→child trace tree for a job (Phase 6).
 
     Aggregates the durable job record, its session(s), lifecycle events, and
     every child job/session spawned via genesis_call. Proves real delegation
     linkage that survives restart.
     """
+    _authorize_job_read(principal, job_id)
     try:
         import durable_store
         job = None
@@ -2414,7 +2637,9 @@ async def file_dispute(job_id: str, body: dict):
     # disputed. Other terminal states (DELIVERED/SETTLED/FAILED/REFUNDED) are
     # allowed - a buyer can dispute after settlement.
     try:
-        update_job_status(job_id, "DISPUTED")
+        # Human-initiated: a buyer may dispute an already-terminal job, so this is one of
+        # the three call sites permitted to move a terminal row. The worker never is.
+        update_job_status(job_id, "DISPUTED", allow_terminal_override=True)
     except Exception:
         logger.exception("dispute status update failed for %s", job_id)
 
@@ -2445,14 +2670,17 @@ async def agent_reputation(slug: str):
     return {"slug": slug, "reputation": _reputation_for(slug)}
 
 
-@app.get("/admin/disputes", dependencies=[Depends(require_admin)])
+@app.get(
+    "/admin/disputes",
+    dependencies=[Depends(verify_gateway_key), Depends(require_admin)],
+)
 async def list_disputes():
     """Admin view: all DISPUTED jobs with their most recent dispute payload.
 
-    Gated by the require_admin dependency (X-Admin-Email header checked
-    against the SWARMSYNC_ADMIN_EMAILS allowlist, defaulting to
-    bullrushinvestments@gmail.com). v1 simple header check; will upgrade
-    to SwarmSync's user JWT auth when the gateway and main API merge.
+    Requires BOTH the shared gateway credential and a verified principal
+    carrying the ``admin`` scope (see require_admin).  The shared key alone
+    resolves to the legacy principal, which holds no admin scope and is
+    therefore rejected with 403.
     """
     if not _JOB_STORE_OK:
         raise HTTPException(status_code=503, detail="job_store_unavailable")
@@ -2484,28 +2712,34 @@ async def list_disputes():
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/admin", response_class=HTMLResponse)
-@app.get("/admin/", response_class=HTMLResponse)
+@app.get(
+    "/admin",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_gateway_key), Depends(require_admin)],
+)
+@app.get(
+    "/admin/",
+    response_class=HTMLResponse,
+    dependencies=[Depends(verify_gateway_key), Depends(require_admin)],
+)
 async def admin_ui():
-    """Genesis Admin UI — single-page app for managing disputes.
+    """Fail closed until a signed, HttpOnly admin session flow exists.
 
-    Auth is handled client-side via the X-Admin-Email header (the page
-    prompts the operator on first visit and stores the value in
-    localStorage). The API endpoints this UI calls
-    (/admin/disputes, /admin/disputes/{id}/refund,
-    /admin/disputes/{id}/resolve) remain protected by require_admin.
+    A browser must never receive the service-wide gateway credential: any
+    page script or XSS could exfiltrate a key that authorizes every protected
+    gateway route. Programmatic admin APIs remain available only with both
+    the gateway credential and the configured admin-email role assertion.
     """
-    html_path = _STATIC_DIR / "admin.html"
-    if not html_path.exists():
-        return HTMLResponse(
-            "<h1>Admin UI not deployed</h1>"
-            "<p>Missing apps/agents-gateway/static/admin.html on the server.</p>",
-            status_code=500,
-        )
-    return HTMLResponse(html_path.read_text(encoding="utf-8"))
+    raise HTTPException(
+        status_code=503,
+        detail="admin_ui_disabled_pending_signed_identity",
+    )
 
 
-@app.post("/admin/disputes/{job_id}/refund", dependencies=[Depends(require_admin)])
+@app.post(
+    "/admin/disputes/{job_id}/refund",
+    dependencies=[Depends(verify_gateway_key), Depends(require_admin)],
+)
 async def admin_refund(job_id: str):
     """Admin issues refund — releases the escrow back to the buyer.
 
@@ -2537,7 +2771,7 @@ async def admin_refund(job_id: str):
             logger.exception("escrow release failed for admin refund of %s", job_id)
 
     try:
-        update_job_status(job_id, "REFUNDED")
+        update_job_status(job_id, "REFUNDED", allow_terminal_override=True)  # admin-initiated
     except Exception:
         logger.exception("admin_refund status update failed for %s", job_id)
 
@@ -2563,7 +2797,10 @@ async def admin_refund(job_id: str):
     }
 
 
-@app.post("/admin/disputes/{job_id}/resolve", dependencies=[Depends(require_admin)])
+@app.post(
+    "/admin/disputes/{job_id}/resolve",
+    dependencies=[Depends(verify_gateway_key), Depends(require_admin)],
+)
 async def admin_resolve(job_id: str):
     """Admin marks dispute resolved without refund — closes the case as-is.
 
@@ -2580,7 +2817,7 @@ async def admin_resolve(job_id: str):
         raise HTTPException(status_code=404, detail="job not found")
 
     try:
-        update_job_status(job_id, "SETTLED")
+        update_job_status(job_id, "SETTLED", allow_terminal_override=True)  # admin-initiated
     except Exception:
         logger.exception("admin_resolve status update failed for %s", job_id)
 
@@ -2601,12 +2838,15 @@ async def admin_resolve(job_id: str):
     return {"ok": True, "job_id": job_id, "status": "RESOLVED"}
 
 
-@app.post("/agents/{slug}/negotiate", status_code=202)
+@app.post(
+    "/agents/{slug}/negotiate",
+    status_code=202,
+    dependencies=[Depends(verify_gateway_key)],
+)
 async def negotiate_agent(
     slug: str,
     request: NegotiateRequest,
     background_tasks: BackgroundTasks,
-    x_agent_gateway_secret: str = Header(default="", alias="x-agent-gateway-secret"),
 ) -> dict:
     """
     POST /agents/{slug}/negotiate
@@ -2617,12 +2857,6 @@ async def negotiate_agent(
     The callback is POSTed to `request.callback_url` (typically
     https://api.swarmsync.ai/ap2/gateway/respond) with the agent's decision.
     """
-    # Verify the request came from the trusted SwarmSync API
-    if not AGENT_GATEWAY_SECRET:
-        raise HTTPException(status_code=503, detail="Negotiate endpoint disabled: AGENT_GATEWAY_SECRET not configured")
-    if x_agent_gateway_secret != AGENT_GATEWAY_SECRET:
-        raise HTTPException(status_code=401, detail="Invalid gateway secret")
-
     if slug not in AGENT_PERSONAS:
         # Graceful fallback — unknown slugs use a generic persona, not a 404,
         # so the AP2 flow is never silently dropped due to a slug mismatch.
@@ -3452,7 +3686,7 @@ async def marketplace_search(
 # Phase 9 - Output storage + Conduit session delivery
 # ----------------------------------------------------------------------------
 
-@app.get("/jobs/{job_id}/artifacts")
+@app.get("/jobs/{job_id}/artifacts", dependencies=[Depends(verify_gateway_key)])
 async def job_artifacts(job_id: str) -> dict[str, Any]:
     """List all artifacts for a job, with current signed URLs."""
     listing = list_artifacts(job_id=job_id)
@@ -3483,7 +3717,7 @@ async def store_buyer_session(job_id: str, body: dict) -> dict[str, Any]:
     return result
 
 
-@app.get("/artifacts/{job_id}/{name:path}")
+@app.get("/artifacts/{job_id}/{name:path}", dependencies=[Depends(verify_gateway_key)])
 async def serve_artifact(job_id: str, name: str):
     """Serve a local artifact when S3 is unavailable. Read-only."""
     local_dir = Path(os.getenv("GENESIS_LOCAL_ARTIFACT_DIR", "/var/data/genesis-artifacts"))
@@ -3498,7 +3732,7 @@ async def serve_artifact(job_id: str, name: str):
     return FileResponse(str(path))
 
 
-@app.get("/proofs/{proof_id}/verify")
+@app.get("/proofs/{proof_id}/verify", dependencies=[Depends(verify_gateway_key)])
 async def verify_proof(proof_id: str):
     """Verify a GenesisProof's VCAP wrapper JWT.
 
