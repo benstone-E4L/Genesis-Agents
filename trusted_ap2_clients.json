@@ -7,12 +7,13 @@
       "principal_id": "service:cato",
       "tenant_id": "e4l",
       "name": "Cato Agent Framework",
-      "pubkey_b64": "ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ=",
+      "pubkey_b64": "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg=",
       "algorithm": "ed25519",
       "capabilities": ["agent.invoke", "agent.list", "agent.health", "job.read", "artifact.read", "retrieval.query"],
       "enabled": true,
       "added_at": "2026-05-17T23:20:42Z",
-      "notes": "Genesis agents client. Signs requests via vault-bound Ed25519 keypair (cato/vault_crypto.py)."
+      "key_rotated_at": "2026-08-13T00:00:00Z",
+      "notes": "Genesis agents client. Signs requests via vault-bound Ed25519 keypair (cato/vault_crypto.py, CATO_AP2_PUBKEY). Key rotated 2026-08-13 after Cato's vault was rebuilt: the 2026-05-17 key ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ= was DELETED, not disabled, because its private half is unrecoverable and no operator controls it. A disabled record is still a key nobody controls sitting in the trust store; deletion is the only state that cannot be re-enabled by accident."
     }
   ]
 }

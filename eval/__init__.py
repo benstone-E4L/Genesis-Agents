@@ -1,4 +1,4 @@
-"""LangSmith evaluation harness for the Genesis agent gateway.
+"""Arize Phoenix evaluation harness for the Genesis agent gateway.
 
 Additive package. Nothing here is imported by the Genesis service itself.
 """
@@ -22,7 +22,13 @@ from .target import (
     make_target,
     parse_example,
 )
-from .traceable import RUN_NAME, traced_agent_run, tracing_enabled
+from .traceable import (
+    RUN_NAME,
+    VERDICT_SPAN_NAME,
+    emit_verdict_spans,
+    traced_agent_run,
+    tracing_enabled,
+)
 
 __all__ = [
     "AgentRunResult",
@@ -32,8 +38,10 @@ __all__ = [
     "MoneyDomainBlocked",
     "Outcome",
     "RUN_NAME",
+    "VERDICT_SPAN_NAME",
     "UnknownSlug",
     "agenesis_target",
+    "emit_verdict_spans",
     "arun_example",
     "genesis_target",
     "make_async_target",

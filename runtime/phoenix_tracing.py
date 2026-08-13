@@ -2,14 +2,14 @@
 
 Why this exists separately from ``eval/traceable.py``:
 
-``eval/`` is the *offline* evaluation harness. It traces to LangSmith from the
-outside in — the harness is the client, Genesis is the server under test, and
+``eval/`` is the *offline* evaluation harness. It traces from the outside in —
+the harness is the client, Genesis is the server under test, and
 ``eval/__init__.py`` states plainly that nothing in that package is imported by
 the Genesis service. This module is the *runtime* tracer: it runs inside the
 service process and records what an agent actually did. The two never run in
-the same process, so this is not "two tracing backends" — it is one backend per
-layer. If the LangSmith eval harness is ever retired in favour of Phoenix
-experiments, this module is the thing it would fold into.
+the same process, so this is not "two tracing backends" — it is one Phoenix
+exporter per layer. LangSmith has been removed outright: there is no
+``langsmith`` dependency and no ``LANGSMITH_*`` variable is read anywhere.
 
 Hard guarantees, in priority order:
 
@@ -21,8 +21,8 @@ Hard guarantees, in priority order:
    Phoenix.
 2. **No secret ever reaches a span.** Prompt/response content is *not* recorded
    at all unless ``PHOENIX_TRACE_CONTENT`` is explicitly enabled, and even then
-   it passes through the same redaction logic the LangSmith path uses. If that
-   redaction module cannot be loaded, content is dropped rather than sent —
+   it passes through the same redaction logic ``eval/redaction.py`` applies. If
+   that redaction module cannot be loaded, content is dropped rather than sent —
    fail *open* on tracing, fail *closed* on secrets.
 
 Configuration (all optional; absence simply disables tracing):
@@ -142,7 +142,48 @@ def content_tracing_enabled() -> bool:
     return True
 
 
+_redactor_lock = threading.Lock()
+_redactor: Any = None
+_redactor_loaded = False
+
+
 def _load_redactor():
+    """Cached redactor module. Loaded at most once per process.
+
+    ``_load_redactor_uncached`` compiles and execs ``eval/redaction.py`` and
+    re-scans every entry in ``SECRET_ENV_VARS``. It was called once per span
+    attribute and once per recorded error, so a traced run paid a module compile
+    per attribute — pure waste, and it grows linearly with span volume.
+
+    Caching the *failure* too is deliberate: if the module could not be loaded,
+    content must not be emitted, and retrying the same failing import on every
+    attribute changes nothing except cost.
+    """
+    global _redactor, _redactor_loaded
+    if not _redactor_loaded:
+        with _redactor_lock:
+            if not _redactor_loaded:
+                _redactor = _load_redactor_uncached()
+                _redactor_loaded = True
+    if _redactor is not None:
+        # Cheap (a handful of os.environ reads) and still required every call:
+        # a credential rotated after first load must be redacted too. Only the
+        # module compile is cached.
+        try:
+            _redactor.refresh_env_secrets()
+        except Exception:
+            return None
+    return _redactor
+
+
+def reset_redactor_for_tests() -> None:
+    global _redactor, _redactor_loaded
+    with _redactor_lock:
+        _redactor = None
+        _redactor_loaded = False
+
+
+def _load_redactor_uncached():
     """Load ``eval.redaction`` by file path, bypassing its package ``__init__``.
 
     ``eval/__init__.py`` imports the whole LangSmith harness. The service must
@@ -260,6 +301,7 @@ def reset_for_tests() -> None:
         _provider = None
         _init_attempted = False
         _disabled_reason = None
+    reset_redactor_for_tests()
 
 
 def _coerce(value: Any) -> Any:

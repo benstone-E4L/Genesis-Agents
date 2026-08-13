@@ -152,7 +152,7 @@ def test_async_target_form():
 
 
 def test_sync_target_works_from_inside_a_running_event_loop():
-    """langsmith.evaluate may call the target from a thread with a live loop."""
+    """An experiment driver may call the target from a thread with a live loop."""
     target, _ = _target()
 
     async def driver():

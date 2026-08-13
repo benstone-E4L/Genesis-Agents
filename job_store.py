@@ -11,9 +11,12 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import psycopg
 from psycopg.rows import dict_row
 
+from runtime import pg_store
+
 log = logging.getLogger(__name__)
 
-UNSUPPORTED_PSYCOPG_QUERY_PARAMS = {"connection_limit", "pgbouncer"}
+#: Re-exported for callers/tests that import it from here. Owned by pg_store.
+UNSUPPORTED_PSYCOPG_QUERY_PARAMS = pg_store.UNSUPPORTED_PSYCOPG_QUERY_PARAMS
 
 # A job that has reached one of these has been settled, refunded, written off or reaped.
 # update_job_status refuses to move it again — see the guard in that function.
@@ -25,30 +28,12 @@ TERMINAL_JOB_STATUSES: frozenset[str] = frozenset(
 def _database_url() -> str:
     """Return a psycopg-compatible Postgres URL for Genesis job storage.
 
-    Supabase pooled URLs commonly include Prisma-specific query params such as
-    `pgbouncer=true`. psycopg rejects unknown query params, so strip only the
-    options known to be client-incompatible while preserving SSL and other
-    connection settings.
+    Delegates to :mod:`runtime.pg_store`, which is the single resolver for the
+    whole service — jobs, AP2 nonce state, action grants and the audit chain all
+    share one database and must never disagree about which one it is.
+    ``GENESIS_JOB_DATABASE_URL`` is the canonical variable.
     """
-    raw = (
-        os.getenv("GENESIS_JOB_DATABASE_URL")
-        or os.getenv("DIRECT_URL")
-        or os.getenv("DATABASE_URL")
-        or ""
-    )
-    if not raw:
-        return ""
-
-    parts = urlsplit(raw)
-    if not parts.query:
-        return raw
-
-    filtered = [
-        (key, value)
-        for key, value in parse_qsl(parts.query, keep_blank_values=True)
-        if key.lower() not in UNSUPPORTED_PSYCOPG_QUERY_PARAMS
-    ]
-    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(filtered), parts.fragment))
+    return pg_store.database_url()
 
 
 def _conn():
@@ -379,11 +364,17 @@ def expire_stale_running_jobs(stale_minutes: int = 5) -> int:
         )
         expired_ids = [r["id"] for r in cur.fetchall()]
         for jid in expired_ids:
+            # "fromStatus" is written literally because the UPDATE above can only
+            # match RUNNING rows, so the predecessor is never in doubt — and
+            # omitting it made the durable event log unreconstructable: a job
+            # killed mid-execution left QUEUED->RUNNING then a bare EXPIRED with
+            # no predecessor, so nothing downstream (settlement, dispute,
+            # incident review) could tell from the log whether it had ever run.
             cur.execute(
                 """
                 INSERT INTO genesis_job_events
-                  (id, "jobId", "eventType", "toStatus", "createdAt")
-                VALUES (%s, %s, 'status_change', 'EXPIRED', NOW())
+                  (id, "jobId", "eventType", "fromStatus", "toStatus", "createdAt")
+                VALUES (%s, %s, 'status_change', 'RUNNING', 'EXPIRED', NOW())
                 """,
                 (_gen_id(), jid),
             )

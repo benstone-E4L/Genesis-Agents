@@ -1,4 +1,4 @@
-"""Recursive secret redaction for anything that may reach a LangSmith trace.
+"""Recursive secret redaction for anything that may reach a Phoenix span.
 
 Behaviour is copied from Cato's ``cato/core/approval_policy.py:redact()`` so the
 two systems agree on what counts as a secret. Two independent defences:
@@ -16,6 +16,7 @@ the reference implementation — dict keys named ``key`` carry ordinary data.
 from __future__ import annotations
 
 import re
+import threading
 from typing import Any
 
 REDACTED = "[redacted]"
@@ -81,7 +82,7 @@ SECRET_ENV_VARS = (
     "ROUTING_API_KEY",
     "OPENROUTER_API_KEY",
     "ANTHROPIC_API_KEY",
-    "LANGSMITH_API_KEY",
+    "PHOENIX_API_KEY",
     "DATABASE_URL",
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
@@ -100,11 +101,19 @@ _LITERAL_SECRETS: set[str] = set()
 _MIN_LITERAL_SECRET_LEN = 8
 
 
+#: Guards _LITERAL_SECRETS. ``refresh_env_secrets`` is called from request
+#: threads (every ``_load_redactor``) and from eval runs, while ``redact_text``
+#: iterates the same set. Mutating a set during iteration raises RuntimeError,
+#: and a redaction that raises is a redaction that did not happen.
+_secrets_lock = threading.Lock()
+
+
 def register_literal_secret(value: str) -> None:
     """Register a literal value that must never appear in any traced string."""
     val = (value or "").strip()
     if len(val) >= _MIN_LITERAL_SECRET_LEN:
-        _LITERAL_SECRETS.add(val)
+        with _secrets_lock:
+            _LITERAL_SECRETS.add(val)
 
 
 def refresh_env_secrets(environ: dict[str, str] | None = None) -> None:
@@ -128,7 +137,9 @@ def is_sensitive_key(key: str) -> bool:
 def redact_text(text: str) -> str:
     """Mask credential-shaped values inside a free-text string."""
     redacted = text
-    for secret in _LITERAL_SECRETS:
+    with _secrets_lock:
+        snapshot = tuple(_LITERAL_SECRETS)
+    for secret in snapshot:
         if secret in redacted:
             redacted = redacted.replace(secret, REDACTED)
     for pattern in _SECRET_PATTERNS:

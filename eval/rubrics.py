@@ -151,8 +151,13 @@ class Verdict:
     def key(self) -> str:
         return self.rubric
 
-    def as_langsmith_feedback(self) -> dict[str, Any]:
-        """Shape LangSmith's ``evaluate`` accepts back from an evaluator."""
+    def as_feedback(self) -> dict[str, Any]:
+        """Normalised feedback shape: key, comment, and a 0..1 score.
+
+        Vendor-neutral by design. It was the shape LangSmith's ``evaluate``
+        accepted back from an evaluator; it is now what feeds Phoenix verdict
+        spans and any offline report, so the scoring contract survived the
+        backend swap unchanged."""
         out: dict[str, Any] = {"key": self.rubric, "comment": self.comment}
         if self.score is not None:
             out["score"] = self.score / self.max_score
@@ -880,11 +885,11 @@ def score_example(
 
 
 def make_evaluator(rubric: Rubric, judge: Judge) -> Callable[..., dict[str, Any]]:
-    """Wrap one rubric as a LangSmith ``evaluate(evaluators=[...])`` callable."""
+    """Wrap one rubric as an ``evaluate(evaluators=[...])``-style callable."""
 
     def evaluator(inputs: Mapping[str, Any], outputs: Mapping[str, Any], **_: Any) -> dict[str, Any]:
         result = score_example(inputs, outputs, judge=judge, rubrics=[rubric])
-        return result.verdicts[0].as_langsmith_feedback()
+        return result.verdicts[0].as_feedback()
 
     evaluator.__name__ = rubric.name
     return evaluator

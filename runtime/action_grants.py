@@ -12,6 +12,8 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from runtime import pg_store
+
 
 class GrantError(ValueError):
     pass
@@ -77,6 +79,47 @@ def consume_action_grant(
     for actual, required, error in checks:
         if not hmac.compare_digest(str(actual or ""), str(required or "")):
             raise GrantError(error)
+    _spend_jti(
+        jti=str(payload["jti"]),
+        consumed_at=current,
+        expires_at=int(payload["exp"]),
+        principal_id=principal_id,
+        tenant_id=tenant_id,
+        tool=tool,
+        db_path=db_path,
+    )
+    return str(payload.get("authorization_id") or "")
+
+
+def _spend_jti(
+    *, jti: str, consumed_at: int, expires_at: int, principal_id: str, tenant_id: str,
+    tool: str, db_path: Path | None,
+) -> None:
+    """Mark a grant id spent, exactly once. Raises GrantError on reuse or on failure.
+
+    This table is the ONLY thing that makes a signed grant single-use — the token
+    itself stays valid until it expires. If the store cannot be reached, the
+    grant must be refused rather than allowed: a deployment-class tool running on
+    an unverifiable authorization is strictly worse than one that did not run.
+    """
+    if db_path is None and pg_store.postgres_selected():
+        try:
+            with pg_store.transaction() as cur:
+                cur.execute(
+                    "DELETE FROM genesis_action_grants WHERE expires_at < %s", (consumed_at,)
+                )
+                cur.execute(
+                    "INSERT INTO genesis_action_grants"
+                    "(jti, consumed_at, expires_at, principal_id, tenant_id, tool) "
+                    "VALUES (%s, %s, %s, %s, %s, %s)",
+                    (jti, consumed_at, expires_at, principal_id, tenant_id, tool),
+                )
+        except Exception as exc:
+            if pg_store.is_unique_violation(exc):
+                raise GrantError("grant_already_consumed") from exc
+            raise GrantError("grant_store_unavailable") from exc
+        return
+
     configured = db_path or Path(os.getenv("GENESIS_AUTH_DB_PATH") or "")
     if not str(configured):
         raise GrantError("GENESIS_AUTH_DB_PATH_not_configured")
@@ -87,12 +130,13 @@ def consume_action_grant(
                 "CREATE TABLE IF NOT EXISTS consumed_action_grants "
                 "(jti TEXT PRIMARY KEY, consumed_at INTEGER NOT NULL, expires_at INTEGER NOT NULL)"
             )
-            conn.execute("DELETE FROM consumed_action_grants WHERE expires_at < ?", (current,))
+            conn.execute("DELETE FROM consumed_action_grants WHERE expires_at < ?", (consumed_at,))
             conn.execute(
                 "INSERT INTO consumed_action_grants(jti, consumed_at, expires_at) VALUES (?, ?, ?)",
-                (str(payload["jti"]), current, int(payload["exp"])),
+                (jti, consumed_at, expires_at),
             )
             conn.commit()
     except sqlite3.IntegrityError as exc:
         raise GrantError("grant_already_consumed") from exc
-    return str(payload.get("authorization_id") or "")
+    except (sqlite3.Error, OSError) as exc:
+        raise GrantError("grant_store_unavailable") from exc

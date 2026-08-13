@@ -1,4 +1,6 @@
-"""Runnable LangSmith-style experiment driver for the Genesis agent gateway.
+"""Runnable experiment driver for the Genesis agent gateway.
+
+Traces and evaluation verdicts go to Arize Phoenix (see eval/traceable.py).
 
     python -m eval.run_experiment --dataset eval/datasets/llm_only.jsonl --dry-run
     python -m eval.run_experiment --dataset eval/datasets/llm_only.jsonl --fake-client

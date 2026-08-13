@@ -1,43 +1,60 @@
-# Genesis LangSmith evaluation harness
+# Genesis Arize Phoenix evaluation harness
 
-LangSmith instrumentation for the Genesis agent gateway. Additive package —
-nothing in `eval/` is imported by the Genesis service, and no existing Genesis
-source file was modified to add it.
+Phoenix instrumentation for the Genesis agent gateway. Additive package —
+nothing in `eval/` is imported by the Genesis service.
 
-## Why `@traceable` and not an SDK integration
+**LangSmith has been removed.** There is no `langsmith` dependency, no
+`LANGSMITH_*` variable is read anywhere, and no dormant second exporter exists.
+Setting `LANGSMITH_API_KEY` now has no effect. This matters beyond tidiness: a
+dormant second backend is a second place prompts, responses and evaluation
+content can leave from, re-armed by one stray environment variable.
 
-LangSmith's quickstart offers integrations for the Claude Agent SDK, LangChain,
-the OpenAI SDK and so on. **Genesis uses none of them.** Genesis is a FastAPI
-service that makes raw HTTP calls to the SwarmSync router at `$LLM_API_URL`, so
-`wrap_openai()` / `configure_claude_agent_sdk()` have nothing to hook.
+## Why raw OTLP and not a Phoenix client package
 
-The correct integration is the plain `langsmith` SDK's `@traceable` decorator,
-which wraps any Python callable regardless of what is underneath. Do **not**
-install the `langsmith[claude-agent-sdk]` extra — it adds a dependency that
-instruments a code path Genesis does not have.
+Genesis is a FastAPI service making raw HTTP calls to the SwarmSync router at
+`$LLM_API_URL`. There is no LangChain, no OpenAI SDK and no Claude Agent SDK in
+the call path, so auto-instrumentation has nothing to hook.
+
+Spans are therefore emitted directly through the vendor-neutral OpenTelemetry
+OTLP exporter that the service already uses (`runtime/phoenix_tracing.py`),
+using OpenInference semantic conventions so Phoenix renders them natively.
+Adding or switching a collector is a config change, not a dependency swap.
+
+## What is traced, and by which layer
+
+| capability | emitted by |
+| --- | --- |
+| agent/LLM/tool spans, model ids, token usage, tool outcomes | `agent_runtime.py` via `runtime/phoenix_tracing.py` (in the service) |
+| eval run span: slug resolution, mode, latency, HTTP status, attempts, outcome | `eval/traceable.py` (`genesis.agent.run`, AGENT) |
+| evaluation verdicts: rubric, dimension, status, raw + normalised score | `eval/traceable.py` (`genesis.eval.verdict`, EVALUATOR) |
+
+Verdict spans are what replace LangSmith's feedback API. Both layers export to
+the same Phoenix project and correlate by trace id.
 
 ## Layout
 
 | file | role |
 | --- | --- |
 | `genesis_client.py` | async HTTP client for `POST /agents/{slug}/run`; outcome classification, bounded retries, one-shot warmup, slug resolution, money-domain block |
-| `traceable.py` | `@traceable` wrapper (`run_type="chain"`, name `genesis.agent.run`), trace metadata, graceful degradation |
+| `traceable.py` | Phoenix span emission (`genesis.agent.run` AGENT span, `genesis.eval.verdict` EVALUATOR spans), trace metadata, graceful degradation |
 | `target.py` | the evaluation target `evaluate()` calls per dataset example |
 | `redaction.py` | recursive secret redactor (behaviour copied from Cato `approval_policy.redact()`) |
-| `tests/` | full suite; every test runs against a fake transport and a fake LangSmith |
+| `tests/` | full suite; every test runs against a fake transport and an in-memory OTel exporter |
 
 ## Environment variables
 
 No values appear in this repo. Set these in your shell or in `.env`.
 
-### LangSmith
+### Arize Phoenix
 
 | name | purpose |
 | --- | --- |
-| `LANGSMITH_TRACING` | `true` to send traces. Set to `false`/`0`/`no`/`off` to disable tracing while leaving the key in place. If unset and a key is present, tracing is on. |
-| `LANGSMITH_ENDPOINT` | LangSmith API base URL. Only needed for EU or self-hosted deployments; omit for the default US endpoint. Read by the `langsmith` SDK, not by this package. |
-| `LANGSMITH_API_KEY` | LangSmith credential. **If absent, tracing is silently skipped and the agent call still runs.** |
-| `LANGSMITH_PROJECT` | Project traces are written to. Read by the `langsmith` SDK. |
+| `PHOENIX_COLLECTOR_ENDPOINT` | Phoenix base URL without the `/v1/traces` suffix. **If absent, tracing is silently skipped and the agent call still runs.** `PHOENIX_ENDPOINT` and `OTEL_EXPORTER_OTLP_ENDPOINT` are accepted aliases. |
+| `PHOENIX_API_KEY` | Sent as `Authorization: Bearer <key>`. Not required for a self-hosted collector with auth disabled. |
+| `PHOENIX_PROJECT_NAME` | Project spans are filed under. Defaults to `genesis-agents`. |
+| `PHOENIX_TRACING` | Set to `false`/`0`/`no`/`off` to disable tracing while leaving the endpoint in place. |
+| `PHOENIX_TRACE_CONTENT` | Opt in to prompt/response/verdict-comment capture. **Off by default** — the default export is ids, counts, model names, latencies and verdicts only. |
+| `PHOENIX_ALLOW_CONTENT_OFFBOX` | Second, separate opt-in required before content may go to a non-loopback collector. Phoenix Cloud is a third party, and Genesis prompts can carry knowledge-backbone and estate material. |
 
 ### Genesis gateway
 
@@ -71,12 +88,18 @@ python -m venv .venv
 ```
 
 The suite is **hermetic by construction**. `tests/conftest.py` clears
-`LANGSMITH_API_KEY`, `LANGSMITH_ENDPOINT` and `LANGSMITH_PROJECT` and pins
-`LANGSMITH_TRACING=false` — both at conftest import time and again in a
-session-scoped autouse fixture — so no test can ship a run to the real
-LangSmith project no matter what `.env` or the shell holds. A second autouse
-fixture fails any test that enables tracing against a non-loopback endpoint.
-`tests/test_isolation.py` asserts the guard is in force.
+`PHOENIX_COLLECTOR_ENDPOINT`, its aliases, `PHOENIX_API_KEY`,
+`PHOENIX_PROJECT_NAME` and both content-capture switches, and pins
+`PHOENIX_TRACING=false`, in a function-scoped autouse fixture — so no test can
+ship a span to the real Phoenix space no matter what `.env` or the shell holds.
+A third autouse fixture drops the memoised tracer around every test, and a
+fourth fails any test that points tracing at a non-loopback endpoint.
+`tests/test_isolation.py` asserts the guards are in force.
+
+The pin is deliberately function-scoped rather than applied to `os.environ` at
+import time: `PHOENIX_*` is read by the Genesis runtime suite too, and a
+process-wide pin applied during collection silently disabled tracing for every
+test in every other package.
 
 No test performs a network call by default. `POST /agents/{slug}/run` is never
 called by the suite. The one opt-in network test (`test_live_catalogue.py`,
@@ -92,14 +115,19 @@ target = make_target(GenesisClient())        # live gateway, env credentials
 outputs = target({"slug": "genesis-research", "task": "Summarise ..."})
 ```
 
-With LangSmith:
+Traced, with verdicts published to Phoenix:
 
 ```python
-from langsmith import evaluate
-from eval import genesis_target
+from eval import emit_verdict_spans, genesis_target
+from eval.rubrics import score_example
 
-evaluate(genesis_target, data="my-dataset", evaluators=[...])
+outputs = genesis_target(example["inputs"])
+emit_verdict_spans(score_example(example["inputs"], outputs, judge=my_judge))
 ```
+
+`traced_agent_run` emits the run span automatically; `emit_verdict_spans`
+publishes one EVALUATOR span per rubric verdict. Both are no-ops when
+`PHOENIX_COLLECTOR_ENDPOINT` is unset.
 
 For unit tests and for the rubric/dataset agents, inject a transport so no live
 gateway is needed:

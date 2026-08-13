@@ -1,8 +1,13 @@
 # Eval harness only. Kept separate from the service's requirements.txt so the
 # gateway's runtime dependency set is unchanged.
 #
-# Do NOT use langsmith[claude-agent-sdk]: Genesis makes raw HTTP calls to the
-# SwarmSync router, so there is no Claude Agent SDK for that extra to hook.
-langsmith>=0.10,<1.0
+# Arize Phoenix is the tracing/eval backend. There is deliberately no
+# `arize-phoenix` or `arize-phoenix-otel` client package here: the harness
+# exports through the same vendor-neutral OTLP path the service uses
+# (runtime/phoenix_tracing.py), so switching or adding a collector is a config
+# change rather than a dependency swap. The `langsmith` SDK has been removed —
+# nothing in this package imports it.
+opentelemetry-sdk>=1.44.0
+opentelemetry-exporter-otlp-proto-http>=1.44.0
 httpx>=0.27,<1.0    # pinned at 0.28.1 by the service's requirements.txt
 pytest>=8.0

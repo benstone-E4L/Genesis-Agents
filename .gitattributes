@@ -1,0 +1,12 @@
+# Migration files are checksummed byte-for-byte by migrations/runner.py. With
+# Git's Windows default core.autocrlf=true and no .gitattributes, the same
+# committed file is CRLF in a Windows checkout and LF on Render — two sha256
+# values for one migration. Checksum drift makes the runner refuse to apply
+# ANYTHING, so a line ending was enough to block every deploy. Pinning eol=lf
+# stops it at source; runner.equivalent_checksums() is the belt to this braces,
+# for databases whose ledger already recorded the other form.
+*.sql text eol=lf
+
+# Same reasoning: the trust store is read and compared as text, and a stray CR
+# inside a base64 public key is not something anyone should have to debug.
+trusted_ap2_clients.json text eol=lf

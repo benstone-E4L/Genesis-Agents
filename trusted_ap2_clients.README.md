@@ -45,6 +45,12 @@ canonical-bytes definition the middleware will use.
 ## Operational Notes
 
 - Add new clients by appending a record and bumping nothing else.
-- Rotate a key by adding a second record with a new `client_id` suffix
-  (e.g. `cato-2`) and disabling the old one rather than mutating it.
+- Rotate a *live* key (old private half still held, overlap needed) by adding a
+  second record with a new `client_id` suffix (e.g. `cato-2`) and disabling the
+  old one rather than mutating it.
+- Rotate a *lost* key (vault destroyed, private half unrecoverable) by replacing
+  `pubkey_b64` in place and recording the retired key in `notes` +
+  `key_rotated_at`. Do NOT keep a disabled record: a disabled entry is still a
+  trust anchor for a key nobody controls, one `"enabled": true` edit away from
+  being live again. There is no overlap to preserve — the old key cannot sign.
 - Never commit private keys here; this file is public-key only.

@@ -1,4 +1,4 @@
-"""Fake transport + fake LangSmith. No test in this package touches the network."""
+"""Fake transport + in-memory Phoenix. No test in this package touches the network."""
 
 from __future__ import annotations
 
@@ -87,81 +87,116 @@ class RecordingSleep:
         self.delays.append(delay)
 
 
-class FakeRunTree:
-    """Stand-in for a LangSmith RunTree. Captures whatever metadata is attached."""
+class InMemoryPhoenix:
+    """A real OpenTelemetry pipeline with an in-memory exporter.
 
-    def __init__(self) -> None:
-        self.metadata: dict[str, Any] = {}
-
-
-class FakeLangSmith:
-    """Fake ``langsmith.traceable``. Serialises inputs/outputs/metadata exactly
-    as the real SDK would send them, so tests can grep the payload for secrets.
+    Deliberately NOT a hand-written mock of the tracing API. The thing under
+    test is what actually lands in a span's exported attributes, so this runs
+    genuine OTel span construction and attribute coercion and only replaces the
+    network exporter. A hand-rolled fake would happily "record" a value that the
+    real SDK would drop, coerce or serialise differently — which is exactly the
+    class of bug a redaction proof must not be blind to.
     """
 
     def __init__(self) -> None:
-        self.runs: list[dict[str, Any]] = []
-        self.run_tree = FakeRunTree()
+        from opentelemetry.sdk.trace import TracerProvider
+        from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+        from opentelemetry.sdk.trace.export.in_memory_span_exporter import (
+            InMemorySpanExporter,
+        )
 
-    def traceable(self, **decorator_kwargs: Any) -> Callable:
-        outer = self
+        self.exporter = InMemorySpanExporter()
+        self.provider = TracerProvider()
+        self.provider.add_span_processor(SimpleSpanProcessor(self.exporter))
 
-        def decorator(fn: Callable) -> Callable:
-            async def wrapper(*args: Any, **kwargs: Any) -> Any:
-                process_inputs = decorator_kwargs.get("process_inputs") or (lambda x: x)
-                process_outputs = decorator_kwargs.get("process_outputs") or (lambda x: x)
-                outer.run_tree = FakeRunTree()
-                run: dict[str, Any] = {
-                    "name": decorator_kwargs.get("name"),
-                    "run_type": decorator_kwargs.get("run_type"),
-                    "inputs": process_inputs(
-                        args[0] if args else dict(kwargs)
-                    ),
-                    "outputs": None,
-                    "error": None,
-                    "metadata": outer.run_tree.metadata,
-                }
-                outer.runs.append(run)
-                try:
-                    result = await fn(*args, **kwargs)
-                except BaseException as exc:
-                    run["error"] = f"{type(exc).__name__}: {exc}"
-                    raise
-                run["outputs"] = process_outputs(result)
-                return result
+    def install(self, monkeypatch: Any, *, content: bool = False) -> "InMemoryPhoenix":
+        """Point eval tracing at this exporter. Loopback endpoint only.
 
-            wrapper.__name__ = getattr(fn, "__name__", "wrapper")
-            return wrapper
+        ``content=True`` opts into prompt/response capture, which is what makes a
+        redaction proof non-vacuous: with content withheld there is nothing on
+        the span for a secret to leak *through*, and the test would pass for the
+        wrong reason.
+        """
+        from runtime import phoenix_tracing
 
-        return decorator
+        monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
+        monkeypatch.setenv("PHOENIX_TRACING", "true")
+        if content:
+            monkeypatch.setenv("PHOENIX_TRACE_CONTENT", "1")
+        monkeypatch.setattr(
+            phoenix_tracing, "_build_tracer", lambda: self.provider.get_tracer("test")
+        )
+        phoenix_tracing.reset_for_tests()
+        return self
 
-    def get_current_run_tree(self) -> FakeRunTree:
-        return self.run_tree
+    @property
+    def spans(self) -> list[Any]:
+        return list(self.exporter.get_finished_spans())
+
+    def named(self, name: str) -> list[Any]:
+        return [s for s in self.spans if s.name == name]
+
+    def clear(self) -> None:
+        self.exporter.clear()
 
     def serialised(self) -> str:
         """Everything that would leave the process, as one JSON string."""
-        return json.dumps(self.runs, default=str)
+        return json.dumps(
+            [
+                {
+                    "name": s.name,
+                    "attributes": dict(s.attributes or {}),
+                    "status": getattr(s.status, "description", None),
+                    "status_code": str(getattr(s.status, "status_code", "")),
+                    "events": [
+                        {"name": e.name, "attributes": dict(e.attributes or {})}
+                        for e in (s.events or ())
+                    ],
+                }
+                for s in self.spans
+            ],
+            default=str,
+        )
 
 
-class ExplodingLangSmith:
-    """A LangSmith that fails at decoration time — proves graceful degradation."""
+class ExplodingTracer:
+    """A tracer that fails when a span is started — proves graceful degradation."""
 
-    def traceable(self, **kwargs: Any) -> Callable:
-        raise RuntimeError("langsmith backend unreachable")
+    def start_as_current_span(self, *_a: Any, **_k: Any) -> Any:
+        raise RuntimeError("phoenix collector unreachable")
+
+    def start_span(self, *_a: Any, **_k: Any) -> Any:
+        raise RuntimeError("phoenix collector unreachable")
 
 
-class ExplodingAtCallLangSmith:
-    """A LangSmith that decorates fine but fails when the run is flushed."""
+class ExplodingAtEndTracer:
+    """A tracer whose spans fail on exit — the "flush failed" shape."""
 
-    def traceable(self, **kwargs: Any) -> Callable:
-        def decorator(fn: Callable) -> Callable:
-            async def wrapper(*args: Any, **kw: Any) -> Any:
-                result = await fn(*args, **kw)
-                raise RuntimeError("failed to POST run to LangSmith")
+    class _Span:
+        def set_attribute(self, *_a: Any, **_k: Any) -> None:
+            return None
 
-            return wrapper
+        def set_status(self, *_a: Any, **_k: Any) -> None:
+            return None
 
-        return decorator
+        def get_span_context(self) -> Any:
+            raise RuntimeError("no context")
+
+        def end(self, *_a: Any, **_k: Any) -> None:
+            raise RuntimeError("failed to export span batch")
+
+    class _Ctx:
+        def __enter__(self) -> Any:
+            return ExplodingAtEndTracer._Span()
+
+        def __exit__(self, *_a: Any) -> None:
+            raise RuntimeError("failed to export span batch")
+
+    def start_as_current_span(self, *_a: Any, **_k: Any) -> Any:
+        return self._Ctx()
+
+    def start_span(self, *_a: Any, **_k: Any) -> Any:
+        return self._Span()
 
 
 def read_timeout(msg: str = "timed out waiting for response") -> TransportFailure:

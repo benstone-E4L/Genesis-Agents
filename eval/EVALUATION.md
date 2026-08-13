@@ -1,6 +1,6 @@
 # Genesis Agent Evaluation Harness
 
-LangSmith LLM-as-judge harness for the 57 agents on
+Arize Phoenix LLM-as-judge harness for the 57 agents on
 `https://swarmsync-agents.onrender.com`.
 
 > ## READ THIS BEFORE QUOTING ANY SCORE
@@ -95,17 +95,19 @@ Names only. Never print, log, or commit a value.
 
 | Variable | Used for |
 | --- | --- |
-| `LANGSMITH_TRACING` | enables tracing; unset/false runs the harness untraced |
-| `LANGSMITH_ENDPOINT` | LangSmith API base URL |
-| `LANGSMITH_API_KEY` | LangSmith credential |
-| `LANGSMITH_PROJECT` | project the runs are filed under |
+| `PHOENIX_COLLECTOR_ENDPOINT` | Phoenix collector base URL; unset runs the harness untraced |
+| `PHOENIX_API_KEY` | Phoenix credential, sent as `Authorization: Bearer <key>` |
+| `PHOENIX_PROJECT_NAME` | project the spans are filed under (default `genesis-agents`) |
+| `PHOENIX_TRACING` | set false/0/no/off to disable tracing while the endpoint stays set |
+| `PHOENIX_TRACE_CONTENT` | opt in to prompt/response capture; off by default |
 | `GATEWAY_API_KEY` | gateway credential, sent as `X-Agent-Api-Key` |
 | `AGENT_GATEWAY_SECRET` | alternative gateway credential, sent as `X-Agent-Gateway-Secret` |
 | `ANTHROPIC_API_KEY` | only for a model-backed judge supplied via `--judge module:callable`. Nothing in this repo reads it. |
 | `GENESIS_BASE_URL` | override the gateway base URL (optional) |
 
-No LangSmith project, dataset, or experiment has been created. No
-`LANGSMITH_API_KEY` exists yet.
+Phoenix is configured in Render (`PHOENIX_COLLECTOR_ENDPOINT` and
+`PHOENIX_API_KEY`). LangSmith has been removed entirely — no `langsmith`
+dependency, and no `LANGSMITH_*` variable is read by any module.
 
 ---
 

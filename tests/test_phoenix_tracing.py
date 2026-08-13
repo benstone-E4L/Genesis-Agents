@@ -289,23 +289,46 @@ def test_local_collector_allows_content_with_single_optin(monkeypatch):
 # eval/ migration: Phoenix supersedes LangSmith, redaction survives intact.
 # ---------------------------------------------------------------------------
 
-def test_phoenix_supersedes_langsmith(monkeypatch):
-    """The two backends must never both be live for the same run."""
+def test_phoenix_replaced_langsmith_outright(monkeypatch):
+    """Phoenix is the only backend. A LangSmith key must change nothing.
+
+    The migration's failure mode would be a surviving dormant path: a
+    ``LANGSMITH_API_KEY`` in the environment quietly re-arming a second exporter
+    that ships the same prompts and responses to a second vendor. Setting one
+    here must have no effect at all.
+    """
     from eval import traceable
 
     monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.delenv("LANGSMITH_TRACING", raising=False)
+    monkeypatch.setenv("LANGSMITH_TRACING", "1")
     for var in ("PHOENIX_COLLECTOR_ENDPOINT", "PHOENIX_ENDPOINT",
                 "OTEL_EXPORTER_OTLP_ENDPOINT"):
         monkeypatch.delenv(var, raising=False)
-    assert traceable.tracing_enabled() is True          # Phoenix absent -> LangSmith
+    pt.reset_for_tests()
+    assert traceable.tracing_enabled() is False   # no Phoenix -> no tracing, key ignored
 
     monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
+    pt.reset_for_tests()
     assert traceable.phoenix_enabled() is True
-    assert traceable.tracing_enabled() is False          # Phoenix present -> LangSmith off
+    assert traceable.tracing_enabled() is True    # Phoenix is the backend
 
-    monkeypatch.setenv("LANGSMITH_TRACING", "1")         # explicit side-by-side override
-    assert traceable.tracing_enabled() is True
+
+def test_no_langsmith_runtime_coupling_remains(monkeypatch):
+    """No module imports langsmith or reads a LANGSMITH_* variable."""
+    import pathlib
+    import re
+
+    coupling = re.compile(r"^\s*(import|from)\s+langsmith|LANGSMITH_[A-Z_]+", re.MULTILINE)
+    root = pathlib.Path(__file__).resolve().parents[1]
+    offenders = []
+    for path in list(root.glob("*.py")) + list(root.glob("eval/*.py")) + list(
+        root.glob("runtime/*.py")
+    ):
+        if path.name.startswith("test_"):
+            continue
+        if coupling.search(path.read_text(encoding="utf-8")):
+            offenders.append(str(path.relative_to(root)))
+    assert offenders == [], f"still coupled to langsmith: {offenders}"
 
 
 def test_eval_span_redacts_secrets_and_withholds_content(memory_spans, monkeypatch):

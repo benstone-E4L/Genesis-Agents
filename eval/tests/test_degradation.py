@@ -1,19 +1,24 @@
-"""Observability must never become a dependency of execution."""
+"""Observability must never become a dependency of execution.
+
+Every test here asserts the same property from a different failure angle: the
+agent call runs, and its result is returned, no matter what the Phoenix tracing
+layer does. Tracing is fail-OPEN. (Secret handling, by contrast, is fail-CLOSED
+— see test_secret_redaction.py.)
+"""
 
 from __future__ import annotations
 
 import asyncio
-import sys
 
 import pytest
 
 from eval import traceable as traceable_mod
 from eval.genesis_client import GenesisClient, Outcome, RawResponse
 from eval.tests.fakes import (
-    ExplodingAtCallLangSmith,
-    ExplodingLangSmith,
-    FakeLangSmith,
+    ExplodingAtEndTracer,
+    ExplodingTracer,
     FakeTransport,
+    InMemoryPhoenix,
     RecordingSleep,
     ok_response,
 )
@@ -35,10 +40,24 @@ def _call(client):
     )
 
 
-def test_no_langsmith_api_key_means_no_tracing_but_the_call_still_runs(monkeypatch):
-    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
-    monkeypatch.delenv("LANGSMITH_TRACING", raising=False)
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", None)
+def _install_tracer(monkeypatch, tracer):
+    from runtime import phoenix_tracing
+
+    monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
+    monkeypatch.setenv("PHOENIX_TRACING", "true")
+    monkeypatch.setattr(phoenix_tracing, "_build_tracer", lambda: tracer)
+    phoenix_tracing.reset_for_tests()
+
+
+# ---------------------------------------------------------------------------
+# Tracing off
+# ---------------------------------------------------------------------------
+
+
+def test_no_phoenix_endpoint_means_no_tracing_but_the_call_still_runs(monkeypatch):
+    for var in ("PHOENIX_COLLECTOR_ENDPOINT", "PHOENIX_ENDPOINT",
+                "OTEL_EXPORTER_OTLP_ENDPOINT"):
+        monkeypatch.delenv(var, raising=False)
 
     assert traceable_mod.tracing_enabled() is False
 
@@ -50,31 +69,50 @@ def test_no_langsmith_api_key_means_no_tracing_but_the_call_still_runs(monkeypat
     assert transport.run_call_count == 1
 
 
-def test_empty_langsmith_api_key_is_treated_as_absent(monkeypatch):
-    monkeypatch.setenv("LANGSMITH_API_KEY", "   ")
+def test_empty_phoenix_endpoint_is_treated_as_absent(monkeypatch):
+    monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "   ")
     assert traceable_mod.tracing_enabled() is False
     client, _ = _client()
     assert _call(client).outcome is Outcome.SUCCESS
 
 
-def test_langsmith_tracing_false_disables_tracing_even_with_a_key(monkeypatch):
-    fake = FakeLangSmith()
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "false")
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", fake.traceable)
+def test_phoenix_tracing_false_disables_tracing_even_with_an_endpoint(monkeypatch):
+    phoenix = InMemoryPhoenix().install(monkeypatch)
+    monkeypatch.setenv("PHOENIX_TRACING", "false")
+
+    from runtime import phoenix_tracing
+
+    phoenix_tracing.reset_for_tests()
 
     assert traceable_mod.tracing_enabled() is False
     client, _ = _client()
     assert _call(client).outcome is Outcome.SUCCESS
-    assert fake.runs == [], "tracing ran despite LANGSMITH_TRACING=false"
+    assert phoenix.spans == [], "tracing ran despite PHOENIX_TRACING=false"
 
 
-def test_langsmith_package_missing_does_not_break_the_call(monkeypatch):
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", None)
-    # Simulate `import langsmith` failing.
-    monkeypatch.setitem(sys.modules, "langsmith", None)
+def test_tracing_enabled_when_endpoint_present_and_flag_unset(monkeypatch):
+    monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
+    monkeypatch.delenv("PHOENIX_TRACING", raising=False)
+    assert traceable_mod.tracing_enabled() is True
+
+
+# ---------------------------------------------------------------------------
+# Tracing on, but broken
+# ---------------------------------------------------------------------------
+
+
+def test_a_missing_opentelemetry_install_degrades_to_no_tracing(monkeypatch):
+    """An ImportError inside tracer construction must not reach the caller."""
+    from runtime import phoenix_tracing
+
+    monkeypatch.setenv("PHOENIX_COLLECTOR_ENDPOINT", "http://localhost:6006")
+    monkeypatch.setenv("PHOENIX_TRACING", "true")
+
+    def boom():
+        raise ImportError("no module named opentelemetry")
+
+    monkeypatch.setattr(phoenix_tracing, "_build_tracer", boom)
+    phoenix_tracing.reset_for_tests()
 
     client, transport = _client()
     result = _call(client)
@@ -82,71 +120,50 @@ def test_langsmith_package_missing_does_not_break_the_call(monkeypatch):
     assert transport.run_call_count == 1
 
 
-def test_langsmith_unreachable_at_decoration_time_degrades(monkeypatch):
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", ExplodingLangSmith().traceable)
+def test_a_tracer_that_explodes_at_span_start_does_not_break_the_call(monkeypatch):
+    _install_tracer(monkeypatch, ExplodingTracer())
 
     client, transport = _client()
     result = _call(client)
+
     assert result.outcome is Outcome.SUCCESS
     assert result.response_text == "agent answered"
     assert transport.run_call_count == 1
 
 
-def test_langsmith_failing_to_ship_the_run_degrades(monkeypatch):
-    """The run executed; the tracing POST blew up afterwards. Return the result."""
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    monkeypatch.setattr(
-        traceable_mod, "TRACEABLE_FACTORY", ExplodingAtCallLangSmith().traceable
-    )
+def test_a_tracer_that_explodes_on_export_does_not_break_the_call(monkeypatch):
+    """The span was started, the agent ran, and the export blew up afterwards.
+
+    The result must still be returned — an observability error must never be
+    surfaced to the caller as an agent error.
+    """
+    _install_tracer(monkeypatch, ExplodingAtEndTracer())
 
     client, transport = _client()
     result = _call(client)
+
     assert result.outcome is Outcome.SUCCESS
     assert result.response_text == "agent answered"
     assert transport.run_call_count == 1
-
-
-def test_metadata_attachment_failure_does_not_break_the_call(monkeypatch):
-    def exploding_getter():
-        raise RuntimeError("no run tree")
-
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", FakeLangSmith().traceable)
-    monkeypatch.setattr(traceable_mod, "RUN_TREE_GETTER", exploding_getter)
-
-    client, _ = _client()
-    assert _call(client).outcome is Outcome.SUCCESS
 
 
 def test_a_real_agent_failure_is_still_reported_when_tracing_is_off(monkeypatch):
-    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    for var in ("PHOENIX_COLLECTOR_ENDPOINT", "PHOENIX_ENDPOINT",
+                "OTEL_EXPORTER_OTLP_ENDPOINT"):
+        monkeypatch.delenv(var, raising=False)
     client, _ = _client([RawResponse(401, "nope")])
     result = _call(client)
     assert result.outcome is Outcome.AUTH_ERROR
 
 
-def test_tracing_enabled_when_key_present_and_flag_unset(monkeypatch):
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.delenv("LANGSMITH_TRACING", raising=False)
-    assert traceable_mod.tracing_enabled() is True
-
-
 # ---------------------------------------------------------------------------
-# Trace metadata contract
+# Trace attribute contract
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("mode", ["live_test", "full"])
-def test_metadata_carries_the_required_fields(monkeypatch, mode):
-    fake = FakeLangSmith()
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-key")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", fake.traceable)
-    monkeypatch.setattr(traceable_mod, "RUN_TREE_GETTER", fake.get_current_run_tree)
+def test_span_carries_the_required_attributes(monkeypatch, mode):
+    phoenix = InMemoryPhoenix().install(monkeypatch)
 
     client, _ = _client([RawResponse(503, "x"), ok_response("ok")])
     asyncio.run(
@@ -155,24 +172,86 @@ def test_metadata_carries_the_required_fields(monkeypatch, mode):
         )
     )
 
-    assert len(fake.runs) == 1
-    run = fake.runs[0]
-    assert run["name"] == "genesis.agent.run"
-    assert run["run_type"] == "chain"
+    spans = phoenix.named(traceable_mod.RUN_NAME)
+    assert len(spans) == 1
+    attributes = dict(spans[0].attributes)
 
-    meta = run["metadata"]
+    assert attributes["openinference.span.kind"] == "AGENT"
     for field in ("slug", "mode", "elapsed_ms", "http_status", "attempts", "outcome"):
-        assert field in meta, f"missing required metadata field {field}"
-    assert meta["slug"] == "genesis_research_x402"
-    assert meta["mode"] == mode
-    assert meta["attempts"] == 2
-    assert meta["http_status"] == 200
-    assert meta["outcome"] == "success"
-    assert isinstance(meta["elapsed_ms"], int)
+        assert f"genesis.eval.{field}" in attributes, f"missing required attribute {field}"
+    assert attributes["genesis.eval.slug"] == "genesis_research_x402"
+    assert attributes["genesis.eval.mode"] == mode
+    assert attributes["genesis.eval.attempts"] == 2
+    assert attributes["genesis.eval.http_status"] == 200
+    assert attributes["genesis.eval.outcome"] == "success"
+    assert isinstance(attributes["genesis.eval.elapsed_ms"], int)
+
+
+def test_evaluation_verdicts_are_emitted_as_spans(monkeypatch):
+    """Verdict spans replace LangSmith feedback — losing them would lose the scores."""
+    from eval.rubrics import ExampleScore, Verdict
+
+    phoenix = InMemoryPhoenix().install(monkeypatch)
+
+    score = ExampleScore(
+        example_id="ex-1",
+        slug="genesis_research_x402",
+        mode="full",
+        status="fail",
+        verdicts=(
+            Verdict("refusal_correctness", "safety", 4, 5, "pass", "declined cleanly",
+                    "deterministic"),
+            Verdict("citation_quality", "grounding", 1, 5, "fail", "no sources", "judge"),
+        ),
+    )
+    traceable_mod.emit_verdict_spans(score)
+
+    spans = phoenix.named(traceable_mod.VERDICT_SPAN_NAME)
+    assert len(spans) == 2
+    by_rubric = {dict(s.attributes)["genesis.eval.rubric"]: dict(s.attributes) for s in spans}
+
+    passing = by_rubric["refusal_correctness"]
+    assert passing["openinference.span.kind"] == "EVALUATOR"
+    assert passing["genesis.eval.status"] == "pass"
+    assert passing["genesis.eval.score"] == 4
+    assert passing["genesis.eval.score_normalised"] == pytest.approx(0.8)
+    assert passing["genesis.eval.example_id"] == "ex-1"
+    assert passing["genesis.eval.source"] == "deterministic"
+
+    failing = by_rubric["citation_quality"]
+    assert failing["genesis.eval.status"] == "fail"
+    assert failing["genesis.eval.score_normalised"] == pytest.approx(0.2)
+
+
+def test_verdict_emission_never_raises_when_tracing_explodes(monkeypatch):
+    from eval.rubrics import ExampleScore, Verdict
+
+    _install_tracer(monkeypatch, ExplodingTracer())
+    score = ExampleScore(
+        example_id="ex-1", slug="s", mode="full", status="pass",
+        verdicts=(Verdict("r", "d", 5, 5, "pass", "c", "judge"),),
+    )
+    traceable_mod.emit_verdict_spans(score)  # must not raise
+
+
+def test_verdict_comment_is_withheld_unless_content_tracing_is_on(monkeypatch):
+    """A judge comment quotes the agent's answer, so it is content, not metadata."""
+    from eval.rubrics import ExampleScore, Verdict
+
+    phoenix = InMemoryPhoenix().install(monkeypatch)
+    score = ExampleScore(
+        example_id="ex-1", slug="s", mode="full", status="pass",
+        verdicts=(Verdict("r", "d", 5, 5, "pass", "the answer quoted the estate ledger",
+                          "judge"),),
+    )
+    traceable_mod.emit_verdict_spans(score)
+
+    attributes = dict(phoenix.named(traceable_mod.VERDICT_SPAN_NAME)[0].attributes)
+    assert "genesis.eval.comment" not in attributes
+    assert "estate ledger" not in phoenix.serialised()
 
 
 def test_warmup_happens_once_and_a_failed_warmup_does_not_block(monkeypatch):
-    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
     transport = FakeTransport(
         [ok_response("a"), ok_response("b")],
         health=RuntimeError("cold start, health check failed"),

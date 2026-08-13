@@ -1,56 +1,56 @@
-"""Tracing instrumentation for Genesis agent runs (Phoenix, formerly LangSmith).
+"""Arize Phoenix tracing for Genesis evaluation runs.
 
-Migration status: Arize Phoenix replaces LangSmith in this harness's role. When
-a Phoenix collector is configured, :func:`tracing_enabled` reports False and the
-LangSmith path stays dormant, so the same agent inputs and outputs are never
-double-shipped to two vendors. The LangSmith code below is retained, not dead:
-:mod:`eval.run_experiment` still depends on LangSmith *datasets and experiments*,
-which have no drop-in equivalent here without adding the Phoenix client package.
-Per-run tracing has migrated; dataset/experiment orchestration has not.
+Phoenix is the tracing and evaluation backend. LangSmith has been removed
+entirely — there is no dormant second path, no ``LANGSMITH_*`` variable, and no
+``langsmith`` dependency. Anything that reads like a LangSmith fallback in an
+older revision of this file is gone on purpose: a dormant second exporter is a
+second place secrets can leak from, and "it only ships when the key is set" is
+one stray environment variable away from shipping.
 
+What this layer records, and where the rest comes from
+------------------------------------------------------
+This module traces the harness's view: one ``genesis.agent.run`` AGENT span per
+invocation carrying slug resolution, mode, latency, HTTP status, attempt count
+and outcome — plus, via :func:`emit_verdict_spans`, one EVALUATOR span per
+rubric verdict. Verdict spans are what replace LangSmith's feedback API; without
+them, dropping LangSmith would silently lose the scores.
 
+Model ids, token usage, per-tool spans and tool outcomes are emitted by the
+*service*, in ``runtime/phoenix_tracing.py`` and ``agent_runtime.py``, because
+that is the only place those values exist — the gateway's ``RunResponse`` does
+not carry them. Both layers export to the same Phoenix project and correlate by
+trace id, so the capability set is preserved end to end rather than duplicated.
 
-Why the plain ``@traceable`` decorator and not an SDK integration: Genesis is a
-FastAPI service that makes raw HTTP calls to the SwarmSync router. There is no
-LangChain, no OpenAI SDK and no Claude Agent SDK in the call path, so there is
-nothing for ``wrap_openai`` / ``configure_claude_agent_sdk`` to hook.
-``@traceable`` wraps any Python callable regardless of what is underneath, which
-is exactly the shape of this problem.
+Two hard guarantees, unchanged from the LangSmith implementation:
 
-Two hard guarantees:
-
-1. **No secret ever reaches a trace.** Inputs, outputs, metadata and exception
-   text all pass through :func:`eval.redaction.redact` before the tracing layer
-   can see them.
-2. **Tracing never becomes a dependency of execution.** If ``LANGSMITH_API_KEY``
-   is missing, ``langsmith`` is not installed, or the LangSmith backend is
-   unreachable, the agent call still runs and its result is still returned.
+1. **No secret ever reaches a trace.** Inputs, outputs, metadata, verdict
+   comments and exception text all pass through :func:`eval.redaction.redact`
+   before the tracing layer sees them, and free-text fields are additionally
+   withheld unless content tracing is explicitly enabled — ``redact`` removes
+   *secrets*, but an agent response can still quote confidential E4L material
+   that has not been cleared for a third-party backend.
+2. **Tracing never becomes a dependency of execution.** With no Phoenix
+   collector configured, with an unreachable collector, or with a broken
+   OpenTelemetry install, the agent call still runs and its result is still
+   returned.
 """
 
 from __future__ import annotations
 
-import os
-from typing import Any, Awaitable, Callable, Mapping
+from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
 
 from .genesis_client import AgentRunResult, GenesisClient, Outcome
 from .redaction import redact, redact_text, refresh_env_secrets
 
 RUN_NAME = "genesis.agent.run"
 RUN_TYPE = "chain"
-
-#: Test seam. When set, used instead of ``langsmith.traceable``. Must be a
-#: decorator factory with the same shape: ``factory(**kwargs) -> decorator``.
-TRACEABLE_FACTORY: Callable[..., Callable[[Callable], Callable]] | None = None
-
-#: Test seam. When set, used instead of ``langsmith.run_helpers``' run-tree
-#: lookup. Must return an object with a mutable ``.metadata`` mapping, or None.
-RUN_TREE_GETTER: Callable[[], Any] | None = None
-
-_FALSEY = {"0", "false", "no", "off", ""}
+#: Span name for one rubric verdict. One span per verdict, not one per example,
+#: so Phoenix can aggregate a single rubric across a whole dataset.
+VERDICT_SPAN_NAME = "genesis.eval.verdict"
 
 
 def phoenix_enabled() -> bool:
-    """True when Arize Phoenix is configured as the eval tracing backend."""
+    """True when Arize Phoenix is configured as the tracing backend."""
     try:
         from runtime import phoenix_tracing
 
@@ -60,83 +60,13 @@ def phoenix_enabled() -> bool:
 
 
 def tracing_enabled() -> bool:
-    """True only when LangSmith is configured, enabled, and not superseded.
+    """True when eval runs will be traced.
 
-    Requires ``LANGSMITH_API_KEY``. ``LANGSMITH_TRACING`` may be used to turn
-    tracing off while the key stays in the environment.
-
-    **Phoenix supersedes LangSmith.** Phoenix takes over LangSmith's role for
-    E4L evaluation, so when a Phoenix collector is configured this returns False
-    and the LangSmith path stays dormant. The two are deliberately mutually
-    exclusive: running both would double-ship the same agent inputs and outputs
-    to two vendors. Setting ``LANGSMITH_TRACING=1`` explicitly forces LangSmith
-    back on for a side-by-side comparison during the migration.
+    Phoenix is the only backend, so this is exactly "is Phoenix configured".
+    ``PHOENIX_TRACING`` set to a falsey value turns tracing off while the
+    endpoint stays in place.
     """
-    if not (os.getenv("LANGSMITH_API_KEY") or "").strip():
-        return False
-    flag = os.getenv("LANGSMITH_TRACING")
-    if flag is not None and flag.strip().lower() in _FALSEY:
-        return False
-    forced = flag is not None and flag.strip().lower() not in _FALSEY
-    if phoenix_enabled() and not forced:
-        return False
-    return True
-
-
-def _resolve_traceable_factory() -> Callable[..., Callable[[Callable], Callable]] | None:
-    if TRACEABLE_FACTORY is not None:
-        return TRACEABLE_FACTORY
-    try:
-        from langsmith import traceable as ls_traceable
-    except Exception:
-        return None
-    return ls_traceable
-
-
-def _wrap_traceable(fn: Callable[..., Awaitable[Any]]) -> Callable[..., Awaitable[Any]]:
-    """Decorate ``fn`` with ``@traceable`` if possible, else return it unchanged.
-
-    Any failure at decoration time (missing package, incompatible signature,
-    exploding factory) degrades to the undecorated function.
-    """
-    if not tracing_enabled():
-        return fn
-    factory = _resolve_traceable_factory()
-    if factory is None:
-        return fn
-    for kwargs in (
-        # Belt and braces: newer langsmith versions can redact again on the way
-        # in and out. Older ones do not accept these kwargs, hence the fallback.
-        {"run_type": RUN_TYPE, "name": RUN_NAME,
-         "process_inputs": redact, "process_outputs": redact},
-        {"run_type": RUN_TYPE, "name": RUN_NAME},
-    ):
-        try:
-            return factory(**kwargs)(fn)
-        except Exception:
-            continue
-    return fn
-
-
-def _attach_metadata(metadata: Mapping[str, Any]) -> None:
-    """Attach metadata to the active run. Silent no-op if there is no run."""
-    try:
-        getter = RUN_TREE_GETTER
-        if getter is None:
-            from langsmith.run_helpers import get_current_run_tree
-
-            getter = get_current_run_tree
-        run_tree = getter()
-        if run_tree is None:
-            return
-        current = getattr(run_tree, "metadata", None)
-        if current is None:
-            run_tree.metadata = dict(redact(dict(metadata)))
-        else:
-            current.update(redact(dict(metadata)))
-    except Exception:
-        # Observability must never break execution.
-        return
+    return phoenix_enabled()
 
 
 #: Attributes from :func:`build_metadata` that are safe to publish verbatim —
@@ -153,15 +83,7 @@ def _emit_phoenix_span(
     extra_metadata: Mapping[str, Any] | None,
     inputs: Mapping[str, Any],
 ) -> None:
-    """Record the eval run as an OpenInference AGENT span. Never raises.
-
-    Both layers of protection are preserved from the LangSmith path. Everything
-    here has already been through :func:`eval.redaction.redact`, and on top of
-    that the free-text fields (the task and the agent's response) are withheld
-    entirely unless content tracing is switched on — ``redact`` removes
-    *secrets*, but an agent response can still quote confidential E4L material
-    that has not been cleared for a third-party backend.
-    """
+    """Record the eval run as an OpenInference AGENT span. Never raises."""
     try:
         from runtime import phoenix_tracing
 
@@ -192,9 +114,83 @@ def _emit_phoenix_span(
         return
 
 
+def build_verdict_attributes(verdict: Any, *, example_id: str = "", slug: str = "") -> dict[str, Any]:
+    """Span attributes for one rubric verdict.
+
+    ``score`` is published both raw and normalised: raw so a rubric's own scale
+    is readable, normalised so rubrics with different maxima are comparable on
+    one dashboard. ``comment`` is judge free text about the agent's answer and
+    can quote it, so it goes through the same content gate as the response
+    itself rather than being treated as metadata.
+    """
+    try:
+        from runtime import phoenix_tracing
+
+        score = getattr(verdict, "score", None)
+        maximum = getattr(verdict, "max_score", 0) or 0
+        attributes: dict[str, Any] = {
+            "genesis.eval.example_id": example_id,
+            "genesis.eval.slug": slug,
+            "genesis.eval.rubric": getattr(verdict, "rubric", ""),
+            "genesis.eval.dimension": getattr(verdict, "dimension", ""),
+            "genesis.eval.status": getattr(verdict, "status", ""),
+            "genesis.eval.source": getattr(verdict, "source", ""),
+            "genesis.eval.max_score": maximum,
+        }
+        if score is not None:
+            attributes["genesis.eval.score"] = score
+            if maximum:
+                attributes["genesis.eval.score_normalised"] = score / maximum
+        comment = phoenix_tracing.safe_content(
+            redact_text(str(getattr(verdict, "comment", "") or ""))
+        )
+        if comment is not None:
+            attributes["genesis.eval.comment"] = comment
+        return attributes
+    except Exception:
+        return {}
+
+
+def emit_verdict_spans(score: Any) -> None:
+    """Emit one EVALUATOR span per verdict in an ``ExampleScore``. Never raises.
+
+    This is the Phoenix replacement for LangSmith feedback. Called by the
+    experiment driver after scoring so verdicts land next to the run they judge.
+    """
+    try:
+        from runtime import phoenix_tracing
+
+        example_id = str(getattr(score, "example_id", "") or "")
+        slug = str(getattr(score, "slug", "") or "")
+        for verdict in getattr(score, "verdicts", ()) or ():
+            attributes = build_verdict_attributes(
+                verdict, example_id=example_id, slug=slug
+            )
+            if not attributes:
+                continue
+            with phoenix_tracing.span(
+                VERDICT_SPAN_NAME, kind="EVALUATOR", attributes=attributes
+            ):
+                pass
+    except Exception:
+        return
+
+
 def _redacted_copy(exc: BaseException) -> BaseException:
-    """Rebuild an exception with its message redacted, preserving the type."""
-    safe = redact_text(str(exc))
+    """Rebuild an exception with its message redacted, preserving the type.
+
+    Redaction itself must not be allowed to raise. This is called from inside an
+    ``except`` block, so an exception escaping here is chained to the original by
+    Python and the original's UNREDACTED message is printed in the traceback —
+    the exact secret this function exists to remove, leaked by the act of
+    removing it. ``str(exc)`` is equally untrusted: a custom ``__str__`` that
+    raises has the same effect. Both are contained, and the fallback drops the
+    message entirely rather than guessing at it.
+    """
+    try:
+        safe = redact_text(str(exc))
+    except BaseException:
+        return RuntimeError(f"{type(exc).__name__}: [message withheld — redaction failed]")
     try:
         return type(exc)(safe)
     except Exception:
@@ -252,10 +248,10 @@ async def traced_agent_run(
     extra_metadata: Mapping[str, Any] | None = None,
     **run_kwargs: Any,
 ) -> AgentRunResult:
-    """Invoke a Genesis agent inside a LangSmith run named ``genesis.agent.run``.
+    """Invoke a Genesis agent inside a Phoenix span named ``genesis.agent.run``.
 
     Returns the same :class:`AgentRunResult` the client returns. Tracing is
-    strictly additive: with no ``LANGSMITH_API_KEY`` this is a plain call.
+    strictly additive: with no Phoenix collector configured this is a plain call.
     """
     refresh_env_secrets()
 
@@ -268,51 +264,34 @@ async def traced_agent_run(
         }
     )
 
-    holder: dict[str, AgentRunResult] = {}
-
-    async def _core(inputs: Mapping[str, Any]) -> dict[str, Any]:
-        try:
-            result = await client.run_agent(
-                slug,
-                task,
-                mode=mode,
-                require_artifact=require_artifact,
-                **run_kwargs,
-            )
-        except Exception as exc:
-            # Redact INSIDE the traced scope. @traceable records the raised
-            # exception on the run, so an unredacted message would be shipped
-            # to LangSmith before any outer handler could touch it.
-            raise _redacted_copy(exc) from None
-        holder["result"] = result
-        _attach_metadata(build_metadata(result, extra_metadata))
-        _emit_phoenix_span(result, extra_metadata, safe_inputs)
-        return build_outputs(result)
-
-    runner = _wrap_traceable(_core)
-
     try:
-        await runner(safe_inputs)
+        result = await client.run_agent(
+            slug,
+            task,
+            mode=mode,
+            require_artifact=require_artifact,
+            **run_kwargs,
+        )
     except Exception as exc:
-        if "result" in holder:
-            # The agent call succeeded and the tracing layer failed afterwards.
-            # Degrade: return the real result rather than surfacing an
-            # observability error as an agent error.
-            return holder["result"]
-        # A genuine failure from the call path. Re-raise with a redacted
-        # message so no credential can ride out inside the traceback text.
+        # Redact before the exception can reach a span, a log or an outer
+        # handler — an unredacted message would otherwise be shipped verbatim.
         raise _redacted_copy(exc) from None
 
-    return holder["result"]
+    _emit_phoenix_span(result, extra_metadata, safe_inputs)
+    return result
 
 
 __all__ = [
     "RUN_NAME",
     "RUN_TYPE",
+    "VERDICT_SPAN_NAME",
     "AgentRunResult",
     "Outcome",
     "build_metadata",
     "build_outputs",
+    "build_verdict_attributes",
+    "emit_verdict_spans",
+    "phoenix_enabled",
     "redact",
     "traced_agent_run",
     "tracing_enabled",

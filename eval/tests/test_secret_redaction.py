@@ -1,9 +1,16 @@
 """PROOF: a marker secret placed in inputs, outputs, metadata AND an exception
-message never reaches the serialised LangSmith run.
+message never reaches an exported Phoenix span.
 
 The marker is a single synthetic string. It is planted in every position a
-secret could realistically enter a trace, then the entire serialised run payload
-is searched for it. If it appears anywhere, the test fails.
+secret could realistically enter a trace, then every exported span — names,
+attributes, status descriptions and events — is searched for it. If it appears
+anywhere, the test fails.
+
+Content capture is deliberately switched ON for these tests. With the default
+posture (content withheld entirely) there would be nothing on the span for a
+secret to leak *through*, and the proof would pass for the wrong reason. This
+asserts the stronger property: even when prompts and responses ARE exported,
+``eval/redaction.py`` scrubs the credential first.
 """
 
 from __future__ import annotations
@@ -17,7 +24,7 @@ import pytest
 from eval import traceable as traceable_mod
 from eval.genesis_client import GenesisClient, MoneyDomainBlocked, RawResponse
 from eval.redaction import REDACTED, is_sensitive_key, redact, refresh_env_secrets
-from eval.tests.fakes import FakeLangSmith, FakeTransport, RecordingSleep
+from eval.tests.fakes import FakeTransport, InMemoryPhoenix, RecordingSleep
 
 MARKER = "SUPERSECRET-MARKER-9f3c1a7e-DO-NOT-LEAK"
 
@@ -28,20 +35,15 @@ SECRET_ENV_NAMES = (
     "DATABASE_URL",
     "AWS_ACCESS_KEY_ID",
     "AWS_SECRET_ACCESS_KEY",
-    "LANGSMITH_API_KEY",
+    "PHOENIX_API_KEY",
     "ANTHROPIC_API_KEY",
 )
 
 
 @pytest.fixture
-def langsmith(monkeypatch):
-    """Install a fake LangSmith and enable tracing."""
-    fake = FakeLangSmith()
-    monkeypatch.setattr(traceable_mod, "TRACEABLE_FACTORY", fake.traceable)
-    monkeypatch.setattr(traceable_mod, "RUN_TREE_GETTER", fake.get_current_run_tree)
-    monkeypatch.setenv("LANGSMITH_API_KEY", "ls-fake-key-for-tests")
-    monkeypatch.setenv("LANGSMITH_TRACING", "true")
-    return fake
+def phoenix(monkeypatch):
+    """In-memory Phoenix with content capture ON, so the proof is not vacuous."""
+    return InMemoryPhoenix().install(monkeypatch, content=True)
 
 
 @pytest.fixture
@@ -60,7 +62,7 @@ def planted_env(monkeypatch):
 # ---------------------------------------------------------------------------
 
 
-def test_marker_secret_never_reaches_a_serialised_run(langsmith, planted_env):
+def test_marker_secret_never_reaches_an_exported_span(phoenix, planted_env):
     """Marker planted in: inputs, outputs, metadata, exception message."""
     # OUTPUT position: the gateway echoes a secret back in its response body.
     leaky_body = json.dumps(
@@ -100,19 +102,25 @@ def test_marker_secret_never_reaches_a_serialised_run(langsmith, planted_env):
         )
     )
 
-    serialised = langsmith.serialised()
-    assert langsmith.runs, "no run was recorded — the proof would be vacuous"
-    assert MARKER not in serialised, "MARKER LEAKED into the serialised run"
-    assert REDACTED in serialised, "nothing was redacted — check the fixture"
+    spans = phoenix.named(traceable_mod.RUN_NAME)
+    assert spans, "no span was exported — the proof would be vacuous"
 
-    # The request headers carrying the credential must not be traced either.
-    assert MARKER not in json.dumps(langsmith.runs[0]["inputs"], default=str)
-    assert MARKER not in json.dumps(langsmith.runs[0]["outputs"], default=str)
-    assert MARKER not in json.dumps(langsmith.runs[0]["metadata"], default=str)
+    attributes = dict(spans[0].attributes)
+    from runtime import phoenix_tracing
+
+    # Content really was exported, so the search below has something to find.
+    assert phoenix_tracing.OUTPUT_VALUE in attributes, (
+        "content capture was off — the redaction proof would be vacuous"
+    )
+
+    serialised = phoenix.serialised()
+    assert MARKER not in serialised, "MARKER LEAKED into an exported span"
+    assert REDACTED in serialised, "nothing was redacted — check the fixture"
+    assert MARKER not in json.dumps(attributes, default=str)
     assert MARKER not in json.dumps(outputs.__dict__, default=str)
 
 
-def test_marker_in_an_exception_message_never_reaches_the_run(langsmith, planted_env):
+def test_marker_in_an_exception_message_never_reaches_a_span(phoenix, planted_env):
     """A raised exception carrying the secret is redacted before propagating."""
 
     class LeakyTransport:
@@ -132,11 +140,11 @@ def test_marker_in_an_exception_message_never_reaches_the_run(langsmith, planted
         )
 
     assert MARKER not in str(excinfo.value), "MARKER LEAKED via the exception message"
-    assert MARKER not in langsmith.serialised(), "MARKER LEAKED into the run error field"
+    assert MARKER not in phoenix.serialised(), "MARKER LEAKED into a span status/event"
     assert REDACTED in str(excinfo.value)
 
 
-def test_money_domain_block_message_contains_no_secret(langsmith, planted_env):
+def test_money_domain_block_message_contains_no_secret(phoenix, planted_env):
     client = GenesisClient(transport=FakeTransport([]), api_key=MARKER)
     with pytest.raises(MoneyDomainBlocked) as excinfo:
         asyncio.run(client.run_agent("genesis-finance", "compute my payout"))

@@ -510,13 +510,22 @@ _REQUIRED_AUTH_ENV: tuple[tuple[str, int, str], ...] = (
     ("GENESIS_ACTION_GRANT_KEY", 32, "single-use action grants cannot be verified, so deployment-class tools can never be authorized"),
 )
 
+#: Env vars required only while this process is still on the SQLite backend.
+#: With GENESIS_JOB_DATABASE_URL configured, nonce and grant state live in
+#: Postgres and Render needs no persistent disk for correctness.
+_SQLITE_ONLY_AUTH_ENV = frozenset({"GENESIS_AUTH_DB_PATH"})
+
 
 def assert_auth_material_configured() -> None:
     """Refuse to start without the secrets the signed-identity path requires."""
+    from runtime import pg_store
+
+    on_postgres = pg_store.postgres_selected()
     missing = [
         f"{name} ({reason})"
         for name, minimum, reason in _REQUIRED_AUTH_ENV
-        if len((os.getenv(name) or "").strip()) < minimum
+        if not (on_postgres and name in _SQLITE_ONLY_AUTH_ENV)
+        and len((os.getenv(name) or "").strip()) < minimum
     ]
     if missing:
         raise RuntimeError(
@@ -524,9 +533,23 @@ def assert_auth_material_configured() -> None:
             + "; ".join(missing)
             + ". See .env.example."
         )
-    # A configured-but-unusable path is worse than an unset one: the boot guard passes and
-    # every AP2 request then dies mid-verification. Prove the nonce store can be opened and
+    # A configured-but-unusable store is worse than an unset one: the boot guard passes and
+    # every AP2 request then dies mid-verification. Prove the nonce store can be reached and
     # written NOW, while failing is still just a failed boot.
+    #
+    # On Postgres the equivalent lie is a reachable database that was never migrated. That is
+    # not hypothetical — it is exactly what made every async AP2 dispatch return 500 while the
+    # test suite stayed green against an in-memory mock, so the probe checks the tables exist.
+    if on_postgres:
+        usable, reason = pg_store.store_is_usable()
+        if not usable:
+            raise RuntimeError(
+                "Refusing to start — GENESIS_JOB_DATABASE_URL is set but the Postgres state "
+                f"store is not usable ({reason}). Replay protection, single-use action grants "
+                "and the audit chain would all be unavailable."
+            )
+        return
+
     from runtime.request_auth import auth_db_is_usable
 
     usable, reason = auth_db_is_usable()

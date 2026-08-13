@@ -1,4 +1,4 @@
-"""Rubric tests. No network, no model, no LangSmith.
+"""Rubric tests. No network, no model, no tracing backend.
 
 Covers the four behaviours the harness is not allowed to get wrong:
   1. an embedded {"ok": false} is a FAILURE, never a success;
@@ -280,7 +280,7 @@ def test_a_broken_judge_produces_an_error_verdict_not_a_silent_pass():
     assert all(v.status == "error" for v in score.verdicts)
 
 
-def test_make_evaluator_returns_langsmith_feedback_shape():
+def test_make_evaluator_returns_normalised_feedback_shape():
     ev = make_evaluator(RUBRICS_BY_NAME["refusal_correctness"], KeywordJudge())
     fb = ev(inputs=REFUSAL_EXAMPLE, outputs=out("I cannot access that data."))
     assert fb["key"] == "refusal_correctness"

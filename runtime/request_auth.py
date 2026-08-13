@@ -16,6 +16,8 @@ from typing import Any
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
+from runtime import pg_store
+
 AP2_VERSION = 1
 # Canonical `payload.agent` value for a signed /retrieval/query envelope. Retrieval is not an
 # agent invocation, so it borrows the AP2 envelope shape rather than an agent slug: `agent` names
@@ -71,6 +73,18 @@ def _parse_timestamp(value: Any) -> int:
     return int(parsed.astimezone(timezone.utc).timestamp())
 
 
+def _use_postgres(explicit: Path | None) -> bool:
+    """Postgres unless a caller passed an explicit SQLite path.
+
+    An explicit ``db_path`` is a deliberate local/test override and always wins;
+    everything else follows :func:`runtime.pg_store.backend`, which is Postgres
+    in production because Render sets ``GENESIS_JOB_DATABASE_URL``.
+    """
+    if explicit is not None:
+        return False
+    return pg_store.postgres_selected()
+
+
 def _auth_db_path(explicit: Path | None = None) -> Path:
     if explicit is not None:
         return explicit
@@ -87,8 +101,21 @@ def auth_db_is_usable(db_path: Path | None = None) -> tuple[bool, str]:
     non-empty proves nothing: GENESIS_AUTH_DB_PATH=/var/data/... on a host with no disk mounted
     at /var/data passes the length check and then fails on the FIRST AP2 request, after the
     caller believed it was authenticated.
+
+    Under Postgres the equivalent lie is a reachable database with no schema —
+    exactly the drift that made every async AP2 dispatch 500 while a mocked test
+    suite stayed green — so the probe checks the table exists, not merely that
+    the server answers.
     """
     try:
+        if _use_postgres(db_path):
+            with pg_store.transaction() as cur:
+                cur.execute(
+                    "SELECT 1 FROM genesis_ap2_nonces WHERE client_id = %s AND nonce = %s",
+                    ("__boot_probe__", "__boot_probe__"),
+                )
+                cur.fetchone()
+            return True, ""
         path = _auth_db_path(db_path)
         path.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(path) as conn:
@@ -102,7 +129,36 @@ def auth_db_is_usable(db_path: Path | None = None) -> tuple[bool, str]:
         return False, f"{type(exc).__name__}: {exc}"
 
 
+def _consume_nonce_postgres(client_id: str, nonce: str, expires_at: int) -> None:
+    """Spend a nonce in Postgres. The unique violation IS the replay signal.
+
+    Deliberately a plain INSERT: ``ON CONFLICT DO NOTHING`` would make a replayed
+    envelope indistinguishable from a fresh one and silently disable replay
+    protection. The expiry sweep runs in the same transaction so a partially
+    applied consume cannot exist.
+    """
+    try:
+        with pg_store.transaction() as cur:
+            cur.execute(
+                "DELETE FROM genesis_ap2_nonces WHERE expires_at < %s", (int(time.time()),)
+            )
+            cur.execute(
+                "INSERT INTO genesis_ap2_nonces(client_id, nonce, expires_at) VALUES (%s, %s, %s)",
+                (client_id, nonce, int(expires_at)),
+            )
+    except Exception as exc:
+        if pg_store.is_unique_violation(exc):
+            raise AuthenticationError("ap2_replay_detected") from exc
+        # Unreachable database, missing table, exhausted pool. Replay protection
+        # is unavailable, so the only safe answer is refusal — never "accept and
+        # hope". Fail closed, and named so it is diagnosable.
+        raise AuthenticationError("ap2_nonce_store_unavailable") from exc
+
+
 def _consume_nonce(client_id: str, nonce: str, expires_at: int, *, db_path: Path | None = None) -> None:
+    if _use_postgres(db_path):
+        _consume_nonce_postgres(client_id, nonce, expires_at)
+        return
     path = _auth_db_path(db_path)
     try:
         path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,4 +1,4 @@
-"""The evaluation target LangSmith calls once per dataset example.
+"""The evaluation target the experiment driver calls once per dataset example.
 
 ``evaluate()`` hands the target one dict (the example's ``inputs``) and stores
 whatever dict comes back as the run's ``outputs``. Evaluators/rubrics then read
@@ -199,7 +199,7 @@ def _run_sync(coro: Any) -> Any:
 
 
 def make_target(client: GenesisClient) -> Callable[[Mapping[str, Any]], dict[str, Any]]:
-    """Build a sync LangSmith target bound to an explicit client.
+    """Build a sync evaluation target bound to an explicit client.
 
     This is the form to use in unit tests and in any harness that supplies its
     own transport::
@@ -218,7 +218,7 @@ def make_target(client: GenesisClient) -> Callable[[Mapping[str, Any]], dict[str
 def make_async_target(
     client: GenesisClient,
 ) -> Callable[[Mapping[str, Any]], Any]:
-    """Build an async LangSmith target bound to an explicit client."""
+    """Build an async evaluation target bound to an explicit client."""
 
     async def atarget(inputs: Mapping[str, Any]) -> dict[str, Any]:
         return await arun_example(inputs, client=client)
@@ -242,7 +242,7 @@ def set_default_client(client: GenesisClient | None) -> None:
 
 
 def genesis_target(inputs: Mapping[str, Any]) -> dict[str, Any]:
-    """Default sync target for ``langsmith.evaluate(genesis_target, data=...)``.
+    """Default sync target: ``evaluate(genesis_target, data=...)``.
 
     Uses the process-wide client, i.e. the live gateway with credentials from
     the environment. Prefer :func:`make_target` when you want to inject one.
@@ -251,7 +251,7 @@ def genesis_target(inputs: Mapping[str, Any]) -> dict[str, Any]:
 
 
 async def agenesis_target(inputs: Mapping[str, Any]) -> dict[str, Any]:
-    """Default async target for ``langsmith.aevaluate``."""
+    """Default async target, for an async experiment driver."""
     return await arun_example(inputs, client=get_default_client())
 
 
