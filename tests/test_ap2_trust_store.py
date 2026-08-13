@@ -40,14 +40,22 @@ client = TestClient(main.app)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 REAL_REGISTRY = REPO_ROOT / "trusted_ap2_clients.json"
 
-#: The rebuilt Cato vault's public key, as supplied by the operator and stored in
+#: Cato's current vault public key, as supplied by the operator and stored in
 #: Cato's vault as ``CATO_AP2_PUBKEY``. Pinned deliberately: a future rotation
 #: MUST edit this constant, so no key can enter the trust store without a test
 #: changing in the same commit.
-CATO_CURRENT_PUBKEY_B64 = "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg="
+CATO_CURRENT_PUBKEY_B64 = "7G6FdR1XQVc1JlIo+o8xfJFIOi4UK/gq22YvXoy7des="
 
 #: The 2026-05-17 key from the destroyed vault. Must appear in NO client record.
 RETIRED_MAY_PUBKEY_B64 = "ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ="
+
+#: A short-lived 2026-08-13T00:00:00Z key that belonged to one of several vaults
+#: recreated that morning by a Vault.create() bug (see cato/vault.py — it
+#: unconditionally deleted the existing vault.enc on every recreate). Its
+#: private half lived only in a vault generation that no longer exists, and it
+#: was never confirmed to complete a real accepted call before the vault was
+#: recreated again. Must appear in NO client record, same as the May key.
+RETIRED_AUG13_0000_PUBKEY_B64 = "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg="
 
 #: The capability set Cato is entitled to, pinned exactly. Removing one breaks
 #: the AP2 path in production; adding one silently widens the trust boundary.
@@ -205,6 +213,15 @@ def test_retired_may_key_appears_in_no_client_record():
         )
 
 
+def test_retired_aug13_0000_key_appears_in_no_client_record():
+    """Same rule for the short-lived 00:00:00Z key from the vault-recreation incident."""
+    for record in _shipped_clients():
+        assert record["pubkey_b64"] != RETIRED_AUG13_0000_PUBKEY_B64, (
+            f"client {record['client_id']!r} still carries the retired 2026-08-13T00:00:00Z "
+            "key; its private half lived only in a vault generation that no longer exists"
+        )
+
+
 def test_every_shipped_pubkey_is_unique():
     """Two records sharing a key make `len(matches) != 1` reject a legitimate caller."""
     keys = [r["pubkey_b64"] for r in _shipped_clients()]
@@ -251,6 +268,15 @@ def test_declared_cato_key_is_trusted_by_the_real_shipped_registry(sqlite_auth):
 
 def test_retired_may_key_is_rejected_by_the_real_shipped_registry(sqlite_auth):
     body, headers = _unsigned_envelope(RETIRED_MAY_PUBKEY_B64)
+
+    response = client.post("/retrieval/query", json=body, headers=headers)
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "ap2_client_untrusted"
+
+
+def test_retired_aug13_0000_key_is_rejected_by_the_real_shipped_registry(sqlite_auth):
+    body, headers = _unsigned_envelope(RETIRED_AUG13_0000_PUBKEY_B64)
 
     response = client.post("/retrieval/query", json=body, headers=headers)
 

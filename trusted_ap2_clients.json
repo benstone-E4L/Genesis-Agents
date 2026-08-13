@@ -7,13 +7,13 @@
       "principal_id": "service:cato",
       "tenant_id": "e4l",
       "name": "Cato Agent Framework",
-      "pubkey_b64": "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg=",
+      "pubkey_b64": "7G6FdR1XQVc1JlIo+o8xfJFIOi4UK/gq22YvXoy7des=",
       "algorithm": "ed25519",
       "capabilities": ["agent.invoke", "agent.list", "agent.health", "job.read", "artifact.read", "retrieval.query"],
       "enabled": true,
       "added_at": "2026-05-17T23:20:42Z",
-      "key_rotated_at": "2026-08-13T00:00:00Z",
-      "notes": "Genesis agents client. Signs requests via vault-bound Ed25519 keypair (cato/vault_crypto.py, CATO_AP2_PUBKEY). Key rotated 2026-08-13 after Cato's vault was rebuilt: the 2026-05-17 key ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ= was DELETED, not disabled, because its private half is unrecoverable and no operator controls it. A disabled record is still a key nobody controls sitting in the trust store; deletion is the only state that cannot be re-enabled by accident."
+      "key_rotated_at": "2026-08-13T18:40:00Z",
+      "notes": "Genesis agents client. Signs requests via vault-bound Ed25519 keypair (cato/vault_crypto.py, CATO_AP2_PUBKEY). Rotated a second time on 2026-08-13 after a root-cause investigation (Vault.create() in cato/vault.py unconditionally deleted the existing vault.enc on any recreate, with no guard against overwriting real data) found the vault had been repeatedly recreated that morning. The 00:00:00Z key C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg= belonged to one of those short-lived intermediate vaults (2-4 credentials, missing GMAIL_REFRESH_TOKEN and others) and was never confirmed to have completed a real accepted call before the vault was recreated again. A genuine last-known-good vault.enc backup from 2026-08-12T16:53:28Z (10 real credentials, sha256 fd06e909195a345529dfda0d01edf14d3b04060e7077bea7617a39df181d75e5) was recovered intact using the operator's current CATO_VAULT_PASSWORD and restored as the live vault, bringing back this earlier keypair (7G6FdR1...) rather than generating a fresh one, since a real trusted identity with a verified private key beats an untested new one. C0b5/ct/... is DELETED, not disabled, for the same reason the 2026-05-17 key was deleted below: its private half lived only in a vault generation that no longer exists and no operator controls it. Vault.create()/unlock() now refuse to silently overwrite or auto-create an existing vault (see cato/vault.py and tests/test_vault_safety.py) — this class of incident should not recur."
     }
   ]
 }
