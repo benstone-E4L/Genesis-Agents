@@ -350,6 +350,10 @@ TOOL_RISK_BY_NAME: dict[str, str] = {
     "data_dbt_compile": RISK_FILESYSTEM_WRITE,
     "data_pipeline_design": RISK_FILESYSTEM_WRITE,
     "data_quality_check": RISK_READ_ONLY,
+    "data_get_editor_context": RISK_READ_ONLY,
+    "data_get_gcp_connection": RISK_READ_ONLY,
+    "data_list_resource_templates": RISK_READ_ONLY,
+    "data_read_resource": RISK_READ_ONLY,
 
     # Outside FINANCE-TOOL-CONTRACTS.md's scope entirely (not finance-
     # adjacent) — classified on ordinary technical risk. github_tool pushes

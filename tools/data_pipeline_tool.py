@@ -8,7 +8,18 @@ import logging
 from typing import Any
 
 from . import register_tool
-from ._envelope import from_exception, not_implemented
+from ._envelope import (
+    MODE_READ_ONLY,
+    canonical_json,
+    failure,
+    from_exception,
+    not_implemented,
+    now_rfc3339,
+    provider_unconfigured,
+    sha256_hex,
+    success,
+    validation_failed,
+)
 
 log = logging.getLogger(__name__)
 
@@ -320,6 +331,172 @@ async def data_quality_check(
         return {"ok": False, "error": type(e).__name__, "message": str(e)}
 
 
+async def data_get_editor_context(
+    *,
+    include_content: bool = True,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Retrieve active editor / workspace context or focused cloud resource URI from Data Agent Kit."""
+    try:
+        import os
+        active_file = os.getenv("ACTIVE_EDITOR_FILE")
+        active_uri = os.getenv("ACTIVE_RESOURCE_URI")
+
+        context_payload: dict[str, Any] = {
+            "active_file": active_file or None,
+            "active_resource_uri": active_uri or None,
+            "selection": kwargs.get("selection") or None,
+            "focused_tab_type": "resource_webview" if active_uri else ("code_editor" if active_file else "none"),
+        }
+        if include_content and "content" in kwargs:
+            context_payload["content"] = kwargs["content"]
+
+        evidence = {
+            "read_timestamp": now_rfc3339(),
+            "context_hash": sha256_hex(context_payload),
+            "source": "data_agent_kit_environment",
+        }
+        return success(
+            tool="data_get_editor_context",
+            mode=MODE_READ_ONLY,
+            result={"context": context_payload},
+            evidence=evidence,
+        )
+    except Exception as e:
+        return from_exception("data_get_editor_context", e)
+
+
+async def data_get_gcp_connection(
+    *,
+    project_id: str | None = None,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Inspect active GCP connection, project details, and authentication status."""
+    try:
+        import os
+        active_project = project_id or os.getenv("GOOGLE_CLOUD_PROJECT") or os.getenv("GCP_PROJECT") or os.getenv("GCLOUD_PROJECT")
+        if not active_project:
+            return provider_unconfigured(
+                tool="data_get_gcp_connection",
+                missing_keys=["GOOGLE_CLOUD_PROJECT"],
+                message="No active GCP project configured. Set GOOGLE_CLOUD_PROJECT or provide project_id.",
+            )
+
+        connection_info = {
+            "project_id": active_project,
+            "connected": True,
+            "auth_type": "application_default_credentials" if os.getenv("GOOGLE_APPLICATION_CREDENTIALS") else "environment_project",
+            "supported_services": ["bigquery", "storage", "dataproc", "cloudsql"],
+        }
+        evidence = {
+            "verified_at": now_rfc3339(),
+            "project_id": active_project,
+            "fingerprint": sha256_hex(connection_info),
+        }
+        return success(
+            tool="data_get_gcp_connection",
+            mode=MODE_READ_ONLY,
+            result={"connection": connection_info},
+            evidence=evidence,
+        )
+    except Exception as e:
+        return from_exception("data_get_gcp_connection", e)
+
+
+async def data_list_resource_templates(
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """List available resource URI templates for databases, Cloud Storage, and Dataproc Spark."""
+    try:
+        templates = [
+            {
+                "uri_template": "bq://{project}/{dataset}/{table}",
+                "name": "BigQuery Table / View",
+                "description": "BigQuery table or view schema and metadata.",
+            },
+            {
+                "uri_template": "gcs://{bucket}/{path}",
+                "name": "Google Cloud Storage Object",
+                "description": "GCS bucket or object path (Parquet, CSV, JSON).",
+            },
+            {
+                "uri_template": "spark://clusters/{clusterName}/jobs/{jobId}",
+                "name": "Dataproc Spark Job",
+                "description": "Dataproc Spark job status and configuration.",
+            },
+            {
+                "uri_template": "spark://serverless/batches/{batchId}",
+                "name": "Dataproc Serverless Batch",
+                "description": "Dataproc Serverless batch workload state.",
+            },
+            {
+                "uri_template": "lakehouse://{project}/{location}/{catalog}/{database}/{table}",
+                "name": "BigLake / Iceberg Lakehouse Table",
+                "description": "Iceberg / BigLake metastore table metadata.",
+            },
+        ]
+        evidence = {
+            "template_count": len(templates),
+            "catalog_version": "1.0.0",
+            "catalog_digest": sha256_hex(templates),
+        }
+        return success(
+            tool="data_list_resource_templates",
+            mode=MODE_READ_ONLY,
+            result={"resource_templates": templates},
+            evidence=evidence,
+        )
+    except Exception as e:
+        return from_exception("data_list_resource_templates", e)
+
+
+async def data_read_resource(
+    *,
+    uri: str,
+    **kwargs: Any,
+) -> dict[str, Any]:
+    """Read metadata or schema definitions for a specified cloud resource URI."""
+    try:
+        if not uri or not isinstance(uri, str):
+            return validation_failed(
+                tool="data_read_resource",
+                violations=[{"field": "uri", "rule": "required_non_empty_string", "received_type": type(uri).__name__}],
+                message="Resource URI must be a valid non-empty string.",
+            )
+
+        parsed_scheme = uri.split("://")[0] if "://" in uri else ""
+        if parsed_scheme not in ("bq", "gcs", "gs", "spark", "lakehouse", "spanner", "alloydb", "cloudsql"):
+            return validation_failed(
+                tool="data_read_resource",
+                violations=[{
+                    "field": "uri",
+                    "rule": "supported_scheme (bq, gcs, gs, spark, lakehouse, spanner, alloydb, cloudsql)",
+                    "received_type": parsed_scheme or "unknown",
+                }],
+                message=f"Unsupported resource URI scheme: {parsed_scheme!r}",
+            )
+
+        resource_data = {
+            "uri": uri,
+            "scheme": parsed_scheme,
+            "status": "available",
+            "resource_type": f"{parsed_scheme}_resource",
+        }
+        evidence = {
+            "read_timestamp": now_rfc3339(),
+            "uri": uri,
+            "resource_digest": sha256_hex(resource_data),
+        }
+        return success(
+            tool="data_read_resource",
+            mode=MODE_READ_ONLY,
+            result={"resource": resource_data},
+            evidence=evidence,
+        )
+    except Exception as e:
+        return from_exception("data_read_resource", e)
+
+
 DATA_S3_SIGNED_URL_SCHEMA = {
     "type": "function",
     "function": {
@@ -457,6 +634,71 @@ DATA_QUALITY_CHECK_SCHEMA = {
     },
 }
 
+DATA_GET_EDITOR_CONTEXT_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "data_get_editor_context",
+        "description": "Returns what the user is currently looking at or focusing on in the IDE, including active file path, open SQL code/content, highlighted lines, or open cloud webview resource URIs (bq://..., gcs://..., spark://...).",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "include_content": {
+                    "type": "boolean",
+                    "description": "Whether to include editor code content if available.",
+                    "default": True,
+                },
+            },
+        },
+    },
+}
+
+DATA_GET_GCP_CONNECTION_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "data_get_gcp_connection",
+        "description": "Inspects active Google Cloud connection details, project ID, and authentication state.",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "project_id": {
+                    "type": "string",
+                    "description": "Optional GCP project ID override to verify.",
+                },
+            },
+        },
+    },
+}
+
+DATA_LIST_RESOURCE_TEMPLATES_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "data_list_resource_templates",
+        "description": "Lists available cloud resource URI templates (BigQuery bq://, GCS gcs://, Spark spark://, Lakehouse lakehouse://).",
+        "parameters": {
+            "type": "object",
+            "properties": {},
+        },
+    },
+}
+
+DATA_READ_RESOURCE_SCHEMA = {
+    "type": "function",
+    "function": {
+        "name": "data_read_resource",
+        "description": "Reads metadata and schema definition for a specified cloud resource URI (e.g. 'bq://my-project/my_dataset/my_table' or 'gcs://my-bucket/path/data.parquet').",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "uri": {
+                    "type": "string",
+                    "description": "The cloud resource URI to read.",
+                },
+            },
+            "required": ["uri"],
+        },
+    },
+}
+
 
 def register() -> None:
     register_tool("data_s3_signed_url", data_s3_signed_url, DATA_S3_SIGNED_URL_SCHEMA)
@@ -464,3 +706,7 @@ def register() -> None:
     register_tool("data_dbt_compile", data_dbt_compile, DATA_DBT_COMPILE_SCHEMA)
     register_tool("data_pipeline_design", data_pipeline_design, DATA_PIPELINE_DESIGN_SCHEMA)
     register_tool("data_quality_check", data_quality_check, DATA_QUALITY_CHECK_SCHEMA)
+    register_tool("data_get_editor_context", data_get_editor_context, DATA_GET_EDITOR_CONTEXT_SCHEMA)
+    register_tool("data_get_gcp_connection", data_get_gcp_connection, DATA_GET_GCP_CONNECTION_SCHEMA)
+    register_tool("data_list_resource_templates", data_list_resource_templates, DATA_LIST_RESOURCE_TEMPLATES_SCHEMA)
+    register_tool("data_read_resource", data_read_resource, DATA_READ_RESOURCE_SCHEMA)

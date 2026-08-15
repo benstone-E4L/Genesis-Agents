@@ -1,0 +1,225 @@
+{
+  "timestamp": "2026-08-15T15:09:02.540197+00:00",
+  "total_agents": 24,
+  "passed": 24,
+  "failed": 0,
+  "total_time_seconds": 0.021,
+  "results": [
+    {
+      "slug": "genesis-meta",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.03,
+      "sample_task": "Design and coordinate a multi-agent rollout for a customer churn prediction pipeline."
+    },
+    {
+      "slug": "genesis-data-pipeline",
+      "status": "PASS",
+      "tools_advertised_count": 10,
+      "expected_tools_matched": 4,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Inspect active BigQuery table schemas and design an idempotent ETL pipeline to sync Stripe events to BigQuery."
+    },
+    {
+      "slug": "genesis-analyst",
+      "status": "PASS",
+      "tools_advertised_count": 11,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Analyze monthly active user retention and identify churn anomalies across cohorts."
+    },
+    {
+      "slug": "genesis-builder",
+      "status": "PASS",
+      "tools_advertised_count": 6,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Scaffold a TypeScript FastAPI client with retry middleware and unit tests."
+    },
+    {
+      "slug": "genesis-qa",
+      "status": "PASS",
+      "tools_advertised_count": 6,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Generate a Jest test suite for user authentication and session validation."
+    },
+    {
+      "slug": "genesis-deploy",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 2,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Generate production Dockerfile and CI/CD GitHub Action deployment configuration."
+    },
+    {
+      "slug": "genesis-maintenance",
+      "status": "PASS",
+      "tools_advertised_count": 1,
+      "expected_tools_matched": 1,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Run diagnostic health check and generate system uptime and resource monitoring plan."
+    },
+    {
+      "slug": "genesis-onboarding",
+      "status": "PASS",
+      "tools_advertised_count": 1,
+      "expected_tools_matched": 1,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Create a 5-step user onboarding flow and draft welcome notification emails."
+    },
+    {
+      "slug": "genesis-hr",
+      "status": "PASS",
+      "tools_advertised_count": 8,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Query candidate pipelines in Greenhouse/BambooHR and draft an onboarding compliance checklist."
+    },
+    {
+      "slug": "genesis-workflow-automator",
+      "status": "PASS",
+      "tools_advertised_count": 7,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Generate an n8n workflow JSON graph to process incoming webhook events and sync to Postgres."
+    },
+    {
+      "slug": "genesis-security",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Perform a threat model review on API authentication and secret storage."
+    },
+    {
+      "slug": "genesis-ai-vision",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Analyze dashboard screenshot and extract tabular metrics using OCR."
+    },
+    {
+      "slug": "genesis-domain",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.03,
+      "sample_task": "Generate domain candidates for an AI analytics platform and check pricing."
+    },
+    {
+      "slug": "genesis-marketing",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Draft a product launch campaign for a new Data Agent Kit feature."
+    },
+    {
+      "slug": "genesis-content",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Write an in-depth technical guide on modern data modeling in BigQuery."
+    },
+    {
+      "slug": "genesis-seo",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Audit page metadata, headings, and semantic keywords for an AI developer portal."
+    },
+    {
+      "slug": "genesis-support",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Draft response templates and troubleshooting guides for webhook delivery errors."
+    },
+    {
+      "slug": "genesis-legal",
+      "status": "PASS",
+      "tools_advertised_count": 5,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.21,
+      "sample_task": "Review data privacy terms and draft a standard data processing addendum (DPA)."
+    },
+    {
+      "slug": "genesis-research",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Conduct competitive analysis on agent orchestration frameworks."
+    },
+    {
+      "slug": "genesis-email",
+      "status": "PASS",
+      "tools_advertised_count": 4,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.01,
+      "sample_task": "Draft a multi-part email drip sequence for product trial users."
+    },
+    {
+      "slug": "genesis-pricing",
+      "status": "PASS",
+      "tools_advertised_count": 6,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.04,
+      "sample_task": "Generate pricing tier elasticity recommendations and review budget metrics."
+    },
+    {
+      "slug": "genesis-billing",
+      "status": "PASS",
+      "tools_advertised_count": 7,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Generate revenue operations report and check billing budget alerts."
+    },
+    {
+      "slug": "genesis-finance",
+      "status": "PASS",
+      "tools_advertised_count": 8,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.03,
+      "sample_task": "Generate monthly financial performance report and audit trail metrics."
+    },
+    {
+      "slug": "genesis-commerce",
+      "status": "PASS",
+      "tools_advertised_count": 10,
+      "expected_tools_matched": 3,
+      "all_tools_in_registry": true,
+      "elapsed_ms": 0.02,
+      "sample_task": "Inspect commerce budget metrics and verify payment gateway alerts."
+    }
+  ]
+}

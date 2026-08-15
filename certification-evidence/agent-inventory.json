@@ -1,0 +1,1007 @@
+{
+  "timestamp": "2026-08-15T15:10:20.322188+00:00",
+  "total_catalogued_slugs": 60,
+  "total_bundle_backed": 24,
+  "total_guarded": 24,
+  "total_unguarded": 36,
+  "agents": {
+    "analyst_agent": {
+      "slug": "analyst_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "api-documentation-generator": {
+      "slug": "api-documentation-generator",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "backup-manager": {
+      "slug": "backup-manager",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "billing_agent": {
+      "slug": "billing_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "builder_agent": {
+      "slug": "builder_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "builder_agent_enhanced": {
+      "slug": "builder_agent_enhanced",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "business_idea_generator": {
+      "slug": "business_idea_generator",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "commerce_agent": {
+      "slug": "commerce_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "content_agent": {
+      "slug": "content_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "darwin_agent": {
+      "slug": "darwin_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "deploy_agent": {
+      "slug": "deploy_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "domain_name_agent": {
+      "slug": "domain_name_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "email_agent": {
+      "slug": "email_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "expense-tracker": {
+      "slug": "expense-tracker",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "finance_agent": {
+      "slug": "finance_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "genesis-ai-vision-api": {
+      "slug": "genesis-ai-vision-api",
+      "guarded": true,
+      "bundle_file": "genesis-ai-vision.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "vision_analyze",
+        "vision_ocr",
+        "vision_compare",
+        "file_write",
+        "conduit"
+      ],
+      "token_budget": 8000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis-data-pipeline-agent": {
+      "slug": "genesis-data-pipeline-agent",
+      "guarded": true,
+      "bundle_file": "genesis-data-pipeline.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "code_format",
+        "data_pipeline_design",
+        "data_quality_check",
+        "data_get_editor_context",
+        "data_get_gcp_connection",
+        "data_list_resource_templates",
+        "data_read_resource",
+        "run_code",
+        "conduit"
+      ],
+      "token_budget": 16000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis-workflow-automator": {
+      "slug": "genesis-workflow-automator",
+      "guarded": true,
+      "bundle_file": "genesis-workflow-automator.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "browser",
+        "filesystem_write",
+        "network",
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "workflow_zapier_export",
+        "workflow_n8n_export",
+        "workflow_make_export",
+        "workflow_webhook_trigger",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 8000,
+      "conduit_budget_cents": 150,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_analyst_x402": {
+      "slug": "genesis_analyst_x402",
+      "guarded": true,
+      "bundle_file": "genesis-analyst.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "code_format",
+        "web_search",
+        "web_fetch",
+        "data_pipeline_design",
+        "data_quality_check",
+        "data_get_editor_context",
+        "data_get_gcp_connection",
+        "data_list_resource_templates",
+        "data_read_resource",
+        "conduit"
+      ],
+      "token_budget": 12000,
+      "conduit_budget_cents": 200,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_billing_x402": {
+      "slug": "genesis_billing_x402",
+      "guarded": true,
+      "bundle_file": "genesis-billing.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "billing_generate_revops_report",
+        "billing_get_budget_metrics",
+        "billing_get_audit_log",
+        "billing_get_alerts",
+        "send_email",
+        "conduit"
+      ],
+      "token_budget": 6000,
+      "conduit_budget_cents": 150,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_builder_x402": {
+      "slug": "genesis_builder_x402",
+      "guarded": true,
+      "bundle_file": "genesis-builder.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "code_format",
+        "run_code",
+        "workspace_shell",
+        "github_tool",
+        "conduit"
+      ],
+      "token_budget": 16000,
+      "conduit_budget_cents": 500,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_commerce_x402": {
+      "slug": "genesis_commerce_x402",
+      "guarded": true,
+      "bundle_file": "genesis-commerce.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_search",
+        "web_fetch",
+        "domain_generate_candidates",
+        "domain_check_availability",
+        "commerce_get_budget_metrics",
+        "commerce_get_audit_log",
+        "commerce_get_alerts",
+        "send_email",
+        "conduit"
+      ],
+      "token_budget": 6000,
+      "conduit_budget_cents": 200,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_content_x402": {
+      "slug": "genesis_content_x402",
+      "guarded": true,
+      "bundle_file": "genesis-content.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_search",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_deploy_x402": {
+      "slug": "genesis_deploy_x402",
+      "guarded": true,
+      "bundle_file": "genesis-deploy.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "github_tool",
+        "run_code",
+        "conduit"
+      ],
+      "token_budget": 16000,
+      "conduit_budget_cents": 500,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_domain": {
+      "slug": "genesis_domain",
+      "guarded": true,
+      "bundle_file": "genesis-domain.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "conduit",
+        "domain_generate_candidates",
+        "domain_check_availability",
+        "domain_configure_dns",
+        "domain_get_cost_summary"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_email_x402": {
+      "slug": "genesis_email_x402",
+      "guarded": true,
+      "bundle_file": "genesis-email.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "send_email",
+        "file_write",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_finance_x402": {
+      "slug": "genesis_finance_x402",
+      "guarded": true,
+      "bundle_file": "genesis-finance.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "finance_sync_bank_fees",
+        "finance_generate_finance_report",
+        "finance_import_x402_transactions",
+        "finance_get_budget_metrics",
+        "finance_get_audit_log",
+        "finance_get_alerts",
+        "web_fetch"
+      ],
+      "token_budget": 6000,
+      "conduit_budget_cents": 0,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_maintenance": {
+      "slug": "genesis_maintenance",
+      "guarded": true,
+      "bundle_file": "genesis-maintenance.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_marketing_x402": {
+      "slug": "genesis_marketing_x402",
+      "guarded": true,
+      "bundle_file": "genesis-marketing.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_search",
+        "web_fetch",
+        "send_email",
+        "conduit"
+      ],
+      "token_budget": 8000,
+      "conduit_budget_cents": 200,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_meta_agent": {
+      "slug": "genesis_meta_agent",
+      "guarded": true,
+      "bundle_file": "genesis-meta.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "code_format",
+        "genesis_call",
+        "conduit"
+      ],
+      "token_budget": 24000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_meta_x402": {
+      "slug": "genesis_meta_x402",
+      "guarded": true,
+      "bundle_file": "genesis-meta.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "code_format",
+        "genesis_call",
+        "conduit"
+      ],
+      "token_budget": 24000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_pricing": {
+      "slug": "genesis_pricing",
+      "guarded": true,
+      "bundle_file": "genesis-pricing.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "conduit",
+        "pricing_run_elasticity_experiment",
+        "pricing_deploy_pricing_update",
+        "pricing_get_budget_metrics",
+        "pricing_get_audit_log",
+        "pricing_get_alerts"
+      ],
+      "token_budget": 6000,
+      "conduit_budget_cents": 150,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_qa_x402": {
+      "slug": "genesis_qa_x402",
+      "guarded": true,
+      "bundle_file": "genesis-qa.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "run_code",
+        "workspace_shell",
+        "web_fetch",
+        "conduit",
+        "screenshot_url"
+      ],
+      "token_budget": 8000,
+      "conduit_budget_cents": 200,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_research_x402": {
+      "slug": "genesis_research_x402",
+      "guarded": true,
+      "bundle_file": "genesis-research.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_search",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 12000,
+      "conduit_budget_cents": 400,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_security_x402": {
+      "slug": "genesis_security_x402",
+      "guarded": true,
+      "bundle_file": "genesis-security.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "run_code",
+        "web_fetch",
+        "web_search",
+        "conduit"
+      ],
+      "token_budget": 16000,
+      "conduit_budget_cents": 500,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_seo_x402": {
+      "slug": "genesis_seo_x402",
+      "guarded": true,
+      "bundle_file": "genesis-seo.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_search",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "genesis_support_x402": {
+      "slug": "genesis_support_x402",
+      "guarded": true,
+      "bundle_file": "genesis-support.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "send_email",
+        "web_search",
+        "web_fetch",
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "image-optimizer": {
+      "slug": "image-optimizer",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "legal_agent": {
+      "slug": "legal_agent",
+      "guarded": true,
+      "bundle_file": "genesis-legal.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "file_write",
+        "web_fetch",
+        "web_search",
+        "conduit",
+        "vision_ocr"
+      ],
+      "token_budget": 8000,
+      "conduit_budget_cents": 200,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "maintenance_agent": {
+      "slug": "maintenance_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "marketing_agent": {
+      "slug": "marketing_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "meeting-summarizer": {
+      "slug": "meeting-summarizer",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "onboarding-automation": {
+      "slug": "onboarding-automation",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "onboarding_agent": {
+      "slug": "onboarding_agent",
+      "guarded": true,
+      "bundle_file": "genesis-onboarding.json",
+      "classification": "guarded_bundle",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [
+        "conduit"
+      ],
+      "token_budget": 4000,
+      "conduit_budget_cents": 100,
+      "model_hint": "anthropic/claude-sonnet-4-5",
+      "is_finance_adjacent": false
+    },
+    "pricing_agent": {
+      "slug": "pricing_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "qa_agent": {
+      "slug": "qa_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "reflection_agent": {
+      "slug": "reflection_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "research_discovery_agent": {
+      "slug": "research_discovery_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "review-responder": {
+      "slug": "review-responder",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "ring1t_reasoning_agent": {
+      "slug": "ring1t_reasoning_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "se_darwin_agent": {
+      "slug": "se_darwin_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "security_agent": {
+      "slug": "security_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "seo_agent": {
+      "slug": "seo_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "social-media-scheduler": {
+      "slug": "social-media-scheduler",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "spec_agent": {
+      "slug": "spec_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "support_agent": {
+      "slug": "support_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "unit-test-generator": {
+      "slug": "unit-test-generator",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "waltzrl_conversation_agent": {
+      "slug": "waltzrl_conversation_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "waltzrl_feedback_agent": {
+      "slug": "waltzrl_feedback_agent",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    },
+    "web-scraper-pro": {
+      "slug": "web-scraper-pro",
+      "guarded": false,
+      "bundle_file": null,
+      "classification": "unguarded_persona_fallback",
+      "allowed_risks": [
+        "read_only"
+      ],
+      "tools_advertised": [],
+      "token_budget": 4000,
+      "conduit_budget_cents": 0,
+      "model_hint": "router_auto",
+      "is_finance_adjacent": false
+    }
+  }
+}

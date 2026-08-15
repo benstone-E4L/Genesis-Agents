@@ -55,11 +55,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-ai-vision::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-ai-vision::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-ai-vision::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-ai-vision::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-ai-vision::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-ai-vision::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -263,11 +279,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-analyst::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-analyst::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-analyst::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-analyst::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-analyst::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-analyst::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -471,11 +503,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-billing::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-billing::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-billing::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-billing::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-billing::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-billing::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -679,11 +727,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-builder::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-builder::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-builder::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-builder::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -887,11 +951,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-commerce::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-commerce::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-commerce::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-commerce::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-commerce::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-commerce::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -1095,11 +1175,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-content::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-content::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-content::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-content::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-content::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-content::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -1303,11 +1399,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-data-pipeline::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-data-pipeline::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-data-pipeline::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-data-pipeline::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-data-pipeline::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-data-pipeline::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -1511,11 +1623,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-deploy::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-deploy::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-deploy::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-deploy::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -1719,11 +1847,27 @@
     "ok": false,
     "risk_class": "filesystem_write"
   },
+  "genesis-domain::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-domain::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-domain::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-domain::data_pipeline_design": {
     "ok": false,
     "risk_class": "filesystem_write"
   },
   "genesis-domain::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-domain::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -1927,11 +2071,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-email::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-email::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-email::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-email::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-email::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-email::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -2135,11 +2295,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-finance::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-finance::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-finance::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-finance::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -2343,11 +2519,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-hr::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-hr::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-hr::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-hr::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-hr::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-hr::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -2551,11 +2743,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-legal::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-legal::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-legal::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-legal::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-legal::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-legal::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -2759,11 +2967,27 @@
     "ok": false,
     "risk_class": "filesystem_write"
   },
+  "genesis-maintenance::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-maintenance::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-maintenance::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-maintenance::data_pipeline_design": {
     "ok": false,
     "risk_class": "filesystem_write"
   },
   "genesis-maintenance::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-maintenance::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -2967,11 +3191,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-marketing::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-marketing::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-marketing::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-marketing::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-marketing::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-marketing::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -3175,11 +3415,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-meta::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-meta::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-meta::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-meta::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -3383,11 +3639,27 @@
     "ok": false,
     "risk_class": "filesystem_write"
   },
+  "genesis-onboarding::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-onboarding::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-onboarding::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-onboarding::data_pipeline_design": {
     "ok": false,
     "risk_class": "filesystem_write"
   },
   "genesis-onboarding::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-onboarding::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -3591,11 +3863,27 @@
     "ok": false,
     "risk_class": "filesystem_write"
   },
+  "genesis-pricing::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-pricing::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-pricing::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-pricing::data_pipeline_design": {
     "ok": false,
     "risk_class": "filesystem_write"
   },
   "genesis-pricing::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-pricing::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -3799,11 +4087,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-qa::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-qa::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-qa::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-qa::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -4007,11 +4311,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-research::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-research::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-research::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-research::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -4215,11 +4535,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-security::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-security::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-security::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-security::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-security::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-security::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -4423,11 +4759,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-seo::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-seo::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-seo::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-seo::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-seo::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-seo::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -4631,11 +4983,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-support::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-support::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-support::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-support::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-support::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-support::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -4839,11 +5207,27 @@
     "ok": true,
     "risk_class": "filesystem_write"
   },
+  "genesis-workflow-automator::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-workflow-automator::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-workflow-automator::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "genesis-workflow-automator::data_pipeline_design": {
     "ok": true,
     "risk_class": "filesystem_write"
   },
   "genesis-workflow-automator::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "genesis-workflow-automator::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },
@@ -5047,11 +5431,27 @@
     "ok": false,
     "risk_class": "filesystem_write"
   },
+  "unknown-slug-xyz::data_get_editor_context": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::data_get_gcp_connection": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::data_list_resource_templates": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
   "unknown-slug-xyz::data_pipeline_design": {
     "ok": false,
     "risk_class": "filesystem_write"
   },
   "unknown-slug-xyz::data_quality_check": {
+    "ok": true,
+    "risk_class": "read_only"
+  },
+  "unknown-slug-xyz::data_read_resource": {
     "ok": true,
     "risk_class": "read_only"
   },

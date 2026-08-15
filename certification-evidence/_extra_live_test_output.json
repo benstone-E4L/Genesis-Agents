@@ -1,0 +1,145 @@
+[
+  {
+    "id": "H1",
+    "description": "GET /health/sandbox fresh re-check",
+    "method": "GET",
+    "path": "/health/sandbox",
+    "expect": "HTTP 200, isolation reported",
+    "http_status": 200,
+    "response_summary": "{\"ok\": true, \"isolation\": \"unavailable\", \"bwrap_available\": false, \"network_allowed\": false, \"note\": \"bwrap = real kernel isolation; process = hardened process sandbox + static guards (install bubblew",
+    "verdict": "PASS",
+    "notes": "isolation=unavailable bwrap_available=False"
+  },
+  {
+    "id": "H2",
+    "description": "GET /health/worker fresh re-check",
+    "method": "GET",
+    "path": "/health/worker",
+    "expect": "HTTP 200, enabled reported",
+    "http_status": 200,
+    "response_summary": "{\"enabled\": true, \"last_tick_at\": \"2026-08-15T14:24:05.209924+00:00\", \"last_claimed_job_id\": null, \"currently_running_job_id\": \"ce319111743b34154be18fab3\", \"processed_count\": 0, \"failed_count\": 10, \"q",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "H3",
+    "description": "GET /health/browser fresh re-check",
+    "method": "GET",
+    "path": "/health/browser",
+    "expect": "HTTP 200, chromium_installed true",
+    "http_status": 200,
+    "response_summary": "{\"chromium_installed\": true, \"executable_path\": \"/opt/render/.cache/ms-playwright/chromium-1228/chrome-linux64/chrome\", \"chromium_dirs\": [\"chromium-1228\", \"chromium_headless_shell-1228\"], \"conduit_pac",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "M1",
+    "description": "POST /agents/genesis-builder/run with empty body (missing required 'task')",
+    "method": "POST",
+    "path": "/agents/genesis-builder/run",
+    "expect": "4xx validation error, no job created",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "M2",
+    "description": "POST /agents/{invalid-slug}/run \u2014 unknown agent slug",
+    "method": "POST",
+    "path": "/agents/genesis-nonexistent-agent-xyz/run",
+    "expect": "4xx/404 unknown agent, no job created",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "M3",
+    "description": "POST /agents/genesis-research/jobs with missing 'prompt' field",
+    "method": "POST",
+    "path": "/agents/genesis-research/jobs",
+    "expect": "job created with empty prompt OR 4xx \u2014 must not silently succeed with garbage",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "INFO",
+    "notes": "Recorded for evidence; endpoint defaults prompt to '' per main.py:2322 rather than rejecting \u2014 a real gap, not a crash."
+  },
+  {
+    "id": "M4",
+    "description": "POST /agents/genesis-builder/run with malformed (non-JSON) body",
+    "method": "POST",
+    "path": "/agents/genesis-builder/run",
+    "expect": "4xx JSON parse error",
+    "http_status": 422,
+    "response_summary": "{\"detail\":[{\"type\":\"json_invalid\",\"loc\":[\"body\",1],\"msg\":\"JSON decode error\",\"input\":{},\"ctx\":{\"error\":\"Expecting property name enclosed in double quotes\"}}]}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "U1",
+    "description": "POST /agents/genesis-builder/run with NO auth headers",
+    "method": "POST",
+    "path": "/agents/genesis-builder/run",
+    "expect": "401/403, no job created",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "U2",
+    "description": "GET /agents/jobs/{id} with NO auth headers",
+    "method": "GET",
+    "path": "/agents/jobs/{id}",
+    "expect": "401/403 (auth checked before existence)",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "U3",
+    "description": "POST /agents/genesis-builder/run with a bogus/invalid API key",
+    "method": "POST",
+    "path": "/agents/genesis-builder/run",
+    "expect": "401/403, no job created",
+    "http_status": 401,
+    "response_summary": "{\"detail\": \"Invalid or missing X-Agent-Api-Key\"}",
+    "verdict": "PASS",
+    "notes": ""
+  },
+  {
+    "id": "I1",
+    "description": "POST /agents/genesis-research/jobs twice with identical idempotency_key",
+    "method": "POST",
+    "path": "/agents/genesis-research/jobs",
+    "expect": "second call returns idempotent_hit=true, same job_id",
+    "http_status": "401/401",
+    "response_summary": "jid1=None jid2=None idempotent_hit=None",
+    "verdict": "FAIL",
+    "notes": ""
+  },
+  {
+    "id": "W1",
+    "description": "workspace_shell benign command ('echo ...') \u2014 confirm fail-closed if bwrap unavailable",
+    "method": "POST",
+    "path": "/agents/genesis-builder/run",
+    "expect": "secure_sandbox_unavailable in tool result (given /health/sandbox unavailable)",
+    "http_status": null,
+    "response_summary": "no job_id: {'detail': 'Invalid or missing X-Agent-Api-Key'}",
+    "verdict": "FAIL",
+    "notes": ""
+  },
+  {
+    "id": "G1",
+    "description": "genesis-research (non-meta) attempts genesis_call \u2014 must be architecturally unreachable",
+    "method": "POST",
+    "path": "/agents/genesis-research/run",
+    "expect": "no genesis_call tool_call entries in trace",
+    "http_status": null,
+    "response_summary": "no job_id: {'detail': 'Invalid or missing X-Agent-Api-Key'}; structural=['genesis-research.json genesis_call_listed=False', 'genesis-builder.json genesis_call_listed=False']",
+    "verdict": "FAIL",
+    "notes": ""
+  }
+]

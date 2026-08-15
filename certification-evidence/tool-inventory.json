@@ -1,0 +1,455 @@
+{
+  "timestamp": "2026-08-15T15:10:20.331071+00:00",
+  "total_registered_tools": 56,
+  "total_prohibited_tools": 19,
+  "tools": {
+    "billing_deploy_plan_change": {
+      "name": "billing_deploy_plan_change",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Changing a customer's billing plan alters a price and can issue an invoice; it is quarantined pending a named provider, verified proration semantics, readback evidence and per-call human authorization. Always returns ok=false with error.code=not_implemented.",
+      "read_write_class": "write_execute"
+    },
+    "billing_generate_revops_report": {
+      "name": "billing_generate_revops_report",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Compute MRR, ARR, churn and ARPA from a caller-supplied subscription list. All money is integer minor units (amount_minor); floats are rejected. currency and period are mandatory. Annualisation uses the explicit interval field ('month' or 'year'), never the plan name. Returns ok=true with evidence marked unverified for caller-supplied data \u2014 this is arithmetic, not reconciliation.",
+      "read_write_class": "read"
+    },
+    "billing_get_alerts": {
+      "name": "billing_get_alerts",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return billing alerts from the alert engine. None is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty list that could be read as 'nothing flagged'.",
+      "read_write_class": "read"
+    },
+    "billing_get_audit_log": {
+      "name": "billing_get_audit_log",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return billing audit entries from the audit store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty log that could be read as 'clean'.",
+      "read_write_class": "read"
+    },
+    "billing_get_budget_metrics": {
+      "name": "billing_get_budget_metrics",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return the billing agent's budget window from the budget store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never invents a limit.",
+      "read_write_class": "read"
+    },
+    "billing_import_ar_ledger": {
+      "name": "billing_import_ar_ledger",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Importing an AR ledger is quarantined pending named provider credentials, a real destination table and readback evidence. Always returns ok=false with error.code=not_implemented and rows_inserted 0.",
+      "read_write_class": "write_execute"
+    },
+    "code_format": {
+      "name": "code_format",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Format code via black or prettier. Returns formatted content or the original on error.",
+      "read_write_class": "read"
+    },
+    "commerce_configure_tax_engine": {
+      "name": "commerce_configure_tax_engine",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Tax-engine configuration determines the tax on every future invoice and is quarantined pending a named provider and an accountant-approved rule set. Always returns ok=false with error.code=not_implemented. No tax configuration is created.",
+      "read_write_class": "write_execute"
+    },
+    "commerce_get_alerts": {
+      "name": "commerce_get_alerts",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return commerce alerts from the alert engine. None is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty list that could be read as 'nothing flagged'.",
+      "read_write_class": "read"
+    },
+    "commerce_get_audit_log": {
+      "name": "commerce_get_audit_log",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return commerce audit entries from the audit store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty log that could be read as 'clean'.",
+      "read_write_class": "read"
+    },
+    "commerce_get_budget_metrics": {
+      "name": "commerce_get_budget_metrics",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return the commerce agent's budget window from the budget store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never invents a limit.",
+      "read_write_class": "read"
+    },
+    "conduit": {
+      "name": "conduit",
+      "risk_class": "browser",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Restricted browser navigation, search, extraction, screenshots, clicking, text entry, and accessibility snapshots. Private/local URLs and arbitrary JavaScript execution are denied.",
+      "read_write_class": "read"
+    },
+    "data_bigquery_query": {
+      "name": "data_bigquery_query",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Run a BigQuery SQL query. Scaffold pending Phase 9 GCP credentials.",
+      "read_write_class": "read"
+    },
+    "data_dbt_compile": {
+      "name": "data_dbt_compile",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Compile a dbt model SQL with refs. Scaffold - requires dbt CLI (Phase 9).",
+      "read_write_class": "write_execute"
+    },
+    "data_get_editor_context": {
+      "name": "data_get_editor_context",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Returns what the user is currently looking at or focusing on in the IDE, including active file path, open SQL code/content, highlighted lines, or open cloud webview resource URIs (bq://..., gcs://..., spark://...).",
+      "read_write_class": "read"
+    },
+    "data_get_gcp_connection": {
+      "name": "data_get_gcp_connection",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Inspects active Google Cloud connection details, project ID, and authentication state.",
+      "read_write_class": "read"
+    },
+    "data_list_resource_templates": {
+      "name": "data_list_resource_templates",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Lists available cloud resource URI templates (BigQuery bq://, GCS gcs://, Spark spark://, Lakehouse lakehouse://).",
+      "read_write_class": "read"
+    },
+    "data_pipeline_design": {
+      "name": "data_pipeline_design",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Produce a structured ETL pipeline design (extract / transform / load / validate). Design-only output - no execution. Heuristically chooses methods based on source and destination.",
+      "read_write_class": "write_execute"
+    },
+    "data_quality_check": {
+      "name": "data_quality_check",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Run in-process data quality checks against a list of row dicts. Performs null checks, type checks (string/number/boolean/date), and named rules (not_null, positive, unique, not_empty). Returns a summary with completeness_score_pct, total_issues, per-field issue list, and a passed boolean. Returns an error if data is empty or not provided.",
+      "read_write_class": "read"
+    },
+    "data_read_resource": {
+      "name": "data_read_resource",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Reads metadata and schema definition for a specified cloud resource URI (e.g. 'bq://my-project/my_dataset/my_table' or 'gcs://my-bucket/path/data.parquet').",
+      "read_write_class": "read"
+    },
+    "data_s3_signed_url": {
+      "name": "data_s3_signed_url",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate a pre-signed S3 URL. Scaffold pending Phase 9 AWS credentials.",
+      "read_write_class": "write_execute"
+    },
+    "domain_check_availability": {
+      "name": "domain_check_availability",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Batch-check domain availability via Name.com when NAMECOM_USERNAME+NAMECOM_TOKEN env vars are set; returns a scaffold response otherwise.",
+      "read_write_class": "read"
+    },
+    "domain_configure_dns": {
+      "name": "domain_configure_dns",
+      "risk_class": "deployment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Writing DNS records requires a credentialed registrar/DNS provider and zone readback. Always returns ok=false with error.code=not_implemented.",
+      "read_write_class": "write_execute"
+    },
+    "domain_generate_candidates": {
+      "name": "domain_generate_candidates",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate scored domain-name candidates around a theme or business name. Returns a ranked list with score/tld/length/memorable/brandable per candidate.",
+      "read_write_class": "read"
+    },
+    "domain_get_cost_summary": {
+      "name": "domain_get_cost_summary",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return domain cost totals from the registry store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never reports a zero cost or an empty domain list as fact.",
+      "read_write_class": "read"
+    },
+    "file_write": {
+      "name": "file_write",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Write a file to the job's ephemeral storage. Path must be relative to the job dir.",
+      "read_write_class": "write_execute"
+    },
+    "finance_generate_finance_report": {
+      "name": "finance_generate_finance_report",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Compute a P&L from a caller-supplied transaction list. All money is integer minor units (amount_minor); floats are rejected. currency, period and source are mandatory and have no defaults. Mixed currencies are rejected, never summed. Expenses group by an explicit category field. Returns ok=true with evidence marked unverified for caller-supplied data \u2014 this is arithmetic, not reconciliation.",
+      "read_write_class": "read"
+    },
+    "finance_get_alerts": {
+      "name": "finance_get_alerts",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return finance alerts from the alert engine. None is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty list that could be read as 'nothing flagged'.",
+      "read_write_class": "read"
+    },
+    "finance_get_audit_log": {
+      "name": "finance_get_audit_log",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return finance audit entries from the audit store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty log that could be read as 'clean'.",
+      "read_write_class": "read"
+    },
+    "finance_get_budget_metrics": {
+      "name": "finance_get_budget_metrics",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return the finance agent's budget window from the budget store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never invents a limit.",
+      "read_write_class": "read"
+    },
+    "finance_import_x402_transactions": {
+      "name": "finance_import_x402_transactions",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Bulk-importing x402 ledger entries is quarantined pending a real ledger table with a uniqueness index and post-insert readback. Always returns ok=false with error.code=not_implemented and rows_inserted 0. It never reports len(input) as a row count.",
+      "read_write_class": "write_execute"
+    },
+    "finance_sync_bank_fees": {
+      "name": "finance_sync_bank_fees",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Recording bank fees to the general ledger is quarantined pending a credentialed Xero integration, statement-line reconciliation and readback evidence. Always returns ok=false with error.code=not_implemented. No ledger entry is created.",
+      "read_write_class": "write_execute"
+    },
+    "genesis_call": {
+      "name": "genesis_call",
+      "risk_class": "subagent",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Dispatch a task to another Genesis agent by slug. Used by orchestrator agents to delegate specialist work.",
+      "read_write_class": "write_execute"
+    },
+    "github_tool": {
+      "name": "github_tool",
+      "risk_class": "deployment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "GitHub repository operations. Requires GITHUB_TOKEN env var. Actions: create_repo, push_file, get_file, list_repos, create_branch.",
+      "read_write_class": "write_execute"
+    },
+    "hr_bamboohr_query": {
+      "name": "hr_bamboohr_query",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Query BambooHR for employee records, time off, or reports. Scaffold pending Phase 9 OAuth.",
+      "read_write_class": "write_execute"
+    },
+    "hr_greenhouse_query": {
+      "name": "hr_greenhouse_query",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Query Greenhouse ATS for candidates, jobs, or applications. Scaffold pending Phase 9 OAuth.",
+      "read_write_class": "write_execute"
+    },
+    "hr_lever_query": {
+      "name": "hr_lever_query",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Query Lever ATS for candidates, postings, or opportunities. Scaffold pending Phase 9 OAuth.",
+      "read_write_class": "write_execute"
+    },
+    "hr_template_generate": {
+      "name": "hr_template_generate",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate a markdown HR document template. Supports offer_letter, policy_update, onboarding_checklist, termination_letter. Provided context values are substituted; any remaining placeholders are reported in missing_placeholders.",
+      "read_write_class": "write_execute"
+    },
+    "pricing_deploy_pricing_update": {
+      "name": "pricing_deploy_pricing_update",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Pushing a price change is quarantined pending a named channel provider, price readback evidence and per-call human authorization. Always returns ok=false with error.code=not_implemented.",
+      "read_write_class": "write_execute"
+    },
+    "pricing_get_alerts": {
+      "name": "pricing_get_alerts",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return pricing alerts from the alert engine. None is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty list that could be read as 'nothing flagged'.",
+      "read_write_class": "read"
+    },
+    "pricing_get_audit_log": {
+      "name": "pricing_get_audit_log",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return pricing audit entries from the audit store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never returns an empty log that could be read as 'clean'.",
+      "read_write_class": "read"
+    },
+    "pricing_get_budget_metrics": {
+      "name": "pricing_get_budget_metrics",
+      "risk_class": "read_only",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Return the pricing agent's budget window from the budget store. No store is wired, so this always returns ok=false with error.code=provider_unconfigured. It never invents a limit.",
+      "read_write_class": "read"
+    },
+    "pricing_run_elasticity_experiment": {
+      "name": "pricing_run_elasticity_experiment",
+      "risk_class": "payment",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "NOT IMPLEMENTED. Running a live price-elasticity experiment changes what real customers are charged and is quarantined pending a named provider and per-call human authorization. Always returns ok=false with error.code=not_implemented.",
+      "read_write_class": "write_execute"
+    },
+    "run_code": {
+      "name": "run_code",
+      "risk_class": "shell",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Execute Python code in an isolated subprocess with no network access and a maximum timeout of 30s. Max code length: 10000 characters. Returns stdout, stderr, and exit code.",
+      "read_write_class": "write_execute"
+    },
+    "screenshot_url": {
+      "name": "screenshot_url",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Take a PNG screenshot of a URL using a headless browser. Returns base64-encoded image.",
+      "read_write_class": "write_execute"
+    },
+    "send_email": {
+      "name": "send_email",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Send an email. Uses SendGrid if SENDGRID_API_KEY is set, otherwise falls back to SMTP (SMTP_HOST + SMTP_USER + SMTP_PASS).",
+      "read_write_class": "write_execute"
+    },
+    "vision_analyze": {
+      "name": "vision_analyze",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Answer a question about an image using GPT-4o vision.",
+      "read_write_class": "write_execute"
+    },
+    "vision_compare": {
+      "name": "vision_compare",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Compare two images for similarities and differences using GPT-4o vision.",
+      "read_write_class": "write_execute"
+    },
+    "vision_ocr": {
+      "name": "vision_ocr",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Extract all text from an image using GPT-4o vision OCR.",
+      "read_write_class": "write_execute"
+    },
+    "web_fetch": {
+      "name": "web_fetch",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Fetch a URL and return its text content (HTML stripped by default).",
+      "read_write_class": "write_execute"
+    },
+    "web_search": {
+      "name": "web_search",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Search the web for a query. Uses Serper API if SERPER_API_KEY is set, otherwise falls back to DuckDuckGo.",
+      "read_write_class": "write_execute"
+    },
+    "workflow_make_export": {
+      "name": "workflow_make_export",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate a Make (Integromat) scenario blueprint. Scaffold - deferred to Phase 9.",
+      "read_write_class": "write_execute"
+    },
+    "workflow_n8n_export": {
+      "name": "workflow_n8n_export",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate an importable n8n workflow JSON from a description.",
+      "read_write_class": "write_execute"
+    },
+    "workflow_webhook_trigger": {
+      "name": "workflow_webhook_trigger",
+      "risk_class": "network",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "POST a JSON payload to an https:// webhook URL. 10s timeout. Refuses non-https URLs.",
+      "read_write_class": "write_execute"
+    },
+    "workflow_zapier_export": {
+      "name": "workflow_zapier_export",
+      "risk_class": "filesystem_write",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Generate an importable Zapier-style workflow template from a description.",
+      "read_write_class": "write_execute"
+    },
+    "workspace_shell": {
+      "name": "workspace_shell",
+      "risk_class": "shell",
+      "is_prohibited": false,
+      "has_schema": true,
+      "description": "Run a shell command inside the job workspace (/tmp/jobs/{job_id}/workspace/). Max timeout: 60s. Max output: 64KB. Commands that escape the workspace, delete system files, or expose secrets are blocked. Use for: running tests, lint, build commands, npm install, pytest, etc.",
+      "read_write_class": "write_execute"
+    }
+  }
+}
