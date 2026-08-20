@@ -1,0 +1,33 @@
+# Three layers. Never treat a stored balance as current Xero truth.
+_meta:
+  last_verified: "2026-08-19"
+
+layers:
+  stable_accounting_knowledge:
+    ttl: until explicitly superseded
+    examples:
+      - entity keys / tenant IDs / write_app mapping
+      - CoA codes and names (refresh on CoA change)
+      - which tracking categories exist
+      - system topology and flow IDs
+      - close procedures
+      - approved treatments (human-signed)
+      - this specialization matrix
+    store: accounting/*.yaml plus PCP generated registries
+  period_specific_state:
+    ttl: the named period only
+    examples:
+      - ACCOUNTING_STATE_MODEL rows
+      - proposed journals for July close
+      - known variances
+    store: FinanceOS Postgres (intended) / gitignored state files
+  live_transactional_data:
+    ttl: this session
+    examples:
+      - TB, P&L, bank summary, open AR/AP
+    store: do not persist as truth; re-query Xero
+
+anti_patterns:
+  - quoting July 2026 Stripe received as "current cash"
+  - loading entity pack balances without a fresh get_trial_balance
+  - using e4l-controller skill 2026-08-04 pull instead of live Xero

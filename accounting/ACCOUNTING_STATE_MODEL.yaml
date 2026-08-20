@@ -1,0 +1,36 @@
+# Period-specific accounting work state. Stable topology is NOT this file.
+_meta:
+  last_verified: "2026-08-19"
+  persist_in: "FinanceOS Postgres when available; until then accounting/state/{period}/{entity}/{process}.yaml (git-ignored for live balances)"
+
+states:
+  - NOT_STARTED
+  - IN_PROGRESS
+  - RECONCILED
+  - VARIANCE_FOUND
+  - CORRECTION_PROPOSED
+  - AWAITING_APPROVAL
+  - POSTED          # only after human confirm=True or FinanceOS approved write + readback
+  - VERIFIED        # independent readback; not the same as this agent's architecture VERIFIED
+  - BLOCKED
+
+process_keys:
+  - cash_bank_rec
+  - ar
+  - ap
+  - revenue_completeness
+  - cogs_inventory
+  - commissions
+  - payroll
+  - sales_tax
+  - intercompany
+  - treasury
+  - journals
+  - fs_review
+  - close_signoff
+
+rules:
+  - POSTED without readback is illegal in this model — use AWAITING_APPROVAL or a future EXECUTED_UNVERIFIED alias mapped to AWAITING_APPROVAL
+  - BLOCKED must name the owner (Ben / Harry / portal-handover / missing-tool)
+  - Cato answers "where are we on August close?" from this state, not by re-pulling every TB
+  - Live TB is still required before changing a state to RECONCILED or VERIFIED

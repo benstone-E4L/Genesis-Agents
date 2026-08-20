@@ -1,0 +1,132 @@
+# Smallest specialization that fits the EXISTING Genesis runtime.
+# Do not mint 15 FastAPI agents. Do not reuse Cato-denied stub money slugs.
+_meta:
+  last_verified: "2026-08-19"
+  existing_runtime:
+    bundles_on_disk: 24
+    catalogued_slugs: 60  # main.py AGENT_PERSONAS
+    guarded_bundle_backed: 24
+    unguarded_persona_only: 36
+    cato_allowlist: 20  # Cato/cato/tools/genesis.py GENESIS_AGENTS
+    cato_immutable_deny: [genesis-finance, genesis-billing, genesis-commerce, genesis-pricing, genesis-deploy]
+
+decision:
+  pattern: "14 real guarded Genesis skill bundles + 6 entity context packs"
+  rejected_pattern: "1 slug (genesis-e4l-accounting) loading YAML hats/profiles"
+  specialists: [genesis-e4l-revenue, genesis-e4l-shopify, genesis-e4l-stripe, genesis-e4l-cash, genesis-e4l-ap, genesis-e4l-ar, genesis-e4l-cogs-cm, genesis-e4l-commissions, genesis-e4l-intercompany, genesis-e4l-close, genesis-e4l-journals, genesis-e4l-fs-integrity, genesis-e4l-controller, genesis-e4l-treasury]
+  why_not_genesis_finance: |
+    Cato MONEY_DOMAIN_AGENTS immutably denies genesis-finance because
+    tools/finance_tool.py writes return {"ok": true, "stub": true}. Reusing
+    that slug would either stay denied or silently lie.
+  why_not_one_hat: |
+    Locked 2026-08-19: one agent, one job. Hats/profiles on a shared slug
+    were rejected. These 14 are real bundles on the existing gateway, not
+    15 new servers and not persona-only slugs.
+  why_not_15_services: |
+    SUPERSEDED as a "don't mint 14 bundles" argument. Do not mint 15 FastAPI
+    *servers*. Do mint 14 guarded skill_bundles on this gateway.
+  cato_role: "single orchestrator, router, disagreement owner, final-answer authority"
+  genesis_role: "each specialist runs its own job; return structured evidence; never finalise close"
+
+implementation_layers:
+  entity_packs:
+    path: accounting/entities/{key}.yaml
+    keys: [energy4life, ibe, xpo, massey, nesllc, nespty]
+    note: "NOT agents. Loaded as context whenever Cato names an entity."
+  specialty_agents:
+    path: skill_bundles/genesis-e4l-*.json
+    contracts: accounting/contracts/{id}.yaml
+  host_tools:
+    read: user-e4l-xero-read (or write-MCP read tools)
+    propose: draft payloads only; persist as artefacts
+    write: existing write MCP dry_run/confirm gate OR FinanceOS xero-write once armed — never a third Xero app
+
+evaluate_15_named_specialties:
+  xero_org_specialists:
+    verdict: REJECT_AS_AGENTS
+    replace_with: entity_packs
+    reason: "6 live orgs confirmed; packing CoA/banks/tracking into YAML is enough"
+  revenue_accounting:
+    verdict: KEEP_PROFILE
+    id: e4l-revenue
+    primary_entities: [nesllc, xpo, nespty]
+  shopify_ecommerce:
+    verdict: KEEP_PROFILE
+    id: e4l-shopify-ecommerce
+    primary_entities: [nesllc]
+    note: "D2C is real but ~75x smaller than Stripe on nesllc in July 2026"
+  stripe_merchant:
+    verdict: KEEP_PROFILE
+    id: e4l-stripe-merchant
+    primary_entities: [nesllc, xpo, nespty, energy4life]
+  a2x_ecommerce_posting:
+    verdict: DO_NOT_CREATE
+    reason: "A2X CANDIDATE/SUPERSEDED; Amaka paused; no A2X-shaped banks"
+  cash_bank_rec:
+    verdict: KEEP_PROFILE
+    id: e4l-cash-bank
+  accounts_payable:
+    verdict: KEEP_PROFILE
+    id: e4l-ap
+  accounts_receivable:
+    verdict: KEEP_PROFILE
+    id: e4l-ar
+  cogs_contribution_margin:
+    verdict: KEEP_PROFILE
+    id: e4l-cogs-cm
+    note: "nesllc 52xx royalty + 51xx COGS; xpo 42 DIRECTCOSTS; integrate existing contribution-margin skill as knowledge, not a new service"
+  affiliate_commission:
+    verdict: KEEP_PROFILE
+    id: e4l-affiliate-commission
+    live_accounts: ["nesllc 6417 Practicioner Commissions", "nesllc 5503 COGS - Sales Commission", "nesllc 4160 Affiliate Revenue", "nespty 2120 Accrued Commissions"]
+  intercompany:
+    verdict: KEEP_PROFILE
+    id: e4l-intercompany
+  month_end_close:
+    verdict: KEEP_PROFILE
+    id: e4l-month-end-close
+  journal_entry:
+    verdict: KEEP_PROFILE
+    id: e4l-journal-propose
+    write: PROPOSE_ONLY against create_draft_manual_journal
+  financial_statement_integrity:
+    verdict: KEEP_PROFILE
+    id: e4l-fs-integrity
+  controller_review:
+    verdict: KEEP_PROFILE
+    id: e4l-controller-review
+    note: "same bundle, different profile; Cato must invoke it on material disagreement"
+
+e4l_extras_from_live_books:
+  inventory:
+    verdict: FOLD_INTO e4l-cogs-cm
+    reason: "inventory accounts exist on xpo/nesllc/massey/nespty/energy4life; FinanceOS CHUNK_7 owns the subledger — do not rebuild"
+  subscriptions_deferred_revenue:
+    verdict: FOLD_INTO e4l-revenue
+    live: ["nesllc 4126 SAAS - Subscriptions", "4134 BWS Subscription", "4135 BHC Subscription", "nespty 2400 Deferred Revenue"]
+  sales_tax_vat_gst:
+    verdict: FOLD_INTO e4l-shopify-ecommerce and e4l-month-end-close
+  payroll:
+    verdict: FOLD_INTO e4l-month-end-close
+    reason: "payroll accounts everywhere except quiet energy4life; no Gusto write from Genesis"
+  fx:
+    verdict: FOLD_INTO e4l-cash-bank
+    reason: "xpo HSBC USD/EUR; massey HSBC USD; realised FX accounts"
+  treasury:
+    verdict: KEEP_PROFILE
+    id: e4l-treasury
+    reason: "Massey Kraken 1.43m + Interactive Brokers -0.58m at 2026-07-31 — material and not a shop/Stripe problem"
+  consolidation:
+    verdict: DO_NOT_CREATE_IN_GENESIS
+    reason: "FinanceOS CHUNK_5 combining_run is the L2 TB owner; Genesis intercompany+fs_integrity detect mismatch only"
+  rto:
+    verdict: FOLD_INTO e4l-revenue
+    reason: "BWS Nes Plan accounts exist; FinanceOS CHUNK_6 owns ASC 606 classification"
+
+do_not_build:
+  - new Xero OAuth app
+  - Genesis Xero client
+  - second write path besides existing MCP drafts + disarmed FinanceOS xero-write
+  - unguarded persona slugs for money
+  - A2X specialist
+  - 6 entity-named Genesis agents

@@ -22,3 +22,6 @@ patchright/
 
 # Local Codex session context injected by the desktop app
 AGENTS.md
+
+# Raw live Xero dumps (tenant IDs, CoA, bank summaries) — never commit
+accounting/_live/

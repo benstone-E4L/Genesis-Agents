@@ -1,0 +1,18 @@
+key: energy4life
+legal_name: "Energy4Life, Inc."
+tenant_id: 641f1e22-eaa0-485a-a7fc-d7148b99b738
+write_app: master
+base_currency: USD
+country: US
+fye_day: 31
+fye_month: 12
+coa_active: 49
+tracking:
+  []
+banks:
+  - {code: "", name: "I/C Clearing Account", account_id: 7f8b94e7-74a9-4d78-9d57-8cdab960f570}
+  - {code: "1210", name: "Chase - 5307", account_id: e72b837b-733a-4827-a6a0-956e694b2d1f}
+  - {code: "1360", name: "Stripe", account_id: f60c9a98-5a17-4a1b-bcd6-105d99c558d6}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"

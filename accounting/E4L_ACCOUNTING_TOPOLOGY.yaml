@@ -1,0 +1,143 @@
+# E4L Accounting Topology / Accounting Truth Map
+# status_authority: architecture + live Xero facts as of last_verified. Not operational close status.
+_meta:
+  registry: E4L_ACCOUNTING_TOPOLOGY
+  version: 1
+  last_verified: "2026-08-19T23:09:57Z"
+  maintained_by: E4L-Financial-Systems-Architect
+  live_pull: accounting/_live/xero_org_map_live.json
+  extends:
+    - C:\Users\Work\Desktop\E4L-Project-Control-Plane\generated\E4L_FINANCE_ARCHITECTURE_REGISTRY.yaml
+    - C:\Users\Work\Desktop\E4L-Project-Control-Plane\generated\E4L_FINANCIAL_FLOW_REGISTRY.yaml
+    - C:\Users\Work\Desktop\E4L-Project-Control-Plane\generated\E4L_ENTITY_ACCOUNTING_MAP.yaml
+
+xero_mcp:
+  physical_server: C:\Users\Work\Desktop\vault\projects\E4L-FinanceOS\app\mcp-servers\xero\server.py
+  project_control_plane_config: C:\Users\Work\Desktop\E4L-Project-Control-Plane\.mcp.json
+  cursor_this_session:
+    read: user-e4l-xero-read   # MODE=read, apps readonlyv1/readonlyv2, 6 orgs, no demo
+    write: user-e4l-xero-write # MODE=write, apps master/nespty2/demo, 7 orgs
+  write_tools_on_write_mcp:
+    draft_reversible: [create_draft_bill, create_draft_invoice, create_draft_manual_journal]
+    live_settings_not_draft: [create_tracking_category, create_tracking_option, update_tracking_category]
+    not_present: [approve, authorise, send, pay, void, bank_recon_finalize, period_lock, tax_file]
+  confidence: VERIFIED
+
+legal_entities_with_xero:
+  - {key: energy4life, name: "Energy4Life, Inc.", country: US, ccy: USD, write_app: master, read_app: readonlyv2, role: "holding/IP/intangibles; quiet bank; I/C payables"}
+  - {key: ibe, name: "Institute of Bioenergy", country: US, ccy: USD, write_app: master, read_app: readonlyv2, role: "cost/donation entity; payroll clearing; I/C liabilities"}
+  - {key: xpo, name: "XPO HEALTH LIMITED", country: GB, ccy: GBP, write_app: master, read_app: readonlyv1, role: "UK operating co; HSBC+Stripe+PayPal; inventory/COGS/revenue; Sales Agent ID tracking"}
+  - {key: massey, name: "Massey Developments Limited", country: GB, ccy: GBP, write_app: nespty2, read_app: readonlyv1, role: "treasury/investments (Kraken, Interactive Brokers); management charges to XPO; due-from E4L £1.06m"}
+  - {key: nesllc, name: "NES Health LLC", country: US, ccy: USD, write_app: nespty2, read_app: readonlyv1, role: "PRIMARY revenue engine; portal+Stripe+Shopify; Sales Agent ID tracking"}
+  - {key: nespty, name: "NES Health PTY Ltd", country: AU, ccy: AUD, write_app: nespty2, read_app: readonlyv2, role: "AU operating co; Stripe AUD; FYE 30 June (others 31 Dec); deferred revenue account exists"}
+entities_without_xero:
+  - {name: "NES HEALTH LIMITED (UK 11754038)", note: "different company from XPO; no Xero org", confidence: VERIFIED, evidence: "e4l-controller skill + live list_entities has no 11754038 tenant"}
+
+systems:
+  - id: xero-ledger
+    class: [DESTINATION, ACCOUNTING_ENTRY, RECONCILIATION, REPORTING]
+    status: ACTIVE
+    sot_for: [posted_gl, coa, tb, pnl, bs, bank_summary, tracking]
+    read_write: READ_ONLY via read MCP; APPROVAL_REQUIRED draft writes via write MCP
+  - id: nesportal
+    class: [SOURCE, TRANSPORT, TRANSFORMATION]
+    status: ACTIVE_BUT_UNVERIFIED
+    sot_for: [practitioner_orders, sku_sales_account_code, sales_agent_id]
+    write_into_xero: WRITE_CAPABLE (autonomous revenue postings — only ungated writer found)
+    confidence: STRONGLY_INFERRED
+  - id: shopify-storefront
+    class: [SOURCE]
+    status: ACTIVE
+    sot_for: [d2c_orders, shopify_tax_detail]
+  - id: amaka-shopify-xero
+    class: [TRANSPORT, TRANSFORMATION]
+    status: PARTIAL  # configured, not activated
+  - id: a2x
+    class: []
+    status: CANDIDATE_SUPERSEDED  # Ben chose Amaka 2026-08-19; no A2X-shaped bank accounts
+  - id: stripe-e4l
+    class: [SOURCE, SETTLEMENT]
+    status: ACTIVE_BUT_UNVERIFIED
+    sot_for: [card_capture, payouts]
+    xero_banks: ["nesllc 1020 Stripe USD", "xpo 1093 Stripe GBP / 1094 Stripe Euro", "energy4life 1360 Stripe", "nespty 1020 Stripe AUD"]
+  - id: financeos-app
+    class: [TRANSFORMATION, RECONCILIATION, REPORTING]
+    status: ACTIVE_BUT_UNVERIFIED  # not deployed; Xero write path DISARMED
+    sot_for: [approvals, schedules, audit_rows]  # intended; Postgres
+  - id: genesis-runtime
+    class: [TRANSFORMATION]
+    status: PARTIAL
+    xero_reach: NONE  # no Xero client; finance tools are stubs
+  - id: cato
+    class: [REPORTING]  # orchestrator, not a ledger
+    status: ACTIVE
+    genesis_money_slugs: PERMANENTLY_DENIED via MONEY_DOMAIN_AGENTS
+  - id: azure-xero-mcp
+    class: [TRANSPORT]
+    status: ACTIVE
+    endpoints:
+      read: https://xero-mcp-read.orangedune-dad71fcc.westus2.azurecontainerapps.io/mcp
+      write: https://xero-mcp-write.orangedune-dad71fcc.westus2.azurecontainerapps.io/mcp
+    note: same server.py, second deployment. Cursor this session used local stdio, not Azure.
+
+material_flows:
+  - id: FLOW-003
+    name: Portal practitioner sales -> nesllc Xero revenue
+    path: NESPortal -> (unknown sync) -> Xero ACCREC/revenue 41xx -> Stripe/PayPal settlement -> bank rec
+    confidence: STRONGLY_INFERRED
+  - id: FLOW-004
+    name: Shopify D2C -> nesllc Shopify-Energy4Life bank
+    path: shop.e4l.com -> Shopify Payments -> Xero bank Shopify-Energy4Life (Amaka NOT live)
+    confidence: VERIFIED (bank movement July 2026)
+  - id: FLOW-005
+    name: Stripe settlement nesllc
+    path: Stripe -> Xero 1020 Stripe USD (inflows NOT visible on Invoices/BankTransactions/ManualJournals)
+    july_2026: {received: 245304.04, spent: 254650.43, closing: 25097.75}
+    confidence: VERIFIED (bank summary); UNKNOWN (inflow transport)
+  - id: FLOW-XPO-OPS
+    name: XPO operating cash
+    path: HSBC + Stripe GBP/EUR + PayPal -> Xero xpo
+    july_2026_hsbc_x8255_close: "38783.90 GBP"
+    confidence: VERIFIED
+  - id: FLOW-MASSEY-TREASURY
+    name: Massey investments
+    path: UNKNOWN origination -> Kraken 1,427,364.58 + Interactive Brokers -583,744.95 (TB 2026-07-31)
+    confidence: VERIFIED (balances); UNKNOWN (how they are fed)
+  - id: FLOW-MASSEY-MGMT
+    name: Massey management charges to XPO
+    path: Massey 4002 Management Charges to XPO Health YTD 43429.15 GBP at 2026-07-31
+    confidence: VERIFIED (TB); UNKNOWN (cash vs accrual / matching XPO expense)
+
+known_defects_live:
+  - id: DEF-STRIPE-REC-NESLLC
+    entity: nesllc
+    finding: "Stripe USD July inflows 245k on Bank Summary are invisible to Invoices/BankTransactions/ManualJournals. Outflows are round-amount 'Bank Transfer to Chase.' Controller: balance completely incorrect."
+    confidence: VERIFIED
+  - id: DEF-BLANK-BANK-CODES-NESLLC
+    entity: nesllc
+    finding: "Shopify-Energy4Life, Paypal Bank, Sales Tax-Energy4Life have empty account codes — list_transactions_for_account cannot address them."
+    confidence: VERIFIED
+  - id: DEF-NO-DIVISION-TRACKING
+    entities: [nesllc, xpo, nespty]
+    finding: "Only tracking category is Sales Agent ID (495/542/437 options). No Division/Department. Xero allows 2 categories; one slot free on those orgs. energy4life/ibe/massey have ZERO tracking."
+    confidence: VERIFIED
+  - id: DEF-SUSPENSE-EQUITY-NESLLC
+    entity: nesllc
+    finding: "9996 Suspense account is Type EQUITY — unusual; prior record ~-$1.15m static. Re-read TB before quoting the dollar amount this session (not extracted as a single cell in the sample)."
+    confidence: STRONGLY_INFERRED
+  - id: DEF-ENERGY4LIFE-DUPLICATE-RE
+    entity: energy4life
+    finding: "Two retained earnings accounts 2390 and 3900; AP split 2000 Accounts Payable2 vs 2320 Accounts Payable."
+    confidence: VERIFIED
+  - id: DEF-NESLLC-AP-PAGE1
+    entity: nesllc
+    finding: "Open AP page1 13 bills / $219,865.70 due — material. Completeness of AP listing INSUFFICIENT_EVIDENCE beyond page 1."
+    confidence: VERIFIED (page1 only)
+
+source_of_truth_by_fact:
+  posted_gl_balance: xero-ledger
+  order_line_sku: nesportal (practitioner) / shopify-storefront (D2C)
+  sales_agent: nesportal -> Xero tracking Sales Agent ID
+  card_settlement: stripe-e4l (operational); xero bank (recording)
+  approvals_schedules: financeos-app Postgres (intended; not proven live)
+  accounting_treatment: human Controller / CPA — never Genesis

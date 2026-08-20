@@ -46,6 +46,20 @@ SLUG_ALLOWED_RISKS: dict[str, frozenset[str]] = {
     # DNS deployment remains denied. It requires the same explicit deployment
     # approval path as the dedicated deploy agent before it can be enabled.
     "genesis-domain": frozenset({RISK_READ_ONLY, RISK_BROWSER}),
+    "genesis-e4l-ap": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-ar": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-cash": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-close": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-cogs-cm": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-commissions": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-controller": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-fs-integrity": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-intercompany": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-journals": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-revenue": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-shopify": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-stripe": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
+    "genesis-e4l-treasury": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE}),
     "genesis-email": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK, RISK_BROWSER}),
     # Payment stays permanently unreachable; read/report/file tools work.
     "genesis-finance": frozenset({RISK_READ_ONLY, RISK_FILESYSTEM_WRITE, RISK_NETWORK}),

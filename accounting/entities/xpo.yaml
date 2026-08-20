@@ -1,0 +1,30 @@
+key: xpo
+legal_name: "XPO HEALTH LIMITED"
+tenant_id: cd7caa75-8ddd-461d-aec0-6f7777ceafd4
+write_app: master
+base_currency: GBP
+country: GB
+fye_day: 31
+fye_month: 12
+coa_active: 331
+tracking:
+  - {name: "Sales Agent ID", status: ACTIVE, option_count: 542}
+banks:
+  - {code: "", name: "PayPal - GBP", account_id: 3c2676fe-b747-41d8-9a18-a69c7ccff490}
+  - {code: "", name: "HSBC x0880", account_id: 6782f0b9-529d-46aa-a8a0-a7e29ee398b2}
+  - {code: "", name: "HSBC x8255", account_id: 642f1c00-4a1a-43a4-bb36-b4a0586aeb08}
+  - {code: "", name: "HSBC USD x7938", account_id: 965927db-0562-4fdc-9614-bebcc05258b5}
+  - {code: "", name: "HSBC Euro x8824", account_id: 33324def-23f3-44dd-9ad4-e47c02526721}
+  - {code: "", name: "PayPal - USD", account_id: aa1a0bff-d7e7-4df2-834b-e9142303528d}
+  - {code: "", name: "HSBC Credit Card 4963", account_id: 6023a015-a566-4a2f-9911-e39c127f5b07}
+  - {code: "", name: "Inter-company Clearing", account_id: 55fbeb35-3956-42fc-ab02-f840d5c64cbf}
+  - {code: "", name: "HSBC Credit Card 2692", account_id: 24cea50a-3461-419e-985a-c8c0a8dd0c69}
+  - {code: "", name: "HSBC A/C 13670872", account_id: 1f861eca-8d7f-4c19-b4fe-a95d5307432c}
+  - {code: "", name: "PayPal - Euro", account_id: 12923448-39ec-4020-a96b-34225880fa6e}
+  - {code: "", name: "HSBC Credit Card 9743", account_id: 046a6038-aa96-4a16-af7f-49fab2b936de}
+  - {code: "1093", name: "Stripe GBP", account_id: 3161e688-864d-4c35-b345-86d81da0345b}
+  - {code: "1094", name: "Stripe Euro", account_id: 1b387b22-38c3-4356-96ef-2b9655392a38}
+  - {code: "1681", name: "Credit Card Control Account", account_id: 4fa74dc0-05a2-4ec1-a91a-8580f2d6a792}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"

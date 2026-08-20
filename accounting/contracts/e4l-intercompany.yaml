@@ -1,0 +1,67 @@
+id: e4l-intercompany
+bundle: genesis-e4l-intercompany
+write_permissions: PROPOSE_ONLY
+mission: 'Match due-to/due-from, management charges, I/C clearing, loans between the
+  6 Xero orgs.
+
+  '
+scope:
+- accounts classified intercompany
+- I/C clearing banks
+- Massey 4002 vs XPO expense
+non_scope:
+- legal structure
+- transfer-pricing opinion
+required_inputs:
+- entity_keys
+- period_from
+- period_to
+- question
+- entity pack accounting/entities/{key}.yaml
+- live Xero reads (never cached balances as current)
+entities_primary:
+- energy4life
+- ibe
+- xpo
+- massey
+- nesllc
+- nespty
+tools:
+  read:
+  - user-e4l-xero-read.list_entities
+  - get_organisation
+  - get_chart_of_accounts
+  - get_trial_balance
+  - get_profit_and_loss
+  - get_balance_sheet
+  - get_bank_summary
+  - list_open_receivables
+  - list_open_payables
+  - list_tracking_categories
+  - list_transactions_for_account
+  - list_recent_write_audit_log
+  forbidden:
+  - any Genesis finance_tool/billing_tool/commerce_tool/pricing_tool write (stubs)
+  - create_tracking_* with confirm=True on live entities
+  - approve/send/pay/void/bank recon finalize
+  - email send
+accounting_knowledge:
+- 11-pair IC map lives in E4L Accounting report 05_; this profile re-reads live TB
+- currency: "USD/GBP/AUD \u2014 FX on match"
+procedures:
+- Load entity pack + this contract
+- Read live Xero for named accounts only
+- Classify each claim VERIFIED/STRONGLY_INFERRED/POSSIBLE/INSUFFICIENT_EVIDENCE
+- Return CROSS_AGENT_HANDOFF_CONTRACT output; no final close statement
+reconciliation_tests:
+- A due-from vs B due-to in same ccy or translated
+- I/C clearing toward zero
+evidence_requirements: accounting/ACCOUNTING_EVIDENCE_CONTRACT.yaml
+escalation_rules:
+- entity mismatch
+- period mismatch
+- intercompany counterpart disagrees
+- insufficient evidence
+- proposed treatment would pay money or change bank instructions
+- Material disagreement -> genesis-e4l-controller via Cato
+output_contract: accounting/CROSS_AGENT_HANDOFF_CONTRACT.yaml

@@ -1,0 +1,32 @@
+# Who may read / propose / write. Preserve existing gates. No third Xero writer.
+_meta:
+  last_verified: "2026-08-19"
+
+paths:
+  - actor: genesis-e4l-* specialists (14 guarded bundles)
+    read: ALLOW (host Xero MCP read tools)
+    propose: ALLOW (artefacts + draft payloads)
+    write: DENY
+  - actor: user-e4l-xero-read
+    read: ALLOW
+    propose: DENY
+    write: DENY  # tools not registered
+  - actor: user-e4l-xero-write
+    read: ALLOW
+    propose: ALLOW (dry_run default true)
+    write: APPROVAL_REQUIRED  # dry_run=false AND confirm=true
+    live_settings_write: APPROVAL_REQUIRED  # tracking category tools are immediately live
+    production_entities: DENY for this discovery; demo only until Ben authorises
+  - actor: financeos xero-write.ts
+    read: ALLOW if client constructed
+    write: DISARMED  # XERO_PRODUCTION_WRITE_ENABLED=false AND XERO_CLIENT_ID unset
+  - actor: NESPortal
+    write: WRITE_CAPABLE into nesllc revenue (autonomous, ungated) — existing, do not duplicate
+  - actor: Amaka
+    write: inert (not activated)
+  - actor: genesis-finance/billing/commerce/pricing
+    all: PERMANENTLY_PROHIBITED from Cato (MONEY_DOMAIN_AGENTS)
+  - actor: unguarded 36 persona slugs
+    money: PERMANENTLY_PROHIBITED
+
+governing_rule: "Automation may PREPARE. A human PAYS. Automation RECORDS."

@@ -1,0 +1,3660 @@
+# Live-verified Xero organization map. Do not treat docs as current if this file is newer.
+# generated_from: accounting/_live/xero_org_map_live.json
+# generated_at: 2026-08-19T23:13:15.212715+00:00
+_meta:
+  registry: XERO_ORGANIZATION_MAP
+  authority: live Xero Accounting API via mcp-servers/xero/server.py internals (GET only)
+  pulled_at: "2026-08-19T23:09:57.901994+00:00"
+  as_at: "2026-07-31"
+  bank_summary_period: ["2026-07-01", "2026-07-31"]
+  mcp_write_mode_apps: [master, nespty2]
+  mcp_read_mode_apps: [readonlyv1, readonlyv2]
+  confidence: VERIFIED
+  hard_limits:
+    - accounting.journals.read is unavailable (uncertified apps); no unified journal dump
+    - list_open_receivables/payables are page=1 only (max 100)
+    - Payments/CreditNotes/Overpayments/Prepayments are outside list_transactions_for_account
+
+organizations:
+  - key: energy4life
+    legal_name: Energy4Life, Inc.
+    xero_name: Energy4Life, Inc.
+    tenant_id: 641f1e22-eaa0-485a-a7fc-d7148b99b738
+    organisation_id: 641f1e22-eaa0-485a-a7fc-d7148b99b738
+    write_app: master
+    base_currency: USD
+    country: US
+    timezone: EASTERNSTANDARDTIME
+    edition: BUSINESS
+    xero_class: STARTER
+    tax_number: null
+    financial_year_end_day: 31
+    financial_year_end_month: 12
+    period_lock_date_raw: null
+    end_of_year_lock_date_raw: null
+    coa: {"total": 52, "active": 49, "archived": 3, "by_type": {"BANK": 3, "EXPENSE": 14, "CURRENT": 15, "FIXED": 3, "CURRLIAB": 12, "EQUITY": 4, "SALES": 1}}
+    tracking_categories:
+      []
+    bank_accounts:
+      - code: ""
+        name: I/C Clearing Account
+        account_id: 7f8b94e7-74a9-4d78-9d57-8cdab960f570
+        bank_last4: 0000
+        currency: USD
+        classes: []
+      - code: 1210
+        name: Chase - 5307
+        account_id: e72b837b-733a-4827-a6a0-956e694b2d1f
+        bank_last4: 0000
+        currency: USD
+        classes: []
+      - code: 1360
+        name: Stripe
+        account_id: f60c9a98-5a17-4a1b-bcd6-105d99c558d6
+        bank_last4: 0000
+        currency: USD
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["Chase - 5307", "9951.98", "0.00", "0.00", "9951.98"]
+      - cells: ["Stripe", "2186.51", "0.00", "0.00", "2186.51"]
+      total_cells: ["Total", "12138.49", "0.00", "0.00", "12138.49"]
+    ar_open_page1_count: 0
+    ar_open_page1_amount_due: 0.0
+    ap_open_page1_count: 2
+    ap_open_page1_amount_due: 47.5
+    classified_account_counts:
+      bank: 3
+      clearing: 1
+      intercompany: 5
+      accounts_receivable: 1
+      accounts_payable: 2
+      revenue: 1
+      inventory: 2
+      sales_tax: 1
+      equity: 4
+      owner_shareholder: 1
+      fixed_assets: 3
+      uncategorized_active: 26
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 7f8b94e7-74a9-4d78-9d57-8cdab960f570
+        - code: 1210
+          name: Chase - 5307
+          type: BANK
+          account_id: e72b837b-733a-4827-a6a0-956e694b2d1f
+        - code: 1360
+          name: Stripe
+          type: BANK
+          account_id: f60c9a98-5a17-4a1b-bcd6-105d99c558d6
+      clearing:
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 7f8b94e7-74a9-4d78-9d57-8cdab960f570
+      intercompany:
+        - code: 1340
+          name: Due from IBE
+          type: CURRENT
+          account_id: 041ee79a-c73f-4037-b627-5ef7715984d1
+        - code: 2340
+          name: "Intercompany Payables:Due To GIST"
+          type: CURRLIAB
+          account_id: 7979fe27-de04-4072-9818-c804bf91f4e0
+        - code: 2350
+          name: "Intercompany Payables: Massey Developments (UK)"
+          type: CURRLIAB
+          account_id: 53a9406b-c9c6-4e7f-975f-b25ef8c4f8a1
+        - code: 2360
+          name: "Intercompany Payables:NES LLC (US)"
+          type: CURRLIAB
+          account_id: 40d39a38-2820-4551-b3c2-cd3bd71235f0
+        - code: 2370
+          name: "Intercompany Payables: XPO Health LTD (UK)"
+          type: CURRLIAB
+          account_id: 42cb91e3-1773-4953-ba61-1c07459d6071
+      accounts_receivable:
+        - code: 1200
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: 0151c937-03b6-47a6-91b7-45d8bdf0a312
+      accounts_payable:
+        - code: 2000
+          name: Accounts Payable2
+          type: CURRLIAB
+          account_id: 284ac892-fc33-48f6-b028-85d82249eb74
+        - code: 2320
+          name: Accounts Payable
+          type: CURRLIAB
+          account_id: 371adfa5-e256-4845-9068-e4e4294ead45
+      revenue:
+        - code: 2420
+          name: Zenergy Conference
+          type: SALES
+          account_id: d67ca3b2-1c04-4a49-bd90-eeee6af275a3
+      inventory:
+        - code: 1310
+          name: "Components:Inventory for Wearable Device"
+          type: CURRENT
+          account_id: 654818aa-1476-42b6-834a-b93d865f3a18
+        - code: 2140
+          name: "Inventory:Body Temperature SP02"
+          type: CURRENT
+          account_id: e291e925-2de8-41dc-99db-3ee15de13837
+      sales_tax:
+        - code: 2200
+          name: Sales Tax
+          type: CURRLIAB
+          account_id: 5b1e433f-ee9b-45f1-890b-7ca725dfad30
+      equity:
+        - code: 2380
+          name: Opening Balance Equity
+          type: EQUITY
+          account_id: 5a53c28f-0e31-41e6-ab9e-a64788850237
+        - code: 2390
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 93ef6516-bf36-4ddb-826c-5f9916a2a5b6
+        - code: 2410
+          name: Shares
+          type: EQUITY
+          account_id: 6394d40c-4a3a-481d-9dc4-b8a5b49433f0
+        - code: 3900
+          name: Retained Earnings3
+          type: EQUITY
+          account_id: b310c3c4-13d7-4f54-a1fa-9e7f19f3c403
+      owner_shareholder:
+        - code: 2100
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: e9c1de3e-fbb6-43d6-8e00-115d10da10c9
+      fixed_assets:
+        - code: 1410
+          name: Film Editing
+          type: FIXED
+          account_id: 4998d694-0a59-4e96-a43a-4469ebd03e80
+        - code: 1500
+          name: "GEM:GEM V-1"
+          type: FIXED
+          account_id: 2fcc841a-51bd-49c7-99fb-be08aebae392
+        - code: 1510
+          name: "GEM:GEM V-2"
+          type: FIXED
+          account_id: 979541bf-4ce7-4f8f-97ef-ee8a49632794
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+  - key: ibe
+    legal_name: Institute of Bioenergy
+    xero_name: Institute of Bioenergy
+    tenant_id: 95a590b3-193e-4cbb-a904-7ec173d9de36
+    organisation_id: 95a590b3-193e-4cbb-a904-7ec173d9de36
+    write_app: master
+    base_currency: USD
+    country: US
+    timezone: EASTERNSTANDARDTIME
+    edition: BUSINESS
+    xero_class: STARTER
+    tax_number: null
+    financial_year_end_day: 31
+    financial_year_end_month: 12
+    period_lock_date_raw: null
+    end_of_year_lock_date_raw: null
+    coa: {"total": 83, "active": 80, "archived": 3, "by_type": {"BANK": 2, "EQUITY": 3, "CURRENT": 1, "CURRLIAB": 7, "TERMLIAB": 3, "EXPENSE": 66, "DEPRECIATN": 1}}
+    tracking_categories:
+      []
+    bank_accounts:
+      - code: ""
+        name: Chase xx1639
+        account_id: 38242b16-b96e-42e1-8a27-28961a6b55db
+        bank_last4: 1111
+        currency: USD
+        classes: []
+      - code: ""
+        name: I/C Clearing Account
+        account_id: b4bbb770-7399-4a96-aad3-c8d2856f1944
+        bank_last4: 0000
+        currency: USD
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["Chase xx1639", "5412.79", "0.00", "0.00", "5412.79"]
+      total_cells: ["Total", "5412.79", "0.00", "0.00", "5412.79"]
+    ar_open_page1_count: 0
+    ar_open_page1_amount_due: 0.0
+    ap_open_page1_count: 0
+    ap_open_page1_amount_due: 0.0
+    classified_account_counts:
+      bank: 2
+      clearing: 2
+      intercompany: 3
+      accounts_receivable: 1
+      accounts_payable: 1
+      commission_affiliate: 1
+      payroll: 11
+      sales_tax: 1
+      equity: 3
+      owner_shareholder: 1
+      uncategorized_active: 56
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: Chase xx1639
+          type: BANK
+          account_id: 38242b16-b96e-42e1-8a27-28961a6b55db
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: b4bbb770-7399-4a96-aad3-c8d2856f1944
+      clearing:
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: b4bbb770-7399-4a96-aad3-c8d2856f1944
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRLIAB
+          account_id: dcf279e0-4f30-4b43-a412-416e8e550b83
+      intercompany:
+        - code: 2901
+          name: Intercompany - US
+          type: TERMLIAB
+          account_id: 73a7a185-3b81-4af3-8e77-13da9002248f
+        - code: 2904
+          name: Intercompany - E4L
+          type: TERMLIAB
+          account_id: a07547eb-6ade-4782-9444-9975a31a3575
+        - code: 2905
+          name: Intercompany - XPO Health Ltd (UK)
+          type: TERMLIAB
+          account_id: eebf14c0-5454-41a3-898b-d255de77939f
+      accounts_receivable:
+        - code: 1200
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: bf75977d-fd85-4dc2-87a1-7c56c6f0b718
+      accounts_payable:
+        - code: 2000
+          name: Accounts Payable
+          type: CURRLIAB
+          account_id: 33467775-0985-41a5-b34b-cb46c782123b
+      commission_affiliate:
+        - code: 6416
+          name: Sales Commissions
+          type: EXPENSE
+          account_id: 0d6377a4-8024-438b-b7e5-6e9b9e5c880e
+      payroll:
+        - code: 6400
+          name: Payroll Expenses
+          type: EXPENSE
+          account_id: b8647f36-ebb6-4a4d-9623-9bbfdfbd4fc7
+        - code: 6401
+          name: Salaries - Admin
+          type: EXPENSE
+          account_id: 0b7b5691-f1d3-48bb-b4e6-16742d043287
+        - code: 6402
+          name: Salaries - Accounting
+          type: EXPENSE
+          account_id: 6a51f9dc-2c3e-4619-b646-a62de660e35c
+        - code: 6403
+          name: Salaries - Marketing
+          type: EXPENSE
+          account_id: 098a97e9-d7cb-454d-b3c3-384450a0668b
+        - code: 6405
+          name: Salaries - Sales
+          type: EXPENSE
+          account_id: 862fcf83-0e0a-4c09-ab03-c519f74308db
+        - code: 6407
+          name: Salaries - Support
+          type: EXPENSE
+          account_id: cfffbcde-4cad-48b8-a0fb-ff32c42b89b1
+        - code: 6411
+          name: Officer wages
+          type: EXPENSE
+          account_id: 1875734b-9326-4834-a2d7-3b52fdfd1c51
+        - code: 6412-1
+          name: Payroll - Employer Tax
+          type: EXPENSE
+          account_id: 7ffb2de4-91a2-4fd9-a734-0372576ec0b4
+        - code: 6420
+          name: Payroll Taxes
+          type: EXPENSE
+          account_id: 58e49a35-69b6-4a92-96ec-0b0d97ef6c52
+        - code: 6429
+          name: Payroll Fees
+          type: EXPENSE
+          account_id: c0314d92-9f0b-4f09-b547-7499b1b3fce8
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRLIAB
+          account_id: dcf279e0-4f30-4b43-a412-416e8e550b83
+      sales_tax:
+        - code: 2200
+          name: Sales Tax
+          type: CURRLIAB
+          account_id: 00e34ee4-a140-45e1-8add-86241d2a726d
+      equity:
+        - code: 1000
+          name: Donations into IBE
+          type: EQUITY
+          account_id: 5d53aaa7-abd8-45e8-b167-7e6ced6cd9ca
+        - code: 3900
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 7354f669-3a68-49b3-b5e4-98e6e6411a55
+        - code: 99990
+          name: Beginning Balance Adjustment
+          type: EQUITY
+          account_id: 63454f7d-7cab-48f4-a7bf-3eb1678c86fd
+      owner_shareholder:
+        - code: 2100
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: 79fb96d5-ce5c-415e-a090-3da842e74f3a
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+  - key: xpo
+    legal_name: XPO HEALTH LIMITED
+    xero_name: XPO HEALTH LIMITED
+    tenant_id: cd7caa75-8ddd-461d-aec0-6f7777ceafd4
+    organisation_id: cd7caa75-8ddd-461d-aec0-6f7777ceafd4
+    write_app: master
+    base_currency: GBP
+    country: GB
+    timezone: GMTSTANDARDTIME
+    edition: BUSINESS
+    xero_class: ULTIMATE
+    tax_number: 825791893
+    financial_year_end_day: 31
+    financial_year_end_month: 12
+    period_lock_date_raw: /Date(1735603200000+0000)/
+    end_of_year_lock_date_raw: null
+    coa: {"total": 351, "active": 331, "archived": 20, "by_type": {"BANK": 15, "FIXED": 14, "OVERHEADS": 42, "CURRENT": 46, "EXPENSE": 77, "INVENTORY": 13, "NONCURRENT": 5, "CURRLIAB": 31, "TERMLIAB": 3, "EQUITY": 16, "REVENUE": 43, "SALES": 3, "OTHERINCOME": 2, "DIRECTCOSTS": 41}}
+    tracking_categories:
+      - name: Sales Agent ID
+        status: ACTIVE
+        id: 9d188565-ad0a-4c75-bc73-4d61ad9f4b4b
+        option_count: 542
+    bank_accounts:
+      - code: ""
+        name: PayPal - GBP
+        account_id: 3c2676fe-b747-41d8-9a18-a69c7ccff490
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: ""
+        name: HSBC x0880
+        account_id: 6782f0b9-529d-46aa-a8a0-a7e29ee398b2
+        bank_last4: 0880
+        currency: GBP
+        classes: []
+      - code: ""
+        name: HSBC x8255
+        account_id: 642f1c00-4a1a-43a4-bb36-b4a0586aeb08
+        bank_last4: 8255
+        currency: GBP
+        classes: []
+      - code: ""
+        name: HSBC USD x7938
+        account_id: 965927db-0562-4fdc-9614-bebcc05258b5
+        bank_last4: 7938
+        currency: USD
+        classes: []
+      - code: ""
+        name: HSBC Euro x8824
+        account_id: 33324def-23f3-44dd-9ad4-e47c02526721
+        bank_last4: 8824
+        currency: EUR
+        classes: []
+      - code: ""
+        name: PayPal - USD
+        account_id: aa1a0bff-d7e7-4df2-834b-e9142303528d
+        bank_last4: USD
+        currency: USD
+        classes: []
+      - code: ""
+        name: HSBC Credit Card 4963
+        account_id: 6023a015-a566-4a2f-9911-e39c127f5b07
+        bank_last4: 4963
+        currency: GBP
+        classes: []
+      - code: ""
+        name: Inter-company Clearing
+        account_id: 55fbeb35-3956-42fc-ab02-f840d5c64cbf
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: ""
+        name: HSBC Credit Card 2692
+        account_id: 24cea50a-3461-419e-985a-c8c0a8dd0c69
+        bank_last4: 2692
+        currency: GBP
+        classes: []
+      - code: ""
+        name: HSBC A/C 13670872
+        account_id: 1f861eca-8d7f-4c19-b4fe-a95d5307432c
+        bank_last4: 0872
+        currency: GBP
+        classes: []
+      - code: ""
+        name: PayPal - Euro
+        account_id: 12923448-39ec-4020-a96b-34225880fa6e
+        bank_last4: EUR
+        currency: EUR
+        classes: []
+      - code: ""
+        name: HSBC Credit Card 9743
+        account_id: 046a6038-aa96-4a16-af7f-49fab2b936de
+        bank_last4: 9743
+        currency: GBP
+        classes: []
+      - code: 1093
+        name: Stripe GBP
+        account_id: 3161e688-864d-4c35-b345-86d81da0345b
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: 1094
+        name: Stripe Euro
+        account_id: 1b387b22-38c3-4356-96ef-2b9655392a38
+        bank_last4: 1111
+        currency: EUR
+        classes: []
+      - code: 1681
+        name: Credit Card Control Account
+        account_id: 4fa74dc0-05a2-4ec1-a91a-8580f2d6a792
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["Credit Card Control Account", "0.00", "7275.59", "7275.59", "0.00", "0.00"]
+      - cells: ["HSBC A/C 13670872", "4.97", "0.02", "0.00", "0.00", "4.99"]
+      - cells: ["HSBC Credit Card 2692", "-6817.84", "6817.84", "2677.73", "0.00", "-2677.73"]
+      - cells: ["HSBC Credit Card 4963", "-356.10", "356.10", "1126.87", "0.00", "-1126.87"]
+      - cells: ["HSBC Credit Card 9743", "-101.65", "101.65", "17.70", "0.00", "-17.70"]
+      - cells: ["HSBC Euro x8824", "2764.00", "59436.29", "60268.03", "-325.45", "1606.81"]
+      - cells: ["HSBC USD x7938", "511.85", "0.00", "10.15", "-8.31", "493.39"]
+      - cells: ["HSBC x0880", "23.76", "0.08", "0.00", "0.00", "23.84"]
+      - cells: ["HSBC x8255", "72712.02", "73444.50", "107372.62", "0.00", "38783.90"]
+      - cells: ["Inter-company Clearing", "0.00", "2683.34", "3269.07", "0.00", "-585.73"]
+      - cells: ["PayPal - GBP", "250.70", "0.00", "0.00", "0.00", "250.70"]
+      - cells: ["Stripe Euro", "10248.41", "27876.99", "28339.42", "-44.62", "9741.36"]
+      - cells: ["Stripe GBP", "8871.82", "32394.62", "33508.85", "0.00", "7757.59"]
+      total_cells: ["Total", "88111.94", "210387.02", "243866.03", "-378.38", "54254.55"]
+    ar_open_page1_count: 2
+    ar_open_page1_amount_due: 16474.0
+    ap_open_page1_count: 25
+    ap_open_page1_amount_due: 27442.66
+    classified_account_counts:
+      bank: 15
+      credit_card: 4
+      clearing: 5
+      intercompany: 7
+      accounts_receivable: 2
+      accounts_payable: 2
+      revenue: 48
+      cogs: 42
+      inventory: 25
+      commission_affiliate: 4
+      payroll: 31
+      sales_tax: 7
+      equity: 16
+      loans: 7
+      owner_shareholder: 4
+      accruals: 1
+      prepaids: 2
+      fixed_assets: 14
+      deferred_revenue: 1
+      uncategorized_active: 113
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: PayPal - GBP
+          type: BANK
+          account_id: 3c2676fe-b747-41d8-9a18-a69c7ccff490
+        - code: ""
+          name: HSBC x0880
+          type: BANK
+          account_id: 6782f0b9-529d-46aa-a8a0-a7e29ee398b2
+        - code: ""
+          name: HSBC x8255
+          type: BANK
+          account_id: 642f1c00-4a1a-43a4-bb36-b4a0586aeb08
+        - code: ""
+          name: HSBC USD x7938
+          type: BANK
+          account_id: 965927db-0562-4fdc-9614-bebcc05258b5
+        - code: ""
+          name: HSBC Euro x8824
+          type: BANK
+          account_id: 33324def-23f3-44dd-9ad4-e47c02526721
+        - code: ""
+          name: PayPal - USD
+          type: BANK
+          account_id: aa1a0bff-d7e7-4df2-834b-e9142303528d
+        - code: ""
+          name: HSBC Credit Card 4963
+          type: BANK
+          account_id: 6023a015-a566-4a2f-9911-e39c127f5b07
+        - code: ""
+          name: Inter-company Clearing
+          type: BANK
+          account_id: 55fbeb35-3956-42fc-ab02-f840d5c64cbf
+        - code: ""
+          name: HSBC Credit Card 2692
+          type: BANK
+          account_id: 24cea50a-3461-419e-985a-c8c0a8dd0c69
+        - code: ""
+          name: HSBC A/C 13670872
+          type: BANK
+          account_id: 1f861eca-8d7f-4c19-b4fe-a95d5307432c
+        - code: ""
+          name: PayPal - Euro
+          type: BANK
+          account_id: 12923448-39ec-4020-a96b-34225880fa6e
+        - code: ""
+          name: HSBC Credit Card 9743
+          type: BANK
+          account_id: 046a6038-aa96-4a16-af7f-49fab2b936de
+        - code: 1093
+          name: Stripe GBP
+          type: BANK
+          account_id: 3161e688-864d-4c35-b345-86d81da0345b
+        - code: 1094
+          name: Stripe Euro
+          type: BANK
+          account_id: 1b387b22-38c3-4356-96ef-2b9655392a38
+        - code: 1681
+          name: Credit Card Control Account
+          type: BANK
+          account_id: 4fa74dc0-05a2-4ec1-a91a-8580f2d6a792
+      credit_card:
+        - code: ""
+          name: HSBC Credit Card 4963
+          type: BANK
+          account_id: 6023a015-a566-4a2f-9911-e39c127f5b07
+        - code: ""
+          name: HSBC Credit Card 2692
+          type: BANK
+          account_id: 24cea50a-3461-419e-985a-c8c0a8dd0c69
+        - code: ""
+          name: HSBC Credit Card 9743
+          type: BANK
+          account_id: 046a6038-aa96-4a16-af7f-49fab2b936de
+        - code: 1681
+          name: Credit Card Control Account
+          type: BANK
+          account_id: 4fa74dc0-05a2-4ec1-a91a-8580f2d6a792
+      clearing:
+        - code: ""
+          name: Inter-company Clearing
+          type: BANK
+          account_id: 55fbeb35-3956-42fc-ab02-f840d5c64cbf
+        - code: 1201
+          name: Sales Clearing
+          type: CURRENT
+          account_id: f36caa3e-215c-4f8b-9146-a1a40ac1e963
+        - code: 9996
+          name: Suspense
+          type: CURRLIAB
+          account_id: 4142dd09-36c2-46d2-962d-6e3cefbc40cc
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRENT
+          account_id: 0d8a6128-b5b2-42c9-a6db-8a36be7262e1
+        - code: Clearing2
+          name: Expensify Clearing
+          type: CURRENT
+          account_id: e9dcf967-1b48-4140-9da7-741ae2691425
+      intercompany:
+        - code: ""
+          name: Inter-company Clearing
+          type: BANK
+          account_id: 55fbeb35-3956-42fc-ab02-f840d5c64cbf
+        - code: 1604
+          name: Due from GIST
+          type: NONCURRENT
+          account_id: 0622ca53-ef41-472e-8240-96ae750d3834
+        - code: 1653
+          name: Due from IBE
+          type: NONCURRENT
+          account_id: a2cf8036-ce5e-48c8-a2b0-8242b7176475
+        - code: 1655
+          name: Due to Massey Developments
+          type: CURRLIAB
+          account_id: 7269369e-aa48-47bf-b630-b5811a6dbd3a
+        - code: 2310
+          name: Payroll Tax Liability
+          type: CURRLIAB
+          account_id: 8cae3290-2815-4e25-9c61-edc84602faa6
+        - code: 8200
+          name: Realised Currency Gains
+          type: EXPENSE
+          account_id: ff7128b3-4f3f-4498-94b6-4578284bfefb
+        - code: 826
+          name: NIC Payable
+          type: CURRLIAB
+          account_id: bfe4ee11-6298-4333-9f78-5e8e3826932c
+      accounts_receivable:
+        - code: 1200
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: 4d21084b-7f0b-41d4-9dd4-58024f0caf7e
+        - code: 1311
+          name: Less Provision for Doubtful Debts
+          type: CURRENT
+          account_id: 19cdffec-2eed-49a3-9ebb-0df6f1bcd139
+      accounts_payable:
+        - code: 2000
+          name: Accounts Payable
+          type: CURRLIAB
+          account_id: 6e956765-c10f-4d4f-bb7b-e0d22a6caefb
+        - code: 821
+          name: Accounts Payable - VAT Gross Up
+          type: CURRLIAB
+          account_id: ee5961bd-0a72-49f3-8b20-7409d0b5b96b
+      revenue:
+        - code: 4100
+          name: Sales of Product Income
+          type: REVENUE
+          account_id: 46947dc6-160a-4ff9-8f6d-3875019901e8
+        - code: 4101
+          name: Professional miHealth
+          type: REVENUE
+          account_id: b710415b-d0f6-4fb0-adeb-e90a63104211
+        - code: 4103
+          name: BWS - Outrights
+          type: REVENUE
+          account_id: 061665bb-a679-47c6-8854-52460d300595
+        - code: 4106
+          name: Infoceuticals
+          type: REVENUE
+          account_id: d95571ff-aee7-4047-86d3-6a6cf36618f6
+        - code: 4108
+          name: BWS - Nes Plan
+          type: REVENUE
+          account_id: 9cd7e82f-1b76-48dc-8db7-8f0ddcb0cf2d
+        - code: 4110
+          name: Books
+          type: REVENUE
+          account_id: ba0ce9a5-642b-4430-a578-701bee83f521
+        - code: 4112
+          name: "Sales - CD's/DVD's"
+          type: REVENUE
+          account_id: 7db500b4-aa7f-4ea3-a7f6-ee9f5e15183f
+        - code: 4113
+          name: Events
+          type: REVENUE
+          account_id: 6b2d1d92-42a4-4621-a8df-cbc445735d6a
+        - code: 4114
+          name: Professional Remote Scanner
+          type: REVENUE
+          account_id: c09ad490-5098-4352-a73b-c7c6c964c81f
+        - code: 4118
+          name: Sales - BWS - Demos/Trials
+          type: REVENUE
+          account_id: d85daa4a-4266-479e-ad7e-f5178324b600
+        - code: 4121
+          name: BHC Program
+          type: REVENUE
+          account_id: dbe1fbce-46d0-40fe-87ce-247d666e8f89
+        - code: 4122
+          name: Sales-  Energy4Life
+          type: REVENUE
+          account_id: fbeccc4b-d3dd-4936-b182-3d0770fbcdac
+        - code: 4124
+          name: Sales- GEM Device
+          type: REVENUE
+          account_id: 716bce47-af9e-4e44-bbf3-79722784a703
+        - code: 4126
+          name: SAAS - Subscriptions
+          type: REVENUE
+          account_id: 309df79d-3f7e-4f79-a4e2-8d8fc1bdaf82
+        - code: 4128
+          name: BWS Trial
+          type: REVENUE
+          account_id: a982b79f-015f-4390-a45b-e6cce51d2645
+        - code: 4129
+          name: Meditations
+          type: REVENUE
+          account_id: 4e2bc193-8359-4a71-97fc-8ef7f83dd17e
+        - code: 4131
+          name: Sales - Leaflets
+          type: REVENUE
+          account_id: 260e4f6f-7072-49c7-a19f-d5d02977acce
+        - code: 4132
+          name: Life Journey Screen
+          type: REVENUE
+          account_id: 9e888843-f6e4-47d7-82e6-2862227f77b5
+        - code: 4133
+          name: BWS Upgrade
+          type: REVENUE
+          account_id: 353e047b-127b-43cd-b970-e5735cebb266
+        - code: 4134
+          name: BWS Subscription
+          type: REVENUE
+          account_id: 940a617b-1ffc-4951-a847-3053e28b3aea
+        - code: 4135
+          name: BHC Subscription
+          type: REVENUE
+          account_id: 3119955e-52d9-410e-83ff-9da8ee9e8f21
+        - code: 4137
+          name: NESCare Insurance
+          type: REVENUE
+          account_id: abce8d93-b15c-472d-926c-43bfe819d36e
+        - code: 4138
+          name: MiHealth Repairs
+          type: REVENUE
+          account_id: 324f53c2-6481-4d82-9a71-cd400d8588f7
+        - code: 4139
+          name: MiHealth Accessories
+          type: REVENUE
+          account_id: 3e9b843e-b1f1-4f68-8710-21505336d683
+        - code: 4140
+          name: MR Screen for BWS and MiHealth
+          type: REVENUE
+          account_id: d4bfc1d1-7b58-4e59-8cd7-c8462df1497e
+        - code: 4143
+          name: BioEnergetiX WellNES System Tri
+          type: REVENUE
+          account_id: ce4da6f3-595f-425c-8357-82efb907f0b6
+        - code: 4160
+          name: Affiliate Revenue
+          type: REVENUE
+          account_id: c57f3aee-d715-49f2-9aaa-9ac0de4137db
+        - code: 4200
+          name: Sales
+          type: REVENUE
+          account_id: 570f0604-ddc7-4179-84aa-aa69579ec071
+        - code: 4202
+          name: Sales - Accessories
+          type: REVENUE
+          account_id: 79858692-9697-42ef-85d5-8ce3dc3a39dd
+        - code: 4203
+          name: Sales - BHC - Nes Plan
+          type: REVENUE
+          account_id: b9df9394-89d6-448c-a5bc-3bd0979af423
+        - code: 4204
+          name: Sales - BHC - Outright
+          type: REVENUE
+          account_id: b76e7f99-3424-4130-a16b-ffffd008867d
+        - code: 4205
+          name: Sales - Bioenergetic Control Unit
+          type: REVENUE
+          account_id: 16965647-97c2-408d-adeb-688ce750f329
+        - code: 4209
+          name: Sales -  BWS License Transfer
+          type: REVENUE
+          account_id: 638d7b10-7def-4f1e-9f03-d7202ca9aafa
+        - code: 4212
+          name: Sales-  GEM Subscription
+          type: REVENUE
+          account_id: f58a3241-c21f-48e8-a8e2-f304d9811a0a
+        - code: 4215
+          name: Sales- Meditation Credits
+          type: REVENUE
+          account_id: 49d3a3bd-d938-4976-9c4a-f7b3b23dda74
+        - code: 4216
+          name: Sales - miHealth Trial
+          type: REVENUE
+          account_id: 0336a72c-547d-4578-b43e-ba268b290197
+        - code: 4217
+          name: Sales - miHealths
+          type: REVENUE
+          account_id: 17365c33-f07d-42d3-bae8-e9f84c4af522
+        - code: 4218
+          name: Sales - NES Plan Fees
+          type: REVENUE
+          account_id: 984892ca-e7ff-4748-9936-498604d68d9a
+        - code: 4219
+          name: Sales- Other Income - EUR
+          type: REVENUE
+          account_id: 6ae0c8d1-d2d7-407f-98e6-605ca12b3e88
+        - code: 4220
+          name: Sales- Other Products
+          type: REVENUE
+          account_id: 8640b2f3-0632-4a59-8b0d-691de4d97d18
+        - code: 4222
+          name: Sales- Scanners
+          type: REVENUE
+          account_id: c51ab4d4-55b4-4aac-b04e-bba15d1a31b9
+        - code: 4227
+          name: Rental Income - Poole Office
+          type: SALES
+          account_id: d7e4606b-1b9d-4d54-92e6-1fe0ed8ac19f
+        - code: 4270
+          name: Interest Income
+          type: REVENUE
+          account_id: c16614f0-bf25-450d-b53f-04ba3a9f2b01
+        - code: 4700
+          name: Shipping Income
+          type: SALES
+          account_id: 8d80888a-3b77-4015-b416-fa72b5c4d100
+        - code: 4800
+          name: DO NOT USE - Refunds (Income)
+          type: OTHERINCOME
+          account_id: 5ee9a9df-6f6e-4498-a1ee-e9416eb60b91
+        - code: 4999
+          name: Other Income
+          type: REVENUE
+          account_id: da75aa59-af80-4e3c-9218-38ec18113447
+        - code: 502
+          name: Refund for charges (sales return)
+          type: SALES
+          account_id: f48e6371-c163-4875-9107-fcfd4d78cadd
+        - code: 5200
+          name: Royalty Expense
+          type: OTHERINCOME
+          account_id: 1020c8cb-a3f4-4fe5-9e02-3551d1e902a5
+      cogs:
+        - code: 5100
+          name: Cost of Goods Sold
+          type: DIRECTCOSTS
+          account_id: a230cc75-b025-4b9b-b9b6-7416fc0eeda7
+        - code: 5101
+          name: COGS - miHealth
+          type: DIRECTCOSTS
+          account_id: c19cc12a-d814-497a-983e-098ef0ca3276
+        - code: 5102
+          name: COGS - BHC - Nes Plan
+          type: DIRECTCOSTS
+          account_id: 63593423-0cac-41bf-9b7c-05749d2f6974
+        - code: 5103
+          name: COGS - Scanners
+          type: DIRECTCOSTS
+          account_id: 4dd3206e-dac9-46c5-b746-ed414bba0ed7
+        - code: 5104
+          name: COGS - BHC - Outright
+          type: DIRECTCOSTS
+          account_id: 55475f01-3a12-49da-aec8-79a1e7f17f5e
+        - code: 5105
+          name: COGS - Bioenergetic Control Unit
+          type: DIRECTCOSTS
+          account_id: fc9281e5-1c94-482b-944e-fd7200abd90f
+        - code: 5106
+          name: COGS - Infoceuticals
+          type: DIRECTCOSTS
+          account_id: 68444d47-26d7-48b1-8d8f-6a261fbe937c
+        - code: 5107
+          name: COGS - BWS - Demos/Trials
+          type: DIRECTCOSTS
+          account_id: 32c3bf81-ca19-4e24-8f17-54ccb310575a
+        - code: 5108
+          name: COGS- BWS - Nes Plan
+          type: DIRECTCOSTS
+          account_id: f1e7ee29-6076-4024-8a86-2fe3e65f247e
+        - code: 5109
+          name: COGS - BWS - Outright
+          type: DIRECTCOSTS
+          account_id: a2a2f15c-64a2-4e20-876d-6aa6e3887801
+        - code: 5110
+          name: COGS - Books
+          type: DIRECTCOSTS
+          account_id: b6d45abf-d4c0-4b7a-a0cc-e8f7c4e66791
+        - code: 5111
+          name: "COGS - DVD's"
+          type: DIRECTCOSTS
+          account_id: 0e5cd317-e65c-40ea-a980-62177bd5d33f
+        - code: 5112
+          name: "COGS - CD's"
+          type: DIRECTCOSTS
+          account_id: a52224ea-6350-4368-95a3-e91f5795c682
+        - code: 5113
+          name: COGS - Accessories
+          type: DIRECTCOSTS
+          account_id: 7414ef91-6c42-44a9-934e-9ab381072f1d
+        - code: 5114
+          name: COGS - GEM
+          type: DIRECTCOSTS
+          account_id: 8b4d4709-20aa-4e48-a5cf-c28c70bca52e
+        - code: 5115
+          name: COGS - Other Products
+          type: DIRECTCOSTS
+          account_id: 5b58d47c-9a9c-4a0a-924a-dfd404fab4cd
+        - code: 5116
+          name: COGS -  BWS License Transfer
+          type: DIRECTCOSTS
+          account_id: f70a94e6-9dc5-49d2-aeaa-5c1ff50ea85a
+        - code: 5117
+          name: COGS-  Energy4Life
+          type: DIRECTCOSTS
+          account_id: 55939884-3b7e-4115-8251-c97af87b645a
+        - code: 5118
+          name: COGS-  GEM Subscription
+          type: DIRECTCOSTS
+          account_id: 6ae16706-b4dc-4165-8930-4c54004f98ca
+        - code: 5119
+          name: COGS - Leaflets
+          type: DIRECTCOSTS
+          account_id: 0841e53e-11ba-4acf-ac5f-b9f88f708e96
+        - code: 5120
+          name: COGS- Meditation Credits
+          type: DIRECTCOSTS
+          account_id: 5d44aadd-c481-4f37-a49d-0e9f92109f10
+        - code: 5121
+          name: COGS - miHealth Trial
+          type: DIRECTCOSTS
+          account_id: 77a83628-0a6c-4fd5-bc58-70444d5d6cfd
+        - code: 5122
+          name: COGS - NES Plan Fees
+          type: DIRECTCOSTS
+          account_id: 9f80c682-a223-499c-9e93-57f1c983932e
+        - code: 5123
+          name: COGS- Other Income - EUR
+          type: DIRECTCOSTS
+          account_id: f126587e-e1e7-466a-b803-f56248a795f3
+        - code: 5124
+          name: COGS - SAAS - Subscriptions
+          type: DIRECTCOSTS
+          account_id: 03566b19-751b-46f6-a2c6-045329a9de07
+        - code: 5150
+          name: COGS - Inventory - Write-Off
+          type: DIRECTCOSTS
+          account_id: 0ca5d5a4-110e-409d-b84a-5c4eacc45a1f
+        - code: 5200
+          name: Royalty Expense
+          type: OTHERINCOME
+          account_id: 1020c8cb-a3f4-4fe5-9e02-3551d1e902a5
+        - code: 5201
+          name: Royalty - miHealth
+          type: DIRECTCOSTS
+          account_id: dfbdcc46-7bb8-4768-9213-f658f229ca4f
+        - code: 5202
+          name: Royalty Accessories
+          type: DIRECTCOSTS
+          account_id: 098d135e-2072-41fc-b5a4-b79d45eb0649
+        - code: 5204
+          name: Royalty Scanner
+          type: DIRECTCOSTS
+          account_id: 4d31cef1-c955-45c5-b361-670c5c1e8d7e
+        - code: 5206
+          name: Royalty - Infoceuticals
+          type: DIRECTCOSTS
+          account_id: 06798d92-e6d5-4378-a251-4f0406c34edc
+        - code: 5207
+          name: Royalty SAAS/BWS
+          type: DIRECTCOSTS
+          account_id: 0f5a48b3-8666-4b23-a5f0-cad0da5dac9b
+        - code: 5210
+          name: Royalty - Books
+          type: DIRECTCOSTS
+          account_id: c62b059a-6a85-40e3-b289-89ab3ef83869
+        - code: 5211
+          name: Royalty CD/DVD
+          type: DIRECTCOSTS
+          account_id: 37f4e19a-cc9d-4e86-9cff-800579993388
+        - code: 5215
+          name: Royalty GEM
+          type: DIRECTCOSTS
+          account_id: d5776556-9f36-49ed-95f3-b6ef8ec57339
+        - code: 5290
+          name: Royalty Other
+          type: DIRECTCOSTS
+          account_id: 8b8cc74f-7ded-4de0-8fd1-330e385cc8cc
+        - code: 5500
+          name: "COGS - Shipping, Freight & Deli"
+          type: DIRECTCOSTS
+          account_id: bfb475e2-6c37-4bbd-9efd-6497abd70131
+        - code: 5501
+          name: Shipping Material
+          type: DIRECTCOSTS
+          account_id: 9f3e8ffe-0292-423d-86e0-16de48ed0ad4
+        - code: 5502
+          name: COGS - 3PL Order Fulfilment
+          type: DIRECTCOSTS
+          account_id: c7460d83-da52-4492-8ae7-beafe7ead97d
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: f4cf8bf5-d82b-4624-a1af-0af537f42a88
+        - code: 6342
+          name: Royalty- BWS
+          type: DIRECTCOSTS
+          account_id: ea186e60-f5a8-4ce5-92f7-d165656275bb
+        - code: 6348
+          name: Shipping  Expense
+          type: DIRECTCOSTS
+          account_id: 70595af9-d9d4-4243-84f3-d1d46b49d14e
+      inventory:
+        - code: 1301.
+          name: Inventory - Infoceuticals.
+          type: CURRENT
+          account_id: 2de10036-1cb1-4d5f-96e1-b54aad52f677
+        - code: 1302.
+          name: "Inventory - Books & Marketing Materials."
+          type: CURRENT
+          account_id: e5e706e8-3460-4a4f-b366-8aed2c8317d1
+        - code: 1303.
+          name: Inventory - CDs
+          type: CURRENT
+          account_id: fa810852-7af6-458a-a125-f77e60417aae
+        - code: 1304.
+          name: Inventory - Mihealths.
+          type: CURRENT
+          account_id: 5d917e9d-1188-42bb-8676-6a86a3daafb2
+        - code: 1305.
+          name: Inventory - Scanners.
+          type: CURRENT
+          account_id: 3d90df92-2cfa-4c30-8623-a51cf26762b4
+        - code: 1306.
+          name: Inventory - Accessories.
+          type: CURRENT
+          account_id: 02fb601c-a1f1-4876-8f21-66491d4cd0ca
+        - code: 1307.
+          name: Inventory - GEM..
+          type: CURRENT
+          account_id: 54c85aaa-65b1-4d9a-a950-3a99860ef1ff
+        - code: 1308.
+          name: Inventory - BWS.
+          type: CURRENT
+          account_id: b05482a6-c740-4c49-95a2-3436bf12deaf
+        - code: 1309.
+          name: "Inventory - DVD's."
+          type: CURRENT
+          account_id: 68255729-71fb-42f6-bee2-56c6249ce150
+        - code: 1310.
+          name: Inventory - GEM WIP.
+          type: CURRENT
+          account_id: 94b76cfc-976a-44df-a457-68e0d8d104cb
+        - code: 1312.
+          name: Inventory - Accessories WIP.
+          type: CURRENT
+          account_id: 23e4b68a-898f-4c63-b631-b9855dddb4df
+        - code: 1313.
+          name: Inventory - Gift Boxes.
+          type: CURRENT
+          account_id: f2d3bc48-b0c8-4ccc-9851-8f25871ddf5f
+        - code: 1315.
+          name: Inventory - Infoceuticals WIP.
+          type: CURRENT
+          account_id: cb22a054-44e8-4812-99da-147beb8ad8fd
+        - code: 1318.
+          name: Inventory - MiHealth prepaid invoices.
+          type: CURRENT
+          account_id: 46629c00-20f3-4e00-97a6-b8527d35bc78
+        - code: 1319.
+          name: Inventory - MiHealth WIP.
+          type: CURRENT
+          account_id: ec99ba07-dd85-4c34-aadb-980e53da8c8e
+        - code: 1320.
+          name: Inventory - Packing Materials.
+          type: CURRENT
+          account_id: 97a31f94-6af4-4829-989b-17f9c1d787da
+        - code: 1321.
+          name: Inventory - Raw Stock - China.
+          type: CURRENT
+          account_id: e8fa2aa6-7435-4315-99d0-ded5e1b74e14
+        - code: 1322.
+          name: Inventory - Scanner WIP.
+          type: CURRENT
+          account_id: 9cc74100-f31f-47ee-9e5f-f057285862ac
+        - code: 1323.
+          name: Inventory - Welcome Kits.
+          type: CURRENT
+          account_id: 81d6133d-11e4-426a-93eb-9af5d2b5950f
+        - code: 1325
+          name: Inventory - GEM Accessories
+          type: CURRENT
+          account_id: a7ab431c-4b83-4378-a8cc-d46c42e9a3df
+        - code: 1331.
+          name: Inventory - Bioenergetic Control Unit.
+          type: CURRENT
+          account_id: 93d7e39b-555e-4e71-acd5-a0e04e5c91e9
+        - code: 1399
+          name: Inventory - others
+          type: CURRENT
+          account_id: b5043016-fd73-4361-866c-fc3c8cdafb25
+        - code: 1630
+          name: Inventory - Deposit for GEM and miHealth production
+          type: INVENTORY
+          account_id: 2a1cc846-fc21-48b2-8407-7312ed2a726b
+        - code: 5150
+          name: COGS - Inventory - Write-Off
+          type: DIRECTCOSTS
+          account_id: 0ca5d5a4-110e-409d-b84a-5c4eacc45a1f
+        - code: DELETE1307
+          name: Inventory - GEM
+          type: INVENTORY
+          account_id: 6dae592e-be78-42e0-87b4-6294ac1f40f9
+      commission_affiliate:
+        - code: 4160
+          name: Affiliate Revenue
+          type: REVENUE
+          account_id: c57f3aee-d715-49f2-9aaa-9ac0de4137db
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: f4cf8bf5-d82b-4624-a1af-0af537f42a88
+        - code: 6416
+          name: DO NOT USE -- Sales Commissions
+          type: EXPENSE
+          account_id: d9cce4d6-76aa-43b3-99f7-077295cd8c87
+        - code: 6417
+          name: Practicioner Commissions
+          type: EXPENSE
+          account_id: dc55b421-e3b9-414f-b1ab-b2d54bb3ea39
+      payroll:
+        - code: 1000
+          name: Wages - Sales
+          type: OVERHEADS
+          account_id: ac316bf9-9e57-4ab9-8beb-3382cc2b5fc7
+        - code: 1001
+          name: Wages - Marketing
+          type: OVERHEADS
+          account_id: 2dd43c95-54a2-4ff2-8840-73781a88c0a6
+        - code: 1002
+          name: Wages - Operations
+          type: OVERHEADS
+          account_id: 4f509ddc-5a5c-4cc0-adec-fcb1724fa388
+        - code: 1004
+          name: "Wages - G&A"
+          type: OVERHEADS
+          account_id: b98fd9cc-fce9-4fe8-af56-639f70a411f7
+        - code: 1005
+          name: Payroll Gross Wages - Directors Pension
+          type: OVERHEADS
+          account_id: 9971be8b-7c92-4f71-bd10-26f7a96ae6e3
+        - code: 1006
+          name: Payroll Gross Wages - Directors Social Security Costs
+          type: OVERHEADS
+          account_id: 3497eb85-e002-471d-b2ff-bea111b5dcd1
+        - code: 1007
+          name: "Payroll Gross Wages - Employee Training & Courses"
+          type: OVERHEADS
+          account_id: d790c222-c81e-4145-8724-23719f31ffbf
+        - code: 1008
+          name: "Payroll Gross Wages - Logistics & Shipping"
+          type: OVERHEADS
+          account_id: f4ada22d-0449-4a70-b0cc-da0509fab7dc
+        - code: 1009
+          name: Payroll Gross Wages - Officer Wages
+          type: OVERHEADS
+          account_id: 4b80666e-7d4f-4767-ab4d-1a13ed3d09c1
+        - code: 1010
+          name: Salaries - Accounting
+          type: OVERHEADS
+          account_id: 4c7b6022-9de5-460c-98b7-f5f6cce240a6
+        - code: 1011
+          name: Payroll Gross Wages - Ops Salaries
+          type: OVERHEADS
+          account_id: a09061ed-0f5f-4781-91da-e35c6a97826c
+        - code: 1012
+          name: "Payroll Gross Wages - Payroll Taxes R&D"
+          type: OVERHEADS
+          account_id: 9c1736b6-8ab0-481b-92a9-9caf4d500cc9
+        - code: 1013
+          name: Payroll Gross Wages - Pensions
+          type: OVERHEADS
+          account_id: 3cfb5486-17cf-418f-9694-da0fd81b9098
+        - code: 1014
+          name: "Payroll Gross Wages - Research & Development"
+          type: OVERHEADS
+          account_id: 25c401ec-57d8-4358-9b37-4f917bd54577
+        - code: 2310
+          name: Payroll Tax Liability
+          type: CURRLIAB
+          account_id: 8cae3290-2815-4e25-9c61-edc84602faa6
+        - code: 2858
+          name: Pensions Payable
+          type: CURRLIAB
+          account_id: d6d725d4-6c63-4b2d-9db7-3e840342c862
+        - code: 6400
+          name: Payroll Expenses
+          type: EXPENSE
+          account_id: 3f6bfb1c-3232-4401-a892-ba06c9603697
+        - code: 6401
+          name: Salaries - Admin
+          type: OVERHEADS
+          account_id: 97360e73-1d8f-4d31-b4c3-bb263444840c
+        - code: 6403
+          name: Salaries - Marketing
+          type: EXPENSE
+          account_id: dcc0bcef-88e7-4fec-9e34-82be9230ba22
+        - code: 6405
+          name: Salaries - Sales
+          type: OVERHEADS
+          account_id: f2627449-4c11-4d9c-9243-5a39dbc89a6e
+        - code: 6407
+          name: Salaries - Support
+          type: EXPENSE
+          account_id: 7ec04300-95cd-469f-a3b6-14cd0f229867
+        - code: 6411
+          name: Officer wages
+          type: EXPENSE
+          account_id: 43f1d118-b732-4cc8-ae57-d68c35158314
+        - code: 6412-1
+          name: Payroll - Employer Tax
+          type: OVERHEADS
+          account_id: dff4d148-65f4-41e6-8933-8f44b83596cb
+        - code: 6420
+          name: Payroll Taxes
+          type: OVERHEADS
+          account_id: 99b3243d-210c-46cc-a267-5f29ee098ea3
+        - code: 6429
+          name: Payroll Fees
+          type: EXPENSE
+          account_id: 50c41b77-d04d-4d6a-a181-3872eb0a1871
+        - code: 6504
+          name: Net Payroll
+          type: CURRLIAB
+          account_id: 9ead6023-d672-4f40-9712-dfd5d14886cf
+        - code: 815
+          name: Employee contribution to benefits
+          type: CURRLIAB
+          account_id: d4a8caa4-bacd-4815-bc3b-5e6693d6f22a
+        - code: 826
+          name: NIC Payable
+          type: CURRLIAB
+          account_id: bfe4ee11-6298-4333-9f78-5e8e3826932c
+        - code: 868
+          name: Earnings Orders Payable
+          type: CURRLIAB
+          account_id: ee3e1432-ee37-4aff-9b6c-6c6eae443b2d
+        - code: 947
+          name: Student Loan Deductions Payable
+          type: CURRLIAB
+          account_id: 344f7a1a-713c-4794-a49a-16917627298d
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRENT
+          account_id: 0d8a6128-b5b2-42c9-a6db-8a36be7262e1
+      sales_tax:
+        - code: 2201
+          name: VAT - Euro
+          type: CURRLIAB
+          account_id: 224fedb9-cd0a-41f3-9ed8-465ca00fbd4b
+        - code: 2420
+          name: UK VAT
+          type: CURRLIAB
+          account_id: 18eccf35-ea74-4ae9-89d0-5b3a9a61531c
+        - code: 7601
+          name: Sales Tax other
+          type: EXPENSE
+          account_id: 6700f72f-281a-43ad-ba34-d61fb6b30472
+        - code: 7620
+          name: Corporation Fees
+          type: OVERHEADS
+          account_id: c5ed29a8-ede7-4e3b-845d-d401f202d229
+        - code: 821
+          name: Accounts Payable - VAT Gross Up
+          type: CURRLIAB
+          account_id: ee5961bd-0a72-49f3-8b20-7409d0b5b96b
+        - code: 823
+          name: "*DO NOT USE - EU VAT Payable - EU - Sales Tax"
+          type: CURRLIAB
+          account_id: c9c8e5ba-f6a3-4889-b4ee-0a4f6dbb0167
+        - code: 830
+          name: Provision for Corporation Tax
+          type: CURRLIAB
+          account_id: e4d905d9-2c37-4458-a866-52752e132e85
+      equity:
+        - code: 2950
+          name: Capital - Ordinary Shares
+          type: EQUITY
+          account_id: 57d32e39-735a-492e-a15f-32427b91e5cc
+        - code: 3900
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 59b1efd1-3d1d-44ff-a8e3-007a5fc91d48
+        - code: 921
+          name: Capital Redemption Reserve
+          type: EQUITY
+          account_id: f6694a9d-8751-49d9-bf75-669fa1d0d680
+        - code: 951
+          name: "'B' Share Capital"
+          type: EQUITY
+          account_id: 779de84c-993e-40ae-bc3a-71123fef88d9
+        - code: 952
+          name: "'C' Share Capital"
+          type: EQUITY
+          account_id: 24379359-3104-4b78-b869-156ffe36246a
+        - code: 953
+          name: "'D' Share Capital"
+          type: EQUITY
+          account_id: 35e82f39-f625-40b3-b0e9-16b68bbae49b
+        - code: 954
+          name: Ordinary Share Capital class 1 non-cash issue
+          type: EQUITY
+          account_id: 00c8f722-7a18-482b-952d-6076d6d98f62
+        - code: 955
+          name: Ordinary Share Capital class 4 non-cash issue
+          type: EQUITY
+          account_id: 5e720457-8e32-433f-bd2a-9e588d0389c7
+        - code: 958
+          name: Share premium
+          type: EQUITY
+          account_id: 5d39a7fb-d40c-45de-9f52-76f203c34933
+        - code: 959
+          name: Distributions
+          type: EQUITY
+          account_id: 920afa62-d98f-4a2b-82fd-f14f6586dfd1
+        - code: 961
+          name: Investment in Subsidiaries
+          type: EQUITY
+          account_id: 1a40af62-163b-4257-94c2-031c8016e01d
+        - code: 970
+          name: Owner A Funds Introduced
+          type: EQUITY
+          account_id: d775c155-ab33-4856-9e17-ff604fd3dbbe
+        - code: 980
+          name: Owner A Drawings
+          type: EQUITY
+          account_id: 1653b85d-46fb-4ac7-bc3c-4d7d03b6396d
+        - code: 99990
+          name: Beginning balance adjustment
+          type: EQUITY
+          account_id: 91253086-da22-475a-b4d1-f6171b756ad4
+        - code: 99991
+          name: Transactions for verification
+          type: EQUITY
+          account_id: caad8fac-796f-4ca5-bc74-ba5a874e2086
+        - code: "Owner's Eq"
+          name: "Owner's Personal Pay & Expenses"
+          type: EQUITY
+          account_id: e20bae5a-5fd8-4fb8-a7e9-8416d3ff5cd9
+      loans:
+        - code: 1657
+          name: Loan Receivable - Ammortal
+          type: NONCURRENT
+          account_id: 3209c670-026a-41a0-98d7-b5fbc4875cb4
+        - code: 2136
+          name: CIBL Loan
+          type: TERMLIAB
+          account_id: ecd99632-d219-4dff-ab4b-240384cb1ffc
+        - code: 2400
+          name: Stripe Loan
+          type: CURRLIAB
+          account_id: f22eee3b-7895-43a5-b6ff-598c1b5e5f90
+        - code: 835
+          name: "Directors' Loan Account (Harry)"
+          type: CURRLIAB
+          account_id: 67195933-b130-4722-b86e-2b74027bb1d9
+        - code: 871
+          name: Loan to Lilla Swanson; share buy back
+          type: CURRLIAB
+          account_id: 54a3abac-50ca-4f51-84d5-20fcdc494f91
+        - code: 900
+          name: Loan
+          type: TERMLIAB
+          account_id: 1ad4fd17-3035-4a8b-bfd0-02c42cdb5691
+        - code: 947
+          name: Student Loan Deductions Payable
+          type: CURRLIAB
+          account_id: 344f7a1a-713c-4794-a49a-16917627298d
+      owner_shareholder:
+        - code: 970
+          name: Owner A Funds Introduced
+          type: EQUITY
+          account_id: d775c155-ab33-4856-9e17-ff604fd3dbbe
+        - code: 980
+          name: Owner A Drawings
+          type: EQUITY
+          account_id: 1653b85d-46fb-4ac7-bc3c-4d7d03b6396d
+        - code: 99999
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: 151dac38-afb5-44bd-ac8e-ea8dea77f351
+        - code: "Owner's Eq"
+          name: "Owner's Personal Pay & Expenses"
+          type: EQUITY
+          account_id: e20bae5a-5fd8-4fb8-a7e9-8416d3ff5cd9
+      accruals:
+        - code: 1680
+          name: Accruals
+          type: CURRLIAB
+          account_id: f170314a-d962-44b7-b401-a7cda30b2c19
+      prepaids:
+        - code: 1318.
+          name: Inventory - MiHealth prepaid invoices.
+          type: CURRENT
+          account_id: 46629c00-20f3-4e00-97a6-b8527d35bc78
+        - code: 1620
+          name: Prepayments
+          type: CURRENT
+          account_id: 04e73cc8-6831-444a-86f0-b18e1a183dba
+      fixed_assets:
+        - code: 0002
+          name: Equipment
+          type: FIXED
+          account_id: 53ff7dfc-63e5-435b-9b4a-192416c68906
+        - code: 0003
+          name: Less Accumulated Depreciation on Equipment
+          type: FIXED
+          account_id: 52628c88-8d76-4294-a4a9-c8c511964709
+        - code: 0004
+          name: "Furniture & Fixtures"
+          type: FIXED
+          account_id: ccdccda8-4b01-45f4-af97-a57f2c8411ee
+        - code: 0015
+          name: Leasehold Improvements
+          type: FIXED
+          account_id: 734a2285-7166-4e49-85d1-b71f1c991340
+        - code: 0016
+          name: Less Accumulated Depreciation on Leasehold Improvements
+          type: FIXED
+          account_id: 26b8c1ad-6d64-488e-ab13-cbc436697538
+        - code: 0020
+          name: "Less Accumulated Depreciation on F&F"
+          type: FIXED
+          account_id: e5065b83-662a-44bf-a779-ac1236e1c71b
+        - code: 0030
+          name: Computer Equipment
+          type: FIXED
+          account_id: d5470245-7338-4074-9ccb-9f47a9960a1a
+        - code: 0032
+          name: Less Accumulated Depreciation on Computer Equipment
+          type: FIXED
+          account_id: dcf6beaa-048d-4b1d-876f-bf9d37bf272f
+        - code: 0040
+          name: Motor Vehicles
+          type: FIXED
+          account_id: 51c951ac-a402-42b2-9b4d-317d3438015d
+        - code: 0042
+          name: Less Accumulated Depreciation on Motor Vehicles
+          type: FIXED
+          account_id: 13c7af5c-3e10-4193-bc4f-49c2d851ec49
+        - code: 0050
+          name: Plant and Machinery
+          type: FIXED
+          account_id: 93bb77f5-523d-44a4-8413-822db1e7e3ef
+        - code: 0052
+          name: Less Accumulated Depreciation on Plant and Machinery
+          type: FIXED
+          account_id: 759b2358-8203-4372-b8fd-0f97de12d100
+        - code: 0060
+          name: Intangibles
+          type: FIXED
+          account_id: 5f3750ff-c898-47f4-ab62-352eedc17c10
+        - code: 0062
+          name: Less Accumulated Amortisation on Intangibles
+          type: FIXED
+          account_id: 26fa127a-5561-4a49-abb9-d4bc09e6b639
+      deferred_revenue:
+        - code: 2920
+          name: Deferred Tax
+          type: TERMLIAB
+          account_id: c1df517c-d13d-42f3-850c-d08107297285
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+  - key: massey
+    legal_name: Massey Developments Limited
+    xero_name: Massey Developments Limited
+    tenant_id: 7ac899fb-c2bc-41fd-8214-644ec708317b
+    organisation_id: 7ac899fb-c2bc-41fd-8214-644ec708317b
+    write_app: nespty2
+    base_currency: GBP
+    country: GB
+    timezone: GMTSTANDARDTIME
+    edition: BUSINESS
+    xero_class: COMPREHENSIVE
+    tax_number: null
+    financial_year_end_day: 31
+    financial_year_end_month: 12
+    period_lock_date_raw: null
+    end_of_year_lock_date_raw: null
+    coa: {"total": 242, "active": 209, "archived": 33, "by_type": {"BANK": 5, "FIXED": 19, "OVERHEADS": 51, "CURRENT": 22, "EXPENSE": 31, "REVENUE": 46, "CURRLIAB": 26, "EQUITY": 6, "DIRECTCOSTS": 30, "SALES": 1, "OTHERINCOME": 1, "INVENTORY": 1, "TERMLIAB": 3}}
+    tracking_categories:
+      []
+    bank_accounts:
+      - code: ""
+        name: I/C Clearing Account
+        account_id: 114e4ba7-ce4f-4695-a858-6451f13d70d3
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: 1080
+        name: Interactive Broker - U2689295
+        account_id: 88add6be-0744-4a77-843a-80a5edfd3c50
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: 1095
+        name: Kraken
+        account_id: fa4f0853-dc9f-435a-8680-96f413b0b3f3
+        bank_last4: 0000
+        currency: GBP
+        classes: []
+      - code: 1200
+        name: HSBC X1088
+        account_id: d1dab6a0-64a9-461a-ac5b-df97714dd8cb
+        bank_last4: 1088
+        currency: GBP
+        classes: []
+      - code: 1201
+        name: HSBC x4221 - USD
+        account_id: a73e3d57-6035-44f6-84c8-9372b146061a
+        bank_last4: 4221
+        currency: USD
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["HSBC X1088", "14863.06", "0.00", "3893.33", "0.00", "10969.73"]
+      - cells: ["HSBC x4221 - USD", "8771.90", "0.00", "0.00", "-143.67", "8628.23"]
+      - cells: ["Interactive Broker - U2689295", "-512370.23", "0.00", "71374.72", "0.00", "-583744.95"]
+      - cells: ["Kraken", "1427364.58", "0.00", "0.00", "0.00", "1427364.58"]
+      total_cells: ["Total", "938629.31", "0.00", "75268.05", "-143.67", "863217.59"]
+    ar_open_page1_count: 0
+    ar_open_page1_amount_due: 0.0
+    ap_open_page1_count: 0
+    ap_open_page1_amount_due: 0.0
+    classified_account_counts:
+      bank: 5
+      clearing: 2
+      intercompany: 7
+      accounts_receivable: 2
+      accounts_payable: 1
+      revenue: 48
+      cogs: 28
+      inventory: 16
+      commission_affiliate: 2
+      payroll: 17
+      sales_tax: 3
+      equity: 6
+      loans: 7
+      owner_shareholder: 3
+      accruals: 1
+      prepaids: 1
+      fixed_assets: 19
+      deferred_revenue: 1
+      uncategorized_active: 49
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 114e4ba7-ce4f-4695-a858-6451f13d70d3
+        - code: 1080
+          name: Interactive Broker - U2689295
+          type: BANK
+          account_id: 88add6be-0744-4a77-843a-80a5edfd3c50
+        - code: 1095
+          name: Kraken
+          type: BANK
+          account_id: fa4f0853-dc9f-435a-8680-96f413b0b3f3
+        - code: 1200
+          name: HSBC X1088
+          type: BANK
+          account_id: d1dab6a0-64a9-461a-ac5b-df97714dd8cb
+        - code: 1201
+          name: HSBC x4221 - USD
+          type: BANK
+          account_id: a73e3d57-6035-44f6-84c8-9372b146061a
+      clearing:
+        - code: ""
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 114e4ba7-ce4f-4695-a858-6451f13d70d3
+        - code: 3005
+          name: Suspense
+          type: CURRLIAB
+          account_id: 98128780-75f6-4a56-93e6-1673b17d9641
+      intercompany:
+        - code: 1656
+          name: Due from E4L
+          type: CURRENT
+          account_id: f1a12eae-ea43-4c4e-a436-ad6abab7364e
+        - code: 2601
+          name: Due to NES Health LLC
+          type: CURRLIAB
+          account_id: c1853873-8d86-4e71-83cd-704f0999afd3
+        - code: 2602
+          name: Due to XPO
+          type: CURRLIAB
+          account_id: fe361d53-f103-422c-a731-badc787eb46d
+        - code: 2603
+          name: Due to Harry
+          type: CURRLIAB
+          account_id: 644fda99-cd6e-483c-8269-d2a2ad7188e6
+        - code: 8200
+          name: Realised Currency Gains
+          type: EXPENSE
+          account_id: 2731af49-bbc5-4a4f-936b-83472d15e94c
+        - code: 825
+          name: PAYE Payable
+          type: CURRLIAB
+          account_id: 8865e192-0daf-4c2c-89bd-a8ba2ed377d2
+        - code: 826
+          name: NIC Payable
+          type: CURRLIAB
+          account_id: 340f9656-66fc-41ed-ba78-16e33753b316
+      accounts_receivable:
+        - code: 610
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: 8a93970f-96cf-4a4d-aa2b-3c0e60ef529c
+        - code: 611
+          name: Less Provision for Doubtful Debts
+          type: CURRENT
+          account_id: 463071f5-d4a1-40be-b83f-8795f38aef39
+      accounts_payable:
+        - code: 2130
+          name: Accounts Payable - USD
+          type: CURRLIAB
+          account_id: 2e00ad18-724e-476f-909b-4e1e1c72e4a1
+      revenue:
+        - code: 200
+          name: Sales
+          type: REVENUE
+          account_id: 36dec125-b3be-483a-9862-0b13da00d301
+        - code: 260
+          name: Other Revenue
+          type: REVENUE
+          account_id: 806b1a0d-980e-4a32-8616-784d050160b8
+        - code: 270
+          name: Interest Income
+          type: REVENUE
+          account_id: 694f962b-a553-4f86-beab-7e8884ae6aa0
+        - code: 4001
+          name: Contractor services - H Massey
+          type: REVENUE
+          account_id: bb65ec62-2faf-44dd-849c-5914fbb934d1
+        - code: 4002
+          name: Management Charges to XPO Health
+          type: REVENUE
+          account_id: 9974392a-976e-44d2-a56c-6599d315f2a8
+        - code: 4101
+          name: Professional miHealth
+          type: REVENUE
+          account_id: d5bbcf9c-0919-4825-9b2a-30c60295786f
+        - code: 4103
+          name: BWS - Outright
+          type: REVENUE
+          account_id: 5623aef9-dbed-4ddc-a8fa-430fd30f029c
+        - code: 4106
+          name: Infoceuticals
+          type: REVENUE
+          account_id: 2b16a27d-2d81-4e76-a1f6-146585fa351c
+        - code: 4108
+          name: BWS - NES Plan
+          type: REVENUE
+          account_id: 66b7a9fb-52ae-46ed-8531-7bbf8b3c171c
+        - code: 4110
+          name: Books
+          type: REVENUE
+          account_id: 8162f343-15cd-43db-9b0f-d3afc31fe052
+        - code: 4112
+          name: "Sales - CD's/DVD's"
+          type: REVENUE
+          account_id: 1129f212-9992-418c-98d2-3717d8866f0c
+        - code: 4113
+          name: Events
+          type: REVENUE
+          account_id: 8e4ac228-1bc8-4a43-aa2b-ae9886f99dac
+        - code: 4114
+          name: Professional Remote Scanner
+          type: REVENUE
+          account_id: d20bf5fc-bb54-495b-9741-e9748fb14fcf
+        - code: 4118
+          name: SAles - BWS - Demos/Trials
+          type: REVENUE
+          account_id: 4d1571b3-e19c-4110-904d-ecb75ec9bf8b
+        - code: 4121
+          name: BHC Program
+          type: REVENUE
+          account_id: 019fe315-0427-462a-88f1-43643d4c1f3f
+        - code: 4122
+          name: Sales - Energy4Life
+          type: REVENUE
+          account_id: 28ad38c5-a7be-4ee4-8fda-33bbe1b35586
+        - code: 4124
+          name: Sales - GEM Device
+          type: REVENUE
+          account_id: 02500809-80e1-4f62-9a0c-0498a205f69d
+        - code: 4126
+          name: SAAS - Subscriptions
+          type: REVENUE
+          account_id: c285fcae-7014-4b4a-9f94-71e51bd0215e
+        - code: 4128
+          name: BWS Trial
+          type: REVENUE
+          account_id: 6e3dedb4-f0c0-4020-8620-b726bf409bef
+        - code: 4129
+          name: Meditations
+          type: REVENUE
+          account_id: a3dc3eea-49c9-4853-8c37-b2a148a99e6b
+        - code: 4131
+          name: Sales - Leaflets
+          type: REVENUE
+          account_id: 4b34b70a-8a6e-4245-a1c2-4710c973bc91
+        - code: 4132
+          name: Life Journey Screens
+          type: REVENUE
+          account_id: 3bb2767b-69c7-4619-b34d-91832d9e3d9e
+        - code: 4133
+          name: BWS Upgrade
+          type: REVENUE
+          account_id: 274d6c76-1544-41a7-aac5-3525c6ad6f41
+        - code: 4134
+          name: BWS Subscription
+          type: REVENUE
+          account_id: c42b5060-e9b1-4fa0-89c7-5fdaadb6c5b0
+        - code: 4135
+          name: BHC Subscription
+          type: REVENUE
+          account_id: f75391f8-4c1f-4bd0-9e92-6c492f84de3b
+        - code: 4137
+          name: NES Care Insurance
+          type: REVENUE
+          account_id: 2d44bd3b-7f20-48a1-98cc-cb1332d378ba
+        - code: 4138
+          name: miHealth Repairs
+          type: REVENUE
+          account_id: 7dcf2da5-0ebb-44d2-8f81-564b4f2aeea5
+        - code: 4139
+          name: miHealth Accessories
+          type: REVENUE
+          account_id: 4acbe8ee-e62c-4ba2-b8af-8224af92e7ca
+        - code: 4140
+          name: MR Screen for BWS and miHealth
+          type: REVENUE
+          account_id: 1aabb17d-07c6-4b06-ac92-8b8b4b716b82
+        - code: 4143
+          name: BioEnergetiX WellNES Systems Tri
+          type: REVENUE
+          account_id: fdd6df78-4935-4b2e-93de-84ea8d9caf2c
+        - code: 4200
+          name: Sales Income
+          type: REVENUE
+          account_id: 0157f7c7-733b-49cb-9025-e6c70c58352f
+        - code: 4202
+          name: Sales - Accessories
+          type: REVENUE
+          account_id: e123fe4a-2bff-471f-8e04-446ac1d44367
+        - code: 4203
+          name: Sales - BHC - NES Plan
+          type: REVENUE
+          account_id: 1602efae-5871-4b69-bf79-b0d0dfd76fb9
+        - code: 4204
+          name: Sales - BHC - Outright
+          type: REVENUE
+          account_id: 6d1e42c4-d485-4a86-897a-70f8f6f5437f
+        - code: 4205
+          name: Sales - Bioenergetic Control Unit
+          type: REVENUE
+          account_id: 6a07d736-a06f-495b-9008-0465e99cdb2f
+        - code: 4209
+          name: Sales - BWS License Transfer
+          type: REVENUE
+          account_id: 4f883a8b-be46-44d1-b97a-810dffe12167
+        - code: 4212
+          name: Sales - GEM Subscription
+          type: REVENUE
+          account_id: c868d674-f2b9-407b-8c4b-caa18d7cb212
+        - code: 4215
+          name: Sales - Meditation Credits
+          type: REVENUE
+          account_id: cf15b714-eb2c-400a-83c9-9553c9801744
+        - code: 4216
+          name: Sales - miHealth Trial
+          type: REVENUE
+          account_id: 9b09dc49-fa25-4270-9676-592cb5169d10
+        - code: 4217
+          name: Sales - miHealth
+          type: REVENUE
+          account_id: e74bfaaf-1015-4559-90e1-3c345cb0b669
+        - code: 4218
+          name: Sales - NES Plan Fees
+          type: REVENUE
+          account_id: ee6f2ff3-62c7-4ac7-96ca-b304056b7b31
+        - code: 4219
+          name: Sales - Other Income - EUR
+          type: REVENUE
+          account_id: e075c53d-56d9-4e05-999f-039e94cb3f6e
+        - code: 4220
+          name: Sales - Other Products
+          type: REVENUE
+          account_id: f3890a5c-0d62-4d45-a6c0-b8b755507283
+        - code: 4222
+          name: Sales - Scanners
+          type: REVENUE
+          account_id: fd778b33-bd3b-4068-a3c0-1d4233c6d820
+        - code: 4700
+          name: Shipping Income
+          type: REVENUE
+          account_id: d6ca22cb-ad9d-428a-a269-085b914023dd
+        - code: 4999
+          name: Other Income
+          type: REVENUE
+          account_id: db85c0d4-5663-4504-ab04-e8c9821116ae
+        - code: 502
+          name: REfund for charges (sales return)
+          type: SALES
+          account_id: b5a37260-50ca-4a33-bb33-43423c1094a8
+        - code: 5200
+          name: Royalty Expense
+          type: OTHERINCOME
+          account_id: 63af6bd0-daa8-4629-b23f-d80a85bd5643
+      cogs:
+        - code: 5000
+          name: COGS - Music Creation
+          type: DIRECTCOSTS
+          account_id: 29d514eb-5148-495a-bc24-ef38c7f4b9ac
+        - code: 5101
+          name: COGS - miHealth
+          type: DIRECTCOSTS
+          account_id: ea51a086-58a1-4566-a17a-7ff18fb2bfc9
+        - code: 5102
+          name: COGS - BHC - NES Plan
+          type: DIRECTCOSTS
+          account_id: d24dd533-624c-4ea7-b76a-8c5ae964e373
+        - code: 5103
+          name: COGS - Scanners
+          type: DIRECTCOSTS
+          account_id: 5dbe2dcd-c250-4977-a9c6-cadd3f0e0301
+        - code: 5104
+          name: COGS - BHC - Outright
+          type: DIRECTCOSTS
+          account_id: 587628e1-1a24-4086-8cc4-27be10ca3cfd
+        - code: 5105
+          name: COGS - Bioenergetic Control Unit
+          type: DIRECTCOSTS
+          account_id: da91a40f-4358-42ae-9d25-51d9d00ddaf6
+        - code: 5106
+          name: COGS - Infoceuticals
+          type: DIRECTCOSTS
+          account_id: f4461a25-d22b-4978-9c84-2bb87ab11a58
+        - code: 5107
+          name: COGS - BWS - Demos/Trials
+          type: DIRECTCOSTS
+          account_id: 27379c11-2a13-400e-935d-ba8fb5cfd629
+        - code: 5108
+          name: COGS - BWS - NES Plan
+          type: DIRECTCOSTS
+          account_id: 10d1c8fb-1189-4ead-83bb-5d6df858bed0
+        - code: 5109
+          name: COGS - BWS - Outright
+          type: DIRECTCOSTS
+          account_id: f5cc9501-6934-4773-82bc-a20904774821
+        - code: 5110
+          name: COGS - Books
+          type: DIRECTCOSTS
+          account_id: 6c39df6c-a21f-4b03-8262-8fc555c67446
+        - code: 5111
+          name: "COGS - DVD's"
+          type: DIRECTCOSTS
+          account_id: 1ba6fde2-262f-47d5-a838-153f5baaef52
+        - code: 5112
+          name: "COGS - CD's"
+          type: DIRECTCOSTS
+          account_id: 0f703347-e18f-4ab4-a55d-70755da8dab3
+        - code: 5113
+          name: COGS - Accessories
+          type: DIRECTCOSTS
+          account_id: 3da86b45-75de-4c76-b0fa-b65cbeb8581d
+        - code: 5114
+          name: COGS - GEM
+          type: DIRECTCOSTS
+          account_id: 13df2743-b6dc-495a-874a-66da1655994c
+        - code: 5115
+          name: COGS - Other Products
+          type: DIRECTCOSTS
+          account_id: 319b3be8-9206-4862-bd67-8d61860b15ad
+        - code: 5116
+          name: COGS - BWS License Transfer
+          type: DIRECTCOSTS
+          account_id: a5f038f8-a6d4-46a2-91d5-4d25d02f0c47
+        - code: 5117
+          name: COGS - Energy4Life
+          type: DIRECTCOSTS
+          account_id: 07313064-c96f-42b1-ac72-1f3f0e13b1a8
+        - code: 5118
+          name: COGS - GEM Subscription
+          type: DIRECTCOSTS
+          account_id: 8b3767bf-8649-4384-a94e-da6c47052091
+        - code: 5119
+          name: COGS - Leaflets
+          type: DIRECTCOSTS
+          account_id: b8c2d938-8b97-4602-bf46-a5cd8318f872
+        - code: 5120
+          name: COGS - Meditation Credits
+          type: DIRECTCOSTS
+          account_id: aa3e9516-f100-4111-9f9d-d3543e8a8850
+        - code: 5121
+          name: COGS - miHealth Credits
+          type: DIRECTCOSTS
+          account_id: d0dfecc0-00e2-4648-92c3-fde6c00501b0
+        - code: 5150
+          name: COGS - Inventory - Write Off
+          type: DIRECTCOSTS
+          account_id: 59056af0-0f02-4b6c-95f8-121606c32f89
+        - code: 5200
+          name: Royalty Expense
+          type: OTHERINCOME
+          account_id: 63af6bd0-daa8-4629-b23f-d80a85bd5643
+        - code: 5500
+          name: "COGS - Shipping, Freight & Delivery"
+          type: DIRECTCOSTS
+          account_id: 46db9743-bf3d-4201-817f-88e18e3575d2
+        - code: 5501
+          name: Shipping Material
+          type: DIRECTCOSTS
+          account_id: 26e642cf-adea-47dd-9886-49b0a7fff367
+        - code: 5502
+          name: COGS - 3PL Order Fulfilment
+          type: DIRECTCOSTS
+          account_id: d44469e1-72f5-4b2b-b3cc-338b4a34d80f
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: 354385e2-d8ac-47ce-bc64-cade797499ff
+      inventory:
+        - code: 1301
+          name: Inventory - Infoceuticals.
+          type: CURRENT
+          account_id: 5853cf34-4b5a-449e-9d07-329e655c1c7f
+        - code: 1302
+          name: "Inventory - Books & Marketing Materials."
+          type: CURRENT
+          account_id: 372b7307-b25f-41ca-902b-1332a0416dc6
+        - code: 1303
+          name: Inventory - CDs
+          type: CURRENT
+          account_id: 8667a358-739d-4a7c-8ea6-8ecdafdcb430
+        - code: 1304
+          name: Inventory - Mihealths.
+          type: CURRENT
+          account_id: 63cbf652-e241-47e4-8278-58c004595537
+        - code: 1305
+          name: Inventory - Scanners.
+          type: CURRENT
+          account_id: 550c15f8-540a-4baa-ae19-b53eba3ed196
+        - code: 1306
+          name: Inventory - Accessories
+          type: CURRENT
+          account_id: 939a526f-566b-4689-89e4-82129a6999c0
+        - code: 1307
+          name: Inventory - GEM..
+          type: CURRENT
+          account_id: d11af379-5584-48af-9c1d-85bbb9f54b4b
+        - code: 1309
+          name: "Inventory - DVD's."
+          type: CURRENT
+          account_id: 0b7b70c6-d748-447d-866a-4dff8a031b3d
+        - code: 1310
+          name: Inventory - GEM WIP
+          type: CURRENT
+          account_id: 4f05ff45-833c-4f7e-ba7a-c3f4162f2d82
+        - code: 1319
+          name: Inventory - MiHealth WIP.
+          type: CURRENT
+          account_id: 0e999144-91f5-41e0-b6a8-8403cc4ebb32
+        - code: 1322
+          name: Inventory - Scanner WIP.
+          type: CURRENT
+          account_id: 5e9c1113-7880-4e40-9a9e-d0dcf6354aec
+        - code: 1323
+          name: Inventory - Welcome Kits.
+          type: CURRENT
+          account_id: 3ac4dde4-4ef5-4a09-8165-1578a59a9fbd
+        - code: 1325
+          name: Inventory - GEM Accessories
+          type: CURRENT
+          account_id: 471c51e3-9160-4c32-8921-1dc4d7350bb3
+        - code: 1331
+          name: Inventory - Bioenergetic Control Unit.
+          type: CURRENT
+          account_id: 26a8a771-8958-446e-8fa0-657f9b8dbcec
+        - code: 5150
+          name: COGS - Inventory - Write Off
+          type: DIRECTCOSTS
+          account_id: 59056af0-0f02-4b6c-95f8-121606c32f89
+        - code: 630
+          name: Inventory
+          type: INVENTORY
+          account_id: dd5f8e65-4696-4cc1-9a83-460092397d6e
+      commission_affiliate:
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: 354385e2-d8ac-47ce-bc64-cade797499ff
+        - code: 6417
+          name: Practitioner Commissions
+          type: EXPENSE
+          account_id: 48e008e6-187c-4e6c-8a9a-2e446713bad6
+      payroll:
+        - code: 1000
+          name: Wages - Sales
+          type: OVERHEADS
+          account_id: 6eb84808-721c-4305-a985-762d726ab8a0
+        - code: 1001
+          name: Wages - Marketing
+          type: OVERHEADS
+          account_id: b4045d6d-d886-40fa-b08a-133c24e5e014
+        - code: 1002
+          name: Wages - Operations
+          type: OVERHEADS
+          account_id: c013c4e9-27c7-4f2c-8c08-477fa408a4d6
+        - code: 1004
+          name: "Wages - G&A"
+          type: OVERHEADS
+          account_id: b725d547-aed8-4a1e-be2c-0a46eae7503d
+        - code: 1008
+          name: "Payroll Gross Wages - Logistics & Shipping"
+          type: OVERHEADS
+          account_id: e24b4a10-2ecd-4ec9-a1c3-abd8a65b2a5f
+        - code: 1010
+          name: Salaries - Accounting
+          type: OVERHEADS
+          account_id: 34e1f7ab-657a-4ac3-873a-71c1a1d671b8
+        - code: 1012
+          name: "Payroll Gross Wages - Payroll Taxes R&D"
+          type: OVERHEADS
+          account_id: cb9aaf5d-8179-4f2b-be4e-8f3670c8d88d
+        - code: 1013
+          name: Payroll Gross Wages - Pensions
+          type: OVERHEADS
+          account_id: 96da21d1-50e6-4bed-a800-1ba11c35f192
+        - code: 1014
+          name: "Payroll Gross Wages - Research & Development"
+          type: OVERHEADS
+          account_id: 164f3fde-8f45-4806-bc25-594567500332
+        - code: 6429
+          name: Payroll Taxes
+          type: EXPENSE
+          account_id: 22ae7fdf-4ce6-4cfc-a6ae-3dfc51e6442e
+        - code: 814
+          name: Wages Payable - Payroll
+          type: CURRLIAB
+          account_id: 09823a9e-eba3-4070-b9f2-14d2eece06a5
+        - code: 815
+          name: Employee contribution to benefits
+          type: CURRLIAB
+          account_id: 9824d4a7-cc2c-4f0b-a27c-708d39d0138d
+        - code: 825
+          name: PAYE Payable
+          type: CURRLIAB
+          account_id: 8865e192-0daf-4c2c-89bd-a8ba2ed377d2
+        - code: 826
+          name: NIC Payable
+          type: CURRLIAB
+          account_id: 340f9656-66fc-41ed-ba78-16e33753b316
+        - code: 858
+          name: Pensions Payable
+          type: CURRLIAB
+          account_id: a90f5362-d8cd-4463-81bc-94db73e9262c
+        - code: 868
+          name: Earnings Orders Payable
+          type: CURRLIAB
+          account_id: 4c5f5c89-c1bb-426f-aa98-bf46e98423de
+        - code: 947
+          name: Student Loan Deductions Payable
+          type: CURRLIAB
+          account_id: f375c6ef-3e6a-45d1-ba4a-4ea82d365b21
+      sales_tax:
+        - code: 2131
+          name: VAT Control
+          type: CURRLIAB
+          account_id: d2f1c26c-a545-4e0c-8631-5a9dfb434558
+        - code: 7620
+          name: Corporation Fees
+          type: EXPENSE
+          account_id: 23bf0c1e-d178-46c6-8972-bca27ce8f159
+        - code: 830
+          name: Provision for Corporation Tax
+          type: CURRLIAB
+          account_id: 3cfb627f-1bf8-4bf7-89e4-0a69cbcb0cb5
+      equity:
+        - code: 3000
+          name: Opening Balance Equity
+          type: EQUITY
+          account_id: d8ae83f9-2ff2-48df-a373-0aa8e20b1634
+        - code: 3002
+          name: Share Capital
+          type: EQUITY
+          account_id: 859efb48-ca87-4038-81d2-78e3431f608a
+        - code: 3100
+          name: Distribution
+          type: EQUITY
+          account_id: 378132d6-41ce-491a-b769-d5a6810f58e9
+        - code: 3200
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 7aa3b950-a1be-41b2-9a5c-99ae0c8f904f
+        - code: 970
+          name: Owner A Funds Introduced
+          type: EQUITY
+          account_id: e1abe3c2-3cf6-49f9-b87a-78769eb555a8
+        - code: 980
+          name: Owner A Drawings
+          type: EQUITY
+          account_id: 47121d5c-d448-4f41-a8ea-f868bf18cd29
+      loans:
+        - code: 1221
+          name: Loan to Harry
+          type: CURRENT
+          account_id: cc09784c-0998-416f-806b-c38f463f01d1
+        - code: 1223
+          name: Loan to Jam Regenus
+          type: CURRENT
+          account_id: fc7d843f-f373-4258-88e8-56dc7e9a917d
+        - code: 2205
+          name: Loan Payable - API
+          type: CURRLIAB
+          account_id: 2bad7186-9b11-4e94-9cd8-40af8147aefc
+        - code: 835
+          name: "Directors' Loan Account"
+          type: CURRLIAB
+          account_id: ddf30207-62b0-4a26-a3f5-70b436e78e00
+        - code: 900
+          name: Loan
+          type: TERMLIAB
+          account_id: a8f3a670-8894-4df7-9787-362d5ba429b3
+        - code: 910
+          name: Hire Purchase Loan
+          type: TERMLIAB
+          account_id: b40ae891-5004-4b60-8add-ecbd57d901cd
+        - code: 947
+          name: Student Loan Deductions Payable
+          type: CURRLIAB
+          account_id: f375c6ef-3e6a-45d1-ba4a-4ea82d365b21
+      owner_shareholder:
+        - code: 801
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: 54beed4e-36d4-4135-850c-ca1478b2259b
+        - code: 970
+          name: Owner A Funds Introduced
+          type: EQUITY
+          account_id: e1abe3c2-3cf6-49f9-b87a-78769eb555a8
+        - code: 980
+          name: Owner A Drawings
+          type: EQUITY
+          account_id: 47121d5c-d448-4f41-a8ea-f868bf18cd29
+      accruals:
+        - code: 805
+          name: Accruals
+          type: CURRLIAB
+          account_id: 470d9def-d0bb-42c0-8236-a060029d3958
+      prepaids:
+        - code: 1620
+          name: Prepayments
+          type: CURRENT
+          account_id: 9835a19c-237c-4a61-9838-6d71c78d2d10
+      fixed_assets:
+        - code: 0004
+          name: "Furniture & Fixtures"
+          type: FIXED
+          account_id: fcb98767-6db9-42c6-a0cb-076e061d502c
+        - code: 0020
+          name: "Less Accumulated Depreciation on F&F"
+          type: FIXED
+          account_id: be215789-0981-482b-9bcc-3793cbcc017e
+        - code: 0500
+          name: Investments
+          type: FIXED
+          account_id: 6949140a-525f-4c24-a396-fbb2de96dbcf
+        - code: 710
+          name: Office Equipment
+          type: FIXED
+          account_id: 2b7c3687-e615-4e7e-a7c3-809147e7770c
+        - code: 711
+          name: Less Accumulated Depreciation on Office Equipment
+          type: FIXED
+          account_id: ebb0750b-312b-499f-a3f5-9790056edb29
+        - code: 720
+          name: Computer Equipment
+          type: FIXED
+          account_id: 403a92a3-eed2-4f27-bd98-228d40f952d2
+        - code: 721
+          name: Less Accumulated Depreciation on Computer Equipment
+          type: FIXED
+          account_id: bd9071a1-3c2b-4524-835e-1704cbbc33f7
+        - code: 740
+          name: Buildings
+          type: FIXED
+          account_id: 95a61d8d-07d8-4b22-a4d9-c405988abff1
+        - code: 741
+          name: Less Accumulated Depreciation on Buildings
+          type: FIXED
+          account_id: a421df03-2d5a-4b12-b68a-69dd8d807ab6
+        - code: 750
+          name: Leasehold Improvements
+          type: FIXED
+          account_id: 50069b2f-60b2-4ab4-a941-8975f1451baf
+        - code: 751
+          name: Less Accumulated Depreciation on Leasehold Improvements
+          type: FIXED
+          account_id: 81edad54-e907-4b7b-9db1-a67585a27455
+        - code: 760
+          name: Motor Vehicles
+          type: FIXED
+          account_id: 4b7f82fd-c55e-443e-bd63-b2cc4dff1f0c
+        - code: 761
+          name: Less Accumulated Depreciation on Motor Vehicles
+          type: FIXED
+          account_id: a36a0e2f-2f6d-4bc0-a160-1e8ca5d6c42c
+        - code: 764
+          name: Plant and Machinery
+          type: FIXED
+          account_id: 0b380739-9ccf-4c49-9fa5-12c4c113b3e6
+        - code: 765
+          name: Less Accumulated Depreciation on Plant and Machinery
+          type: FIXED
+          account_id: 18c1c59d-346c-4ec2-af2c-14234d35bce5
+        - code: 770
+          name: Intangibles
+          type: FIXED
+          account_id: 462211b8-13e8-4b85-8282-d5e832192011
+        - code: 771
+          name: Less Accumulated Amortisation on Intangibles
+          type: FIXED
+          account_id: bf129ed7-4b26-4970-8466-ee456c108480
+        - code: DEL1080
+          name: Broker
+          type: FIXED
+          account_id: 3e66bf19-2fa8-4477-ad0f-3fc7a1f54dc0
+        - code: DEL1095
+          name: Kraken DEL
+          type: FIXED
+          account_id: 5bb16682-9b5e-48e1-b5dc-998d5d8720ce
+      deferred_revenue:
+        - code: 920
+          name: Deferred Tax
+          type: TERMLIAB
+          account_id: 52863675-9831-4439-bc0d-9f98c215edf6
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+  - key: nesllc
+    legal_name: NES Health LLC
+    xero_name: NES Health LLC
+    tenant_id: ed47099c-5925-4f97-bc58-b5fdc8d024b7
+    organisation_id: ed47099c-5925-4f97-bc58-b5fdc8d024b7
+    write_app: nespty2
+    base_currency: USD
+    country: US
+    timezone: EASTERNSTANDARDTIME
+    edition: BUSINESS
+    xero_class: PREMIUM
+    tax_number: null
+    financial_year_end_day: 31
+    financial_year_end_month: 12
+    period_lock_date_raw: null
+    end_of_year_lock_date_raw: null
+    coa: {"total": 242, "active": 237, "archived": 5, "by_type": {"BANK": 7, "EXPENSE": 108, "FIXED": 6, "CURRLIAB": 17, "CURRENT": 24, "NONCURRENT": 7, "TERMLIAB": 2, "EQUITY": 5, "REVENUE": 33, "OTHERINCOME": 2, "SALES": 1, "DIRECTCOSTS": 25, "OVERHEADS": 2, "LIABILITY": 1, "DEPRECIATN": 1, "INVENTORY": 1}}
+    tracking_categories:
+      - name: Sales Agent ID
+        status: ACTIVE
+        id: 829fa8d1-636e-48bb-9f52-21d5a0058b8b
+        option_count: 495
+    bank_accounts:
+      - code: ""
+        name: Sales Tax-Energy4Life
+        account_id: d99b2d5e-b834-4277-bb26-79647c5f008b
+        bank_last4: 0036
+        currency: USD
+        classes: []
+      - code: ""
+        name: Paypal Bank
+        account_id: fd4a5cda-9c08-47d6-8866-23d1751ba18e
+        bank_last4: USD
+        currency: USD
+        classes: []
+      - code: ""
+        name: Shopify-Energy4Life
+        account_id: e932bbdc-0aa3-4362-8824-d290c3f5c8e2
+        bank_last4: 9938
+        currency: USD
+        classes: []
+      - code: 1010
+        name: Chase
+        account_id: 1f68ee84-f160-4c85-82e7-9b97f47ff2de
+        bank_last4: 0020
+        currency: USD
+        classes: []
+      - code: 1020
+        name: Stripe USD
+        account_id: 99e64ef9-6ec2-4902-84b0-8eed6b82c39d
+        bank_last4: runi
+        currency: USD
+        classes: []
+      - code: 2011
+        name: AMEX - 72007
+        account_id: 48054d4a-bd72-4910-810f-e3948d0f7eb5
+        bank_last4: 2007
+        currency: USD
+        classes: []
+      - code: SH-00000
+        name: Shopify Payment Balance
+        account_id: d7a3504a-f563-4b9b-ad73-766e5c701de4
+        bank_last4: 0000
+        currency: USD
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["AMEX - 72007", "-41237.86", "62731.83", "68049.97", "-46556.00"]
+      - cells: ["Chase", "12297.72", "348503.76", "367842.08", "-7040.60"]
+      - cells: ["Paypal Bank", "0.00", "3569.06", "3569.06", "0.00"]
+      - cells: ["Sales Tax-Energy4Life", "654.05", "1.00", "0.00", "655.05"]
+      - cells: ["Shopify-Energy4Life", "8253.51", "3247.78", "904.50", "10596.79"]
+      - cells: ["Stripe USD", "34444.14", "245304.04", "254650.43", "25097.75"]
+      total_cells: ["Total", "14411.56", "663357.47", "695016.04", "-17247.01"]
+    ar_open_page1_count: 56
+    ar_open_page1_amount_due: 28619.77
+    ap_open_page1_count: 13
+    ap_open_page1_amount_due: 219865.7
+    classified_account_counts:
+      bank: 7
+      credit_card: 1
+      clearing: 7
+      intercompany: 3
+      accounts_receivable: 1
+      accounts_payable: 1
+      revenue: 35
+      cogs: 25
+      inventory: 10
+      commission_affiliate: 3
+      merchant_fees: 1
+      payroll: 20
+      sales_tax: 3
+      equity: 5
+      loans: 3
+      owner_shareholder: 3
+      fixed_assets: 6
+      uncategorized_active: 112
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: Sales Tax-Energy4Life
+          type: BANK
+          account_id: d99b2d5e-b834-4277-bb26-79647c5f008b
+        - code: ""
+          name: Paypal Bank
+          type: BANK
+          account_id: fd4a5cda-9c08-47d6-8866-23d1751ba18e
+        - code: ""
+          name: Shopify-Energy4Life
+          type: BANK
+          account_id: e932bbdc-0aa3-4362-8824-d290c3f5c8e2
+        - code: 1010
+          name: Chase
+          type: BANK
+          account_id: 1f68ee84-f160-4c85-82e7-9b97f47ff2de
+        - code: 1020
+          name: Stripe USD
+          type: BANK
+          account_id: 99e64ef9-6ec2-4902-84b0-8eed6b82c39d
+        - code: 2011
+          name: AMEX - 72007
+          type: BANK
+          account_id: 48054d4a-bd72-4910-810f-e3948d0f7eb5
+        - code: SH-00000
+          name: Shopify Payment Balance
+          type: BANK
+          account_id: d7a3504a-f563-4b9b-ad73-766e5c701de4
+      credit_card:
+        - code: 2011
+          name: AMEX - 72007
+          type: BANK
+          account_id: 48054d4a-bd72-4910-810f-e3948d0f7eb5
+      clearing:
+        - code: 1201
+          name: Sales Clearing
+          type: CURRENT
+          account_id: a9b147d6-59e8-4062-aee8-f469f04ead21
+        - code: 9996
+          name: Suspense account
+          type: EQUITY
+          account_id: ae797815-dc1e-4ff8-8b23-eabbcb37ae69
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRENT
+          account_id: 820e5ae3-9e01-4013-b2ff-d05f03efb5d5
+        - code: Clearing2
+          name: Expensify Clearing
+          type: CURRENT
+          account_id: 8e85b25e-5c89-4062-accd-927ff9be8387
+        - code: SH-60000
+          name: Shopify Cash Clearing
+          type: CURRENT
+          account_id: f67b1cca-b21b-4c9f-8305-dce81599db35
+        - code: SH-60001
+          name: Shopify Other Payment Clearing
+          type: CURRENT
+          account_id: f6c31cb7-56b3-4d32-a45a-539d0c435c30
+        - code: SH-80002
+          name: Shopify Exchange Credit Clearing
+          type: CURRLIAB
+          account_id: 8dbc4fd3-13db-4563-8ad6-c23096795f6c
+      intercompany:
+        - code: 1604
+          name: Due from GIST
+          type: NONCURRENT
+          account_id: d0a98be2-88ce-4554-8ad3-7a655c21353e
+        - code: 1653
+          name: Due from IBE
+          type: NONCURRENT
+          account_id: 251339df-d02d-4174-b437-f2041e55610f
+        - code: 8200
+          name: Realized Currency Gains
+          type: EXPENSE
+          account_id: ff5fa524-062e-460a-aba2-c4daae83d70d
+      accounts_receivable:
+        - code: 1200
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: a5e6d74f-1129-459c-be91-a5f19feb871a
+      accounts_payable:
+        - code: 2000
+          name: Accounts Payable
+          type: CURRLIAB
+          account_id: 61965382-7423-4668-be11-0f76240d6092
+      revenue:
+        - code: 4100
+          name: Sales of Product Income
+          type: REVENUE
+          account_id: 3971c197-e612-4ad3-9720-c6e0e61af962
+        - code: 4101
+          name: Professional miHealth
+          type: REVENUE
+          account_id: 8ba66b2c-cdee-4150-820c-5a3da991c6cb
+        - code: 4103
+          name: BWS - Outrights
+          type: REVENUE
+          account_id: 05730c4c-8cd5-41a6-a664-87b54e91313a
+        - code: 4106
+          name: Infoceuticals
+          type: REVENUE
+          account_id: 0d0e2a0c-26ae-48f9-9d88-c5252e2e6869
+        - code: 4108
+          name: BWS - NES Plan
+          type: REVENUE
+          account_id: f777a2c0-21df-429a-9e1f-94d39d7d0d75
+        - code: 4110
+          name: Books
+          type: REVENUE
+          account_id: faa09046-75ef-463c-a6ea-cae370bac5c2
+        - code: 4112
+          name: "CD's"
+          type: REVENUE
+          account_id: 064c36a9-8825-4ae5-9813-9267d30d3c2c
+        - code: 4113
+          name: Events
+          type: REVENUE
+          account_id: d6d4c479-e258-47a1-9a1d-1797ceeefd77
+        - code: 4114
+          name: Professional Remote Scanner
+          type: REVENUE
+          account_id: ea608348-a55f-495a-941c-83a0663ff99e
+        - code: 4118
+          name: BWS Demos/Trials
+          type: REVENUE
+          account_id: 9df399a8-59ed-487e-a352-de766bfbf0f7
+        - code: 4121
+          name: BHC Program
+          type: REVENUE
+          account_id: aa098c93-5468-4457-969f-f7d8b5eb12c2
+        - code: 4122
+          name: Energy4Life
+          type: REVENUE
+          account_id: 445088ce-2e4f-4ed4-9afa-c389a95c1da8
+        - code: 4124
+          name: GEM
+          type: REVENUE
+          account_id: 53db67de-3fcf-476c-83e7-d939968b0cf7
+        - code: 4126
+          name: SAAS - Subscriptions
+          type: REVENUE
+          account_id: 661f5e14-b8b6-4eed-8431-b720cc715164
+        - code: 4128
+          name: BWS Trial
+          type: REVENUE
+          account_id: 60a25491-4010-44f2-ba7b-b51d546f9070
+        - code: 4129
+          name: Meditations
+          type: REVENUE
+          account_id: 0b4796a8-93d2-44ca-9e56-d788d9d9e326
+        - code: 4131
+          name: Leaflets
+          type: REVENUE
+          account_id: eecabcdc-4333-4b84-93b7-dbb54abd3467
+        - code: 4132
+          name: Life Journey Screen
+          type: REVENUE
+          account_id: 49130c5f-cb40-4808-927d-8cf5c86e5439
+        - code: 4133
+          name: BWS Upgrade
+          type: REVENUE
+          account_id: b149e87e-6bc9-4432-830b-ebd9acefbe7c
+        - code: 4134
+          name: BWS Subscription
+          type: REVENUE
+          account_id: b58e7d98-dbb9-4ddf-aa84-58f22463c514
+        - code: 4135
+          name: BHC Subscription
+          type: REVENUE
+          account_id: 8a77d0f7-9f42-45fa-a42c-9cf1c495a78c
+        - code: 4137
+          name: NESCare Insurance
+          type: REVENUE
+          account_id: b87fb717-877a-416f-a602-cf827df0e737
+        - code: 4138
+          name: miHealth Repairs
+          type: REVENUE
+          account_id: 46c70b58-2a99-4094-8af8-9367743a171d
+        - code: 4139
+          name: miHealth Accessories
+          type: REVENUE
+          account_id: 9368b953-d1a1-4e00-90bf-adda210cf88f
+        - code: 4140
+          name: MR Screen for BWS and MiHealth
+          type: REVENUE
+          account_id: 53e6570c-7650-4edd-8b17-13e8a198e84e
+        - code: 4143
+          name: BioEnergetiX WellNES System Tri
+          type: REVENUE
+          account_id: 31016d18-041b-42c2-8650-ec8f2d93d37d
+        - code: 4160
+          name: Affiliate Revenue
+          type: REVENUE
+          account_id: e363016f-a6b2-4b06-b51e-74ad76640cdd
+        - code: 4212
+          name: Sales - GEM Subscription
+          type: REVENUE
+          account_id: e97b3175-8caf-4bc6-974e-9760123d9876
+        - code: 4217
+          name: Sales - miHealth
+          type: REVENUE
+          account_id: f5867c3f-4a27-41a1-9723-6a48452fa68d
+        - code: 4700
+          name: Shipping Income
+          type: REVENUE
+          account_id: 0bdb649b-2bb1-4583-ab87-ace9b5018edb
+        - code: 4999
+          name: Other income
+          type: OTHERINCOME
+          account_id: fd5183ee-d2c4-419f-8544-085a3e3fdb28
+        - code: 502
+          name: Refund for charges (sales return)
+          type: SALES
+          account_id: e6592add-86ae-41c7-92f3-cd09773c58e4
+        - code: SH-20000
+          name: Shopify Sales
+          type: REVENUE
+          account_id: 2ab1f0b8-3b9f-4e96-96d8-75b4c8344b24
+        - code: SH-20001
+          name: Shopify Discounts
+          type: REVENUE
+          account_id: 85bcde25-3113-4ebf-a1ed-4d81f7eedd35
+        - code: SH-20002
+          name: Shopify Shipping/Delivery Fee Revenue
+          type: REVENUE
+          account_id: 1a1455c8-0c08-4b8a-95fc-94c27c388762
+      cogs:
+        - code: 5100
+          name: Cost of Goods Sold
+          type: DIRECTCOSTS
+          account_id: 7438e111-31a6-46fa-84ef-adfc5d8ea55a
+        - code: 5101
+          name: COGS - miHealth
+          type: DIRECTCOSTS
+          account_id: 0bcaa573-9a90-4bc1-9904-68a5ae8896e5
+        - code: 5103
+          name: COGS - Scanners
+          type: DIRECTCOSTS
+          account_id: e39fb495-6325-4c30-9529-4da175772955
+        - code: 5106
+          name: COGS - Infoceuticals
+          type: DIRECTCOSTS
+          account_id: ee02d267-dfd4-4767-8a90-ab3b094c2583
+        - code: 5110
+          name: COGS - Books
+          type: DIRECTCOSTS
+          account_id: cc0eeccc-c865-40dd-9edf-7af29ca85327
+        - code: 5111
+          name: "COGS - DVD's"
+          type: DIRECTCOSTS
+          account_id: 7bfd3d61-d989-4a59-9605-2362eb10ca83
+        - code: 5112
+          name: "COGS - CD's"
+          type: DIRECTCOSTS
+          account_id: 4296384f-37c1-4e36-b76b-adc66e71e312
+        - code: 5113
+          name: COGS - Accessories
+          type: DIRECTCOSTS
+          account_id: 4f0d6fcb-bdd6-4d18-86da-87c2a944338a
+        - code: 5114
+          name: COGS - GEM
+          type: DIRECTCOSTS
+          account_id: e54aadb4-6a3b-4e17-8595-bd5bbcb5c342
+        - code: 5115
+          name: COGS - Other Products
+          type: DIRECTCOSTS
+          account_id: 6d1c8051-bf02-4214-a50f-1c08fd53ad47
+        - code: 5200
+          name: Royalty Expense
+          type: DIRECTCOSTS
+          account_id: cd4d84f4-3268-43b9-a9d3-69481b407b06
+        - code: 5201
+          name: Royalty miHealth
+          type: DIRECTCOSTS
+          account_id: 53620370-3c39-4fe4-a064-9578330f83e3
+        - code: 5202
+          name: Royalty Accessories
+          type: DIRECTCOSTS
+          account_id: 739d1ca3-d3ac-4d17-9ad1-578a90fc91f8
+        - code: 5204
+          name: Royalty Scanner
+          type: DIRECTCOSTS
+          account_id: 1fe1f4c6-22bd-4a44-bd09-5b3d625d7e82
+        - code: 5206
+          name: Royalty Infoceuticals
+          type: DIRECTCOSTS
+          account_id: 46c3c262-6927-413c-8827-3c1f2f69d8d8
+        - code: 5207
+          name: Royalty SAAS/BWS
+          type: DIRECTCOSTS
+          account_id: 68e87e07-777a-41a8-870e-7c1ff69388e7
+        - code: 5210
+          name: Royalty Books
+          type: DIRECTCOSTS
+          account_id: 1da9213a-b380-4828-bf4a-530ffb226f1c
+        - code: 5211
+          name: Royalty CD/DVD
+          type: DIRECTCOSTS
+          account_id: a25d03fc-d2ab-4ca1-8942-97253e1a49e6
+        - code: 5215
+          name: Royalty GEM
+          type: DIRECTCOSTS
+          account_id: 70756898-4d4c-46c8-bbff-b9ab3c4ab510
+        - code: 5290
+          name: Royalty Other
+          type: DIRECTCOSTS
+          account_id: 7349a051-815a-4525-949f-48698c57763a
+        - code: 5500
+          name: "COGS - Shipping, Freight & Deli"
+          type: DIRECTCOSTS
+          account_id: eab03e73-1565-4322-9ee3-9a352687efb9
+        - code: 5501
+          name: Shipping Materials
+          type: DIRECTCOSTS
+          account_id: 6a2fc268-727c-4811-b01d-c280d299b3ea
+        - code: 5502
+          name: COGS - 3PL Order Fulfillment
+          type: DIRECTCOSTS
+          account_id: eab9cc15-6207-4b56-94ed-9a3b1a1a1e62
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: 2e4f7726-37d0-47d3-8e1d-be432e58fc3a
+        - code: 5504
+          name: COGS - Team Wages
+          type: DIRECTCOSTS
+          account_id: 44c73b14-a9d9-49be-9a8e-eda849fe8e6a
+      inventory:
+        - code: 1301
+          name: Inventory - Infoceuticals
+          type: CURRENT
+          account_id: 75e0e9dc-523e-4024-9962-3af029b8e003
+        - code: 1302
+          name: "Inventory - Books & Marketing Materials"
+          type: CURRENT
+          account_id: da07a91b-370c-4459-9646-67f2ce7a7d88
+        - code: 1303
+          name: "Inventory - CD & DVD"
+          type: CURRENT
+          account_id: cbbda5e5-c6fb-4a3c-b4c8-7fd409ba3b0c
+        - code: 1304
+          name: Inventory - miHealth
+          type: CURRENT
+          account_id: b1e56fe0-3b12-463e-946a-694c1ec3a358
+        - code: 1305
+          name: Inventory - Scanners
+          type: CURRENT
+          account_id: 17c4857b-8c9c-4266-bd34-9755ec0fbd91
+        - code: 1306
+          name: Inventory - Accessories
+          type: CURRENT
+          account_id: 7cee47fa-644a-4704-8962-91b1a9ba58fa
+        - code: 1307
+          name: Inventory - GEM.
+          type: CURRENT
+          account_id: 780ccc74-ed90-480b-8495-f76e8b1d8e3b
+        - code: 1315
+          name: Inventory - Infoceuticals WIP
+          type: CURRENT
+          account_id: 3d7330f1-6340-466c-a93b-fc0515dd92f1
+        - code: 1325
+          name: Inventory – GEM Accessories
+          type: CURRENT
+          account_id: 3ce157af-fe7e-4375-97a3-fc4632506542
+        - code: 1399
+          name: Inventory - others
+          type: CURRENT
+          account_id: 93988d28-c0d7-469e-b089-ef5f875b3618
+      commission_affiliate:
+        - code: 4160
+          name: Affiliate Revenue
+          type: REVENUE
+          account_id: e363016f-a6b2-4b06-b51e-74ad76640cdd
+        - code: 5503
+          name: COGS - Sales Commission
+          type: DIRECTCOSTS
+          account_id: 2e4f7726-37d0-47d3-8e1d-be432e58fc3a
+        - code: 6417
+          name: Practicioner Commissions
+          type: OVERHEADS
+          account_id: 5a1cf509-d132-4d2c-8821-a0d32a477ace
+      merchant_fees:
+        - code: SH-30000
+          name: Shopify Fees
+          type: EXPENSE
+          account_id: 7485daef-877d-4263-8281-5d115546fe31
+      payroll:
+        - code: 1000
+          name: Wages - Sales
+          type: EXPENSE
+          account_id: 941f06b7-23a6-4c11-bbbe-fc5c9ba6db21
+        - code: 1001
+          name: Wages - Marketing
+          type: EXPENSE
+          account_id: f5b66607-b7c3-40a5-a62a-62fe16784726
+        - code: 1002
+          name: Wages - Operations
+          type: EXPENSE
+          account_id: f14366f1-34f7-497a-a2b3-6a4fab511351
+        - code: 1004
+          name: "Wages - G&A"
+          type: EXPENSE
+          account_id: fed4c1c6-60c2-45b0-850e-d447a7aa5925
+        - code: 1014
+          name: "Salaries - R&D"
+          type: EXPENSE
+          account_id: 4a271bf2-9fca-4f72-9eef-e1d4a6e5ffbe
+        - code: 2310
+          name: Payroll Tax Liability
+          type: CURRLIAB
+          account_id: d091e8f3-71be-4fb6-997b-d18e5fc7fb8e
+        - code: 5504
+          name: COGS - Team Wages
+          type: DIRECTCOSTS
+          account_id: 44c73b14-a9d9-49be-9a8e-eda849fe8e6a
+        - code: 6400
+          name: Payroll Expenses
+          type: EXPENSE
+          account_id: 7f16164a-9939-4bd9-834d-c11e924bc5fe
+        - code: 6401
+          name: Salaries - Admin
+          type: EXPENSE
+          account_id: f6cb2efc-2aac-448a-848e-672ab0f68918
+        - code: 6402
+          name: Salaries - Accounting
+          type: OVERHEADS
+          account_id: a7709704-a5ec-4ad1-a401-6bae77b98e18
+        - code: 6403
+          name: Salaries - Marketing
+          type: EXPENSE
+          account_id: 4f408570-bba4-4cf2-8f8f-f2aa23f747d1
+        - code: 6404
+          name: Salaries - Logistics and Shipping
+          type: EXPENSE
+          account_id: 7fc75d89-d887-4a08-8e83-daf788cdb0d9
+        - code: 6405
+          name: Salaries - Sales
+          type: EXPENSE
+          account_id: ee8f87e1-be4b-47dc-9641-c782c0c7578c
+        - code: 6407
+          name: Salaries - Support
+          type: EXPENSE
+          account_id: 21b5727f-2052-45e1-8ecb-35d664bd88fd
+        - code: 6411
+          name: Officer wages
+          type: EXPENSE
+          account_id: 579de036-387c-4741-9c28-0faa100dedd9
+        - code: 6412-1
+          name: Payroll - Employer Tax
+          type: EXPENSE
+          account_id: b4ef396d-326f-49cb-9b25-3cc2604c31b1
+        - code: 6420
+          name: Payroll Taxes
+          type: EXPENSE
+          account_id: d9356192-e148-46cb-ad69-25fc31e15215
+        - code: 6429
+          name: Payroll Fees
+          type: EXPENSE
+          account_id: 700a90d1-c114-4fe8-b4a1-fa3f5f1b18ed
+        - code: 6504
+          name: Net Payroll.
+          type: LIABILITY
+          account_id: 9571cc2c-d130-4bb8-8c5d-48cfb8b0d4e4
+        - code: Clearing1
+          name: Payroll Clearing
+          type: CURRENT
+          account_id: 820e5ae3-9e01-4013-b2ff-d05f03efb5d5
+      sales_tax:
+        - code: ""
+          name: Sales Tax-Energy4Life
+          type: BANK
+          account_id: d99b2d5e-b834-4277-bb26-79647c5f008b
+        - code: 2200
+          name: Sales Tax
+          type: CURRLIAB
+          account_id: be92cb88-69e8-4cff-b13b-0e2977ee0cb6
+        - code: 7601
+          name: Sales Tax other
+          type: EXPENSE
+          account_id: 915da1f0-a67e-471a-9e41-f9bf28612109
+      equity:
+        - code: 3900
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 7d709fb6-89fc-4710-a96e-33f0954bb335
+        - code: 9996
+          name: Suspense account
+          type: EQUITY
+          account_id: ae797815-dc1e-4ff8-8b23-eabbcb37ae69
+        - code: 99990
+          name: Beginning balance adjustment
+          type: EQUITY
+          account_id: cdde79fd-f084-40a5-b6d7-a28afc3869f8
+        - code: 99991
+          name: Transactions for verification
+          type: EQUITY
+          account_id: a9427cf7-6233-461a-955e-84741bdcf0b0
+        - code: "Owner's Eq"
+          name: "Owner's Personal Pay & Expenses"
+          type: EQUITY
+          account_id: ff37e1da-d27b-4ac0-a69c-611a159e7494
+      loans:
+        - code: 1657
+          name: Loan Receivable - Ammortal
+          type: NONCURRENT
+          account_id: 1c1e22cc-03fa-4aff-b41e-33cd5f1d4aac
+        - code: 2400
+          name: Stripe Loan
+          type: CURRLIAB
+          account_id: 4b33e5de-4a43-4558-afac-63d9a44f0cfa
+        - code: 835
+          name: Directors Loan Account (Harry)
+          type: CURRLIAB
+          account_id: 68b49810-432f-4195-a457-d9d47c3ebee1
+      owner_shareholder:
+        - code: 835
+          name: Directors Loan Account (Harry)
+          type: CURRLIAB
+          account_id: 68b49810-432f-4195-a457-d9d47c3ebee1
+        - code: 99999
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: 7e0e400c-ef58-4fcf-a50a-7a39b69c4a13
+        - code: "Owner's Eq"
+          name: "Owner's Personal Pay & Expenses"
+          type: EQUITY
+          account_id: ff37e1da-d27b-4ac0-a69c-611a159e7494
+      fixed_assets:
+        - code: 0015
+          name: Leasehold Improvements
+          type: FIXED
+          account_id: 5ebbe240-9dcc-40e5-88c8-2bc82e9c7093
+        - code: 0016
+          name: Accumulated Amortization
+          type: FIXED
+          account_id: 45bceac7-3679-44f9-9080-790a82dd44ab
+        - code: 002
+          name: Equipment
+          type: FIXED
+          account_id: 8fbf631b-7c4e-4ef9-a086-2a9aafcc2c4c
+        - code: 0020
+          name: Accumulated Depreciation Furn
+          type: FIXED
+          account_id: 3c0667b2-2e21-49b7-a669-81d98227c374
+        - code: 003
+          name: Accumulated Depreciation Equipment
+          type: FIXED
+          account_id: 4de11c63-2d22-4348-b13c-65cbd8e6a8fd
+        - code: 004
+          name: "Furniture & Fixture"
+          type: FIXED
+          account_id: 82710373-a917-4f6c-b22b-ff1192da88ae
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+  - key: nespty
+    legal_name: NES Health PTY Ltd
+    xero_name: NES Health PTY Ltd
+    tenant_id: 6ef9b468-7146-42a5-a95a-24257503e1c7
+    organisation_id: 6ef9b468-7146-42a5-a95a-24257503e1c7
+    write_app: nespty2
+    base_currency: AUD
+    country: AU
+    timezone: AUSEASTERNSTANDARDTIME
+    edition: BUSINESS
+    xero_class: COMPREHENSIVE
+    tax_number: ""
+    financial_year_end_day: 30
+    financial_year_end_month: 6
+    period_lock_date_raw: /Date(1751155200000+0000)/
+    end_of_year_lock_date_raw: /Date(1751155200000+0000)/
+    coa: {"total": 221, "active": 221, "archived": 0, "by_type": {"BANK": 7, "CURRENT": 33, "CURRLIAB": 52, "EQUITY": 9, "FIXED": 6, "EXPENSE": 53, "REVENUE": 34, "OTHERINCOME": 2, "DIRECTCOSTS": 23, "SALES": 2}}
+    tracking_categories:
+      - name: Sales Agent ID
+        status: ACTIVE
+        id: ed9341b5-429e-4138-aaf5-7247229f3226
+        option_count: 437
+    bank_accounts:
+      - code: ""
+        name: NES Health Pty Ltd
+        account_id: ca9a3fd2-ee69-4fea-a2cc-9b46a494e8f8
+        bank_last4: 1561
+        currency: AUD
+        classes: []
+      - code: 1020
+        name: Stripe AUD
+        account_id: f66deb08-16a5-4c7e-ba4b-1d3b139f32ed
+        bank_last4: bqjn
+        currency: AUD
+        classes: []
+      - code: 1080
+        name: Commonwealth Bank - Op
+        account_id: 8b97611c-ca3d-4542-aff3-5be8e4382f97
+        bank_last4: 0000
+        currency: AUD
+        classes: []
+      - code: 1081
+        name: NAB - Operating
+        account_id: cac7ade3-b7f6-475e-845b-4592250e7948
+        bank_last4: 0000
+        currency: AUD
+        classes: []
+      - code: 1090
+        name: I/C Clearing Account
+        account_id: 095e718d-a39f-46de-8421-c5c61a021c6f
+        bank_last4: 0000
+        currency: AUD
+        classes: []
+      - code: DELETE1095
+        name: DO NOt USE _ Paypal
+        account_id: 076566e4-65c5-4577-8c5e-24b145b89e8b
+        bank_last4: 0000
+        currency: AUD
+        classes: []
+      - code: DONTUS1082
+        name: DO NOT USE _ ANZ Trust Account
+        account_id: 6f3bd8ec-cd34-4192-9d77-157ee9361f9f
+        bank_last4: 0000
+        currency: AUD
+        classes: []
+    bank_summary_july_2026:
+      - cells: ["I/C Clearing Account", "0.00", "107.00", "107.00", "0.00"]
+      - cells: ["NES Health Pty Ltd", "1815.97", "31000.06", "30528.53", "2287.50"]
+      - cells: ["Stripe AUD", "35517.16", "48003.84", "36066.25", "47454.75"]
+      total_cells: ["Total", "37333.13", "79110.90", "66701.78", "49742.25"]
+    ar_open_page1_count: 0
+    ar_open_page1_amount_due: 0.0
+    ap_open_page1_count: 3
+    ap_open_page1_amount_due: 3059.18
+    classified_account_counts:
+      bank: 7
+      clearing: 3
+      intercompany: 4
+      accounts_receivable: 3
+      accounts_payable: 5
+      revenue: 38
+      cogs: 23
+      inventory: 16
+      commission_affiliate: 3
+      payroll: 21
+      sales_tax: 7
+      equity: 9
+      loans: 1
+      owner_shareholder: 2
+      prepaids: 3
+      fixed_assets: 7
+      deferred_revenue: 1
+      uncategorized_active: 72
+    classified_accounts_live:
+      bank:
+        - code: ""
+          name: NES Health Pty Ltd
+          type: BANK
+          account_id: ca9a3fd2-ee69-4fea-a2cc-9b46a494e8f8
+        - code: 1020
+          name: Stripe AUD
+          type: BANK
+          account_id: f66deb08-16a5-4c7e-ba4b-1d3b139f32ed
+        - code: 1080
+          name: Commonwealth Bank - Op
+          type: BANK
+          account_id: 8b97611c-ca3d-4542-aff3-5be8e4382f97
+        - code: 1081
+          name: NAB - Operating
+          type: BANK
+          account_id: cac7ade3-b7f6-475e-845b-4592250e7948
+        - code: 1090
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 095e718d-a39f-46de-8421-c5c61a021c6f
+        - code: DELETE1095
+          name: DO NOt USE _ Paypal
+          type: BANK
+          account_id: 076566e4-65c5-4577-8c5e-24b145b89e8b
+        - code: DONTUS1082
+          name: DO NOT USE _ ANZ Trust Account
+          type: BANK
+          account_id: 6f3bd8ec-cd34-4192-9d77-157ee9361f9f
+      clearing:
+        - code: 1090
+          name: I/C Clearing Account
+          type: BANK
+          account_id: 095e718d-a39f-46de-8421-c5c61a021c6f
+        - code: 1202
+          name: Undeposited Funds
+          type: CURRENT
+          account_id: 100d9dcd-1bd1-4675-9912-f0f8441b502a
+        - code: 9996
+          name: Suspense Account
+          type: EQUITY
+          account_id: 15dd3bcc-4233-434f-9a5e-dfb2d2babbb7
+      intercompany:
+        - code: 2601
+          name: Intercompany - XPO Health Ltd
+          type: CURRLIAB
+          account_id: 362adec0-4c85-4050-b1a4-7ec48dc0a052
+        - code: 2604
+          name: Intercompany - NES LLC
+          type: CURRLIAB
+          account_id: c77e8de9-e219-4c2f-bab8-adbd8b631058
+        - code: 2605
+          name: Due to Massey Developments
+          type: CURRLIAB
+          account_id: c8730964-7724-496d-9d0a-44e665fc282f
+        - code: 499
+          name: Realised Currency Gains
+          type: EXPENSE
+          account_id: 9dc39ece-9d85-4802-ba6c-1f5805926eeb
+      accounts_receivable:
+        - code: 1200
+          name: Accounts Receivable
+          type: CURRENT
+          account_id: b795e0fc-aa07-4e16-89c2-4451617ab433
+        - code: 1203
+          name: AR NES Plan
+          type: CURRENT
+          account_id: a366a400-4a77-41f4-b213-16642df351a5
+        - code: 610
+          name: Accounts Receivable6
+          type: CURRENT
+          account_id: c7e53b72-419b-4632-9b59-bcf4766f1eeb
+      accounts_payable:
+        - code: 2000
+          name: Accounts Payable
+          type: CURRLIAB
+          account_id: ca0f5b5b-2c0a-4e02-92a5-06fed997a96c
+        - code: 20000
+          name: Accounts Payable - GBP
+          type: CURRLIAB
+          account_id: 2d573b1b-ea26-4a57-a9e1-333f9f3cd3da
+        - code: 2002
+          name: GBP AP Exchange
+          type: CURRLIAB
+          account_id: cf90674e-a845-4231-9a4b-14e3f16a3603
+        - code: 5001
+          name: GBP AP
+          type: CURRLIAB
+          account_id: a46c39ee-7d74-4a07-b434-c1551f557e12
+        - code: 800
+          name: Accounts Payable8
+          type: CURRLIAB
+          account_id: b7cb2197-7bb2-49ce-98fa-68b42a278686
+      revenue:
+        - code: 32000
+          name: "*Retained Earnings"
+          type: REVENUE
+          account_id: d6a5adbe-f05d-4f28-bc11-040797d64612
+        - code: 4100
+          name: Sales of Product Income
+          type: REVENUE
+          account_id: fefa4c43-1c1f-4790-8c05-a9ca2b9c71a1
+        - code: 4103
+          name: "Sales of Product Income:4103  BWS - Outright"
+          type: REVENUE
+          account_id: 303db72c-c50b-4a98-ba45-5a64932bb426
+        - code: 4104
+          name: "Sales of Product Income:4104  BHC - Outright"
+          type: REVENUE
+          account_id: cffddbba-b206-4cf3-88c8-29ed1223cc2e
+        - code: 4105
+          name: "Sales of Product Income:4105  TWS Monthly Subscription"
+          type: REVENUE
+          account_id: 592bec26-aca7-41de-8230-8dcb67e4395d
+        - code: 4106
+          name: "Sales of Product Income:4106  Infoceuticals"
+          type: REVENUE
+          account_id: 320162ed-c7d1-4e35-a76f-5082057b11d3
+        - code: 4108
+          name: "Sales of Product Income:4108  BWS - Nes Plan"
+          type: REVENUE
+          account_id: 4f0396a6-74be-4469-9964-5c66441a26b7
+        - code: 4109
+          name: "Sales of Product Income:4109  BHC - Nes Plan"
+          type: REVENUE
+          account_id: 21f3070b-e31e-4d4d-8628-e94356d45667
+        - code: 4110
+          name: "Sales of Product Income:4110  Books"
+          type: REVENUE
+          account_id: 6ca7f4f7-256d-43d6-9f08-7edeabcb38a9
+        - code: 4112
+          name: "Sales of Product Income:4112  CD's/DVD's"
+          type: REVENUE
+          account_id: 780b0a36-0dfb-4a5a-994a-57733a0559a9
+        - code: 4113
+          name: Events
+          type: REVENUE
+          account_id: c2033687-f4db-49f0-93a4-a222dc3c41c5
+        - code: 4114
+          name: "Sales of Product Income:4114  Scanners"
+          type: REVENUE
+          account_id: 904436af-485e-4f37-bf6d-50c17298d55f
+        - code: 4118
+          name: "Sales of Product Income:4118  BWS - Demos/Trials"
+          type: REVENUE
+          account_id: 6741f993-8fe5-42a8-a607-bda4323b1788
+        - code: 4119
+          name: "Sales of Product Income:4119  NES Plan Fees"
+          type: REVENUE
+          account_id: 44fd6b87-fea3-4d0d-b8ca-c03bd170ac4e
+        - code: 4121
+          name: BHC Programme
+          type: REVENUE
+          account_id: 9ab6bd6f-f153-49fe-b117-0f082f30ff45
+        - code: 4122
+          name: "Sales of Product Income:4122  Energy4Life"
+          type: REVENUE
+          account_id: e571f908-5449-4140-824c-701f824eacf7
+        - code: 4124
+          name: GEM Device
+          type: REVENUE
+          account_id: d140ec50-09f8-4940-bab4-818ae31289d0
+        - code: 4126
+          name: "Sales of Product Income:4126  SAAS - Subscriptions"
+          type: REVENUE
+          account_id: 09b5ddfd-e449-470f-8014-d4007e97b101
+        - code: 4129
+          name: Meditations
+          type: REVENUE
+          account_id: 4148c414-7525-4882-aeae-b223c9e7259c
+        - code: 4130
+          name: "Sales of Product Income:4130  Trial - miHealth"
+          type: REVENUE
+          account_id: d0102db0-95b9-46ee-9f3a-aacf97755dff
+        - code: 4131
+          name: Leaflets
+          type: REVENUE
+          account_id: 3ab93c1c-c78f-4754-9d03-372bcf768440
+        - code: 4133
+          name: BWS Upgrade
+          type: REVENUE
+          account_id: 09ab96e8-5f4d-43dd-ba6e-cb439c0b8b13
+        - code: 4134
+          name: BWS Subscription
+          type: REVENUE
+          account_id: 4bca9a33-9897-4985-8d4e-02d68cdf4da9
+        - code: 4135
+          name: BHC Subscription
+          type: REVENUE
+          account_id: 0769391f-465e-4e52-89af-bcb300666a11
+        - code: 4137
+          name: NESCare Insurance
+          type: REVENUE
+          account_id: e02baed1-d72f-4fe0-b1a8-b1c067f88747
+        - code: 4138
+          name: miHealth Repairs
+          type: REVENUE
+          account_id: a4fbfc41-843f-4182-b39f-825710fe433a
+        - code: 4139
+          name: miHealth Accessories
+          type: REVENUE
+          account_id: 247cfb30-9a25-4198-8989-4ae3b936100f
+        - code: 4190
+          name: "Sales of Product Income:4190  Other Products"
+          type: REVENUE
+          account_id: 0178c412-832b-451f-82de-da3dc7fc9087
+        - code: 4212
+          name: "Sales of Product Income:4212 GEM Subscription"
+          type: REVENUE
+          account_id: 734d82e8-8957-41c2-8665-ad70956b8365
+        - code: 4217
+          name: "Sales of Product Income:4101  miHealths"
+          type: REVENUE
+          account_id: 285ad65a-c309-40d7-9804-4c4ac9d47706
+        - code: 4500
+          name: Seminars/Training/Conferences
+          type: REVENUE
+          account_id: 1ae80607-ca14-4efc-80ed-17f190fe2884
+        - code: 4656
+          name: Discount
+          type: REVENUE
+          account_id: 5c9cfe50-3929-4a09-9ecf-c00e54119ad8
+        - code: 4675
+          name: FX Gain or Loss
+          type: REVENUE
+          account_id: a1caf4d0-b5f3-4fe4-8fc7-9843525415bb
+        - code: 4700
+          name: Shipping Income
+          type: REVENUE
+          account_id: c0485438-03fd-486c-8b54-4679ad5f2759
+        - code: 4800
+          name: DO NOT USE - Refunds (Income)
+          type: OTHERINCOME
+          account_id: dccf65e6-c078-42a5-b180-a688cc1c46e7
+        - code: 502
+          name: Refund for charges (sales return)
+          type: SALES
+          account_id: 3251e341-fb3d-4216-997f-0b08d705d765
+        - code: 8200
+          name: Interest Earned
+          type: OTHERINCOME
+          account_id: 62df11c8-cddb-4812-8b28-7851a7cd4752
+        - code: DftIncome
+          name: UncategorizedSales
+          type: SALES
+          account_id: 67d58bd6-af14-4106-8ef5-8c3f9c70848b
+      cogs:
+        - code: 5000
+          name: Cost of Goods Sold
+          type: DIRECTCOSTS
+          account_id: a59e88e7-77f6-4510-8cbd-7abcf1795b43
+        - code: 5101
+          name: COGS - miHealth
+          type: DIRECTCOSTS
+          account_id: 080bcce1-8bf3-44d7-9d24-fd6f5472d6c1
+        - code: 5103
+          name: COGS - Scanners
+          type: DIRECTCOSTS
+          account_id: d785e65a-5f96-4765-bee3-e29173e32246
+        - code: 5106
+          name: COGS - Infoceuticals
+          type: DIRECTCOSTS
+          account_id: aad892ef-85f9-4123-a8ac-64a4fa25a2ed
+        - code: 5108
+          name: COGS - BWS
+          type: DIRECTCOSTS
+          account_id: c63024ea-6b2c-4481-ae3b-b4b5fd72385d
+        - code: 5110
+          name: COGS - Books
+          type: DIRECTCOSTS
+          account_id: fc656679-80ca-498d-9441-e4e5a2055f95
+        - code: 5112
+          name: "COGS - CD's/DVD's"
+          type: DIRECTCOSTS
+          account_id: 5a5e4dab-c0e2-4cfc-9fce-0135f68963b5
+        - code: 5113
+          name: COGS - Accessories
+          type: DIRECTCOSTS
+          account_id: 3ba18499-a767-4097-b508-4937188cb004
+        - code: 5114
+          name: COGS - GEM
+          type: DIRECTCOSTS
+          account_id: df74159d-cde8-48a9-a0de-d43aa39cb947
+        - code: 5190
+          name: COGS - Other Products
+          type: DIRECTCOSTS
+          account_id: 60206983-4d3b-4cf6-940c-a1c1b63103af
+        - code: 5195
+          name: COGS Other
+          type: DIRECTCOSTS
+          account_id: 5726f879-8598-4bfe-918c-cde5ef4141ad
+        - code: 5200
+          name: Royalty Expense
+          type: DIRECTCOSTS
+          account_id: 976f6052-2b0e-4588-86bd-1109976fddfc
+        - code: 5201
+          name: Royalty miHealth
+          type: DIRECTCOSTS
+          account_id: 28028269-fcb4-4a16-866e-a33f09d52a8b
+        - code: 5206
+          name: Royalty Infoceuticals
+          type: DIRECTCOSTS
+          account_id: 5aa3bc6a-9ab7-40ea-83af-37046afc47dd
+        - code: 5207
+          name: Royalty BWS
+          type: DIRECTCOSTS
+          account_id: fd3a18b5-7bc4-4a0d-8eba-27100117bedd
+        - code: 5208
+          name: Royalty - GEM
+          type: DIRECTCOSTS
+          account_id: c4649bc1-95ff-44bd-9c84-c8e41e78cc13
+        - code: 5210
+          name: Royalty - Books
+          type: DIRECTCOSTS
+          account_id: 55ecafb6-6ce1-4c14-a212-f0e6119a6c82
+        - code: 5211
+          name: Royalty - CD/DVD
+          type: DIRECTCOSTS
+          account_id: e3df6284-22a9-4069-a671-706c47f3c46e
+        - code: 5213
+          name: Royalty Scanner
+          type: DIRECTCOSTS
+          account_id: 113c6a99-fb46-4a83-985b-35e7a6348af3
+        - code: 5214
+          name: Royalty - Other
+          type: DIRECTCOSTS
+          account_id: bc37e460-3b21-4d21-8bda-468bd51d7daa
+        - code: 5500
+          name: "COGS - Shipping, Freight & Delivery"
+          type: DIRECTCOSTS
+          account_id: bb3833bc-fb6c-4eed-99c9-2af908d59f92
+        - code: 5502
+          name: COGS - 3PY Order Fulfilment
+          type: DIRECTCOSTS
+          account_id: bab53602-af03-4098-b6b7-f4a165147ffa
+        - code: 5510
+          name: Shipping Expense
+          type: DIRECTCOSTS
+          account_id: c917e6c0-1c01-46ef-95cf-71f6e752ec19
+      inventory:
+        - code: 12100
+          name: Inventory Asset
+          type: CURRENT
+          account_id: ef1756ea-761d-4412-b8f0-7ace2ae7d40e
+        - code: 1300
+          name: Inventory
+          type: CURRENT
+          account_id: 522afa41-b39c-4519-9bbe-d26100d2b548
+        - code: 1301
+          name: "Inventory:1301  Mihealths"
+          type: CURRENT
+          account_id: 54e65ab5-498c-48ea-8f17-fbd537b325c4
+        - code: 1306
+          name: "Inventory:1306  Infoceuticals"
+          type: CURRENT
+          account_id: c444701e-e460-409b-8a22-cfa18a732546
+        - code: 1308
+          name: "Inventory:1308  BWS"
+          type: CURRENT
+          account_id: 827141e4-561f-4346-bf54-a1c9eb88f848
+        - code: 1310
+          name: "Inventory:1310  Books"
+          type: CURRENT
+          account_id: 3af04321-886d-4442-ad34-96297a314b46
+        - code: 1311
+          name: "Inventory:1311  DVD's"
+          type: CURRENT
+          account_id: 740b5643-77ae-4fe5-9966-0ed1e1aee837
+        - code: 1312
+          name: "Inventory:1312  CD's"
+          type: CURRENT
+          account_id: 8fc8ca95-4e05-46ab-a170-bc92ed490128
+        - code: 1314
+          name: "Inventory:1314  Accessories"
+          type: CURRENT
+          account_id: defc17d4-5b4c-4db3-89c8-ab78709e7293
+        - code: 1315
+          name: "Inventory:1315  Scanners"
+          type: CURRENT
+          account_id: 86702456-ea77-41e2-8689-13de30417c7b
+        - code: 1316
+          name: "Inventory:1316  Packing Materials"
+          type: CURRENT
+          account_id: 3b51801d-ab86-4810-af00-46edf22ea66d
+        - code: 1317
+          name: "Inventory:1317  Inventory - Promotional Kits"
+          type: CURRENT
+          account_id: 71e61957-4363-4ef8-8fdc-fb1fb6b11461
+        - code: 1318
+          name: "Inventory:1318  Inventory - Brochures"
+          type: CURRENT
+          account_id: 0e1cb80b-de88-4931-9984-2e6df582147f
+        - code: 1319
+          name: "Inventory:1319  Inventory - mihealth refurbish"
+          type: CURRENT
+          account_id: 8cb2ccc3-4d8d-42cd-b928-0cdbfbbc0bc1
+        - code: 1320
+          name: "Inventory: 1320 GEM Device"
+          type: CURRENT
+          account_id: 33dbd2f1-cba6-48b0-bdbf-8e6a81f02867
+        - code: 1390
+          name: Prepaid Inventory/WIP
+          type: CURRENT
+          account_id: 0208be7e-e735-47cc-9785-872963a744b2
+      commission_affiliate:
+        - code: 1440
+          name: Commission Draws
+          type: EQUITY
+          account_id: 9eda3534-8fb3-4cb1-890a-5043746b1370
+        - code: 2120
+          name: Accrued Commissions
+          type: CURRLIAB
+          account_id: 814a4af1-c930-4850-bb28-019893cc847f
+        - code: 6416
+          name: Sales Commissions
+          type: EXPENSE
+          account_id: 075ee325-96a0-4e84-a72a-36002cda82f6
+      payroll:
+        - code: 2130
+          name: "Accrued Payroll & Taxes"
+          type: CURRLIAB
+          account_id: 17e55b0d-37a5-4474-b13f-a6455e6f1420
+        - code: 2132
+          name: Superannuation
+          type: CURRLIAB
+          account_id: 53b986d3-cc22-4769-89c0-f22af9ea2234
+        - code: 2140
+          name: Pensions
+          type: CURRLIAB
+          account_id: eafd0b76-a65c-4c07-9847-6db65c4de4fe
+        - code: 24000
+          name: Payroll Liabilities
+          type: CURRLIAB
+          account_id: f6751561-53d8-4319-b727-4876ea7e5cbb
+        - code: 6400
+          name: Payroll Expenses
+          type: CURRLIAB
+          account_id: f50dc4d3-51f4-4c17-8bb4-0fcd3837ab38
+        - code: 6401
+          name: "Payroll Expenses:6401  Salaries - Admin"
+          type: CURRLIAB
+          account_id: e1353f4b-1c17-4080-9445-146cffe839ff
+        - code: 6402
+          name: "Payroll Expenses:6402  Accounting"
+          type: CURRLIAB
+          account_id: 5e8ea190-8fc4-48af-8101-738f348b047b
+        - code: 6404
+          name: "Payroll Expenses:6404  Logistics & Shipping"
+          type: CURRLIAB
+          account_id: 20fd80dc-7d79-42ca-b351-8aec842315ae
+        - code: 6405
+          name: "Payroll Expenses:6405  Sales"
+          type: CURRLIAB
+          account_id: f55d83c1-642a-4f87-b0b5-98dc457192ce
+        - code: 6408
+          name: "Payroll Expenses:6408  Research & Development"
+          type: CURRLIAB
+          account_id: affea80c-b5e0-4fad-80ce-2c65774314fb
+        - code: 6411
+          name: "Payroll Expenses:6411  Officer Wages"
+          type: CURRLIAB
+          account_id: a8e6d1e6-b1eb-4e47-abd4-f36ca9112aac
+        - code: 6420
+          name: "Payroll Expenses:6420  Payroll Taxes"
+          type: CURRLIAB
+          account_id: 2e9ccd00-6731-4ec6-8b60-29a5c22275b9
+        - code: 6421
+          name: "Payroll Expenses:6421  Employee Base Pay"
+          type: EXPENSE
+          account_id: 93163cb5-fad3-457e-be7a-c479f910f6fe
+        - code: 6422
+          name: "Payroll Expenses:6422  SGC Super"
+          type: EXPENSE
+          account_id: 4baedab7-4cfe-4120-b29d-6d9129489c37
+        - code: 6423
+          name: "Payroll Expenses:6423  Annual Leave Pay"
+          type: CURRLIAB
+          account_id: 8da6285e-f91d-4775-ae62-fe8c3af9a3c1
+        - code: 6424
+          name: "Payroll Expenses:6424  Personal Leave Pay"
+          type: CURRLIAB
+          account_id: 64234316-c905-4870-857b-d1cc4446726f
+        - code: 6425
+          name: "Payroll Expenses:6425  Annual Leave Pay Loaded"
+          type: CURRLIAB
+          account_id: fa5957c7-f837-49cd-b2f9-9584fd2e3c6d
+        - code: 6426
+          name: "Payroll Expenses:6426  First Aid Allowance"
+          type: CURRLIAB
+          account_id: 3a8b8885-2d34-46ce-a6d4-f83032f10857
+        - code: 6427
+          name: "Payroll Expenses:6427  Bonus"
+          type: CURRLIAB
+          account_id: b49bf8f8-b057-4e65-b9d6-4f33a819dfd5
+        - code: 6428
+          name: "Payroll Expenses:6428  Employee Overtime"
+          type: EXPENSE
+          account_id: 280d0875-8840-44ca-83ea-d5ca543cb64d
+        - code: 6440
+          name: "Payroll Expenses:6440  Pensions"
+          type: EXPENSE
+          account_id: 296637cb-2f25-4c21-8d18-a40cf1d6616a
+      sales_tax:
+        - code: 132
+          name: VAT
+          type: CURRLIAB
+          account_id: f8c42d26-579f-4853-a30f-bdab91ebe745
+        - code: 1353
+          name: Sales Tax
+          type: CURRLIAB
+          account_id: 52b03a81-2e73-47c1-9e9e-a87944349125
+        - code: 2200
+          name: Sales Taxes
+          type: CURRLIAB
+          account_id: 31e1fffc-4e06-45a1-b268-5eb73e270985
+        - code: 2218
+          name: DO NOT USE - Tax Collected from Sales
+          type: CURRLIAB
+          account_id: 930d6648-5c9a-483f-8338-4e77a7ec0eb8
+        - code: 25500
+          name: DO NOT USE - Sales Tax Payable
+          type: CURRLIAB
+          account_id: cc7ee7f7-6fdb-4004-a8e7-3bff30101af7
+        - code: 802
+          name: GST
+          type: CURRLIAB
+          account_id: b0dbb095-9b7b-4b90-bcd7-cdc375aa9a5c
+        - code: 820
+          name: GST8
+          type: CURRLIAB
+          account_id: c3341d98-42ce-4edb-a1b6-9a4fec7379ee
+      equity:
+        - code: 1440
+          name: Commission Draws
+          type: EQUITY
+          account_id: 9eda3534-8fb3-4cb1-890a-5043746b1370
+        - code: 3000
+          name: Contributions
+          type: EQUITY
+          account_id: 2b45f309-fbca-45e9-a665-3f417cb30319
+        - code: 30000
+          name: Opening Balance Equity
+          type: EQUITY
+          account_id: c1edd400-aaad-4593-994a-31ea9f315b74
+        - code: 30100
+          name: Capital Stock
+          type: EQUITY
+          account_id: 2e0b7782-c196-4ec8-81ba-51ca92855ab2
+        - code: 3100
+          name: Distributions
+          type: EQUITY
+          account_id: 0731addf-cb2a-43a4-9dec-5663f8e8f699
+        - code: 3200
+          name: Retained Earnings
+          type: EQUITY
+          account_id: 4e023371-d0f6-4401-af60-1cdc8e531d64
+        - code: 32001
+          name: Net Income
+          type: EQUITY
+          account_id: 291c5a35-f781-4fe2-a376-86c1974e8800
+        - code: 9996
+          name: Suspense Account
+          type: EQUITY
+          account_id: 15dd3bcc-4233-434f-9a5e-dfb2d2babbb7
+        - code: 99990
+          name: Beginning Balance Adjustment
+          type: EQUITY
+          account_id: 5cec7557-e958-4ea9-8d68-a9a7e755f609
+      loans:
+        - code: 1655
+          name: Loan - Massey Developments
+          type: CURRENT
+          account_id: 558e3f9f-cca6-4468-8a3d-ebbd9168ab2a
+      owner_shareholder:
+        - code: 31400
+          name: Shareholder Distributions
+          type: CURRLIAB
+          account_id: 183bbe57-f99e-43ca-bef1-9b86b5a61f62
+        - code: 801
+          name: Unpaid Expense Claims
+          type: CURRLIAB
+          account_id: 04a42a46-b186-4f31-927b-c20a0d254437
+      prepaids:
+        - code: 1390
+          name: Prepaid Inventory/WIP
+          type: CURRENT
+          account_id: 0208be7e-e735-47cc-9785-872963a744b2
+        - code: 1410
+          name: Prepaid Insurance
+          type: CURRENT
+          account_id: b98b49b2-5158-485c-b74f-ab9f9ec42f5e
+        - code: 1420
+          name: Prepaid Expense
+          type: CURRENT
+          account_id: 8769be56-0236-45b3-bc6b-06754f774d8a
+      fixed_assets:
+        - code: 1710
+          name: Fixed Asset - Equipment
+          type: FIXED
+          account_id: 8ca8bfec-37a2-4ff2-8106-a89fec7f7032
+        - code: 1715
+          name: Acc Depreciation - Equipment
+          type: FIXED
+          account_id: b42ecfc9-7639-4eff-abe0-f37532f0678d
+        - code: 1720
+          name: Fixed Asset - Furniture
+          type: FIXED
+          account_id: 102acfe7-ed67-4dce-a9c4-410b73ce3f73
+        - code: 1725
+          name: "Acc. Depreciation - F&F"
+          type: FIXED
+          account_id: 0bd1ca8f-2418-4a8d-97cd-346d9d1030c9
+        - code: 1740
+          name: Fixed Asset - Improvements
+          type: FIXED
+          account_id: b6d3c1b8-f94b-4c78-b741-d55d83572f39
+        - code: 1745
+          name: Acc Depreciation - Improvements
+          type: FIXED
+          account_id: 96293e19-02b9-4660-a85d-8a40559ef6ea
+        - code: 7360
+          name: "Tools & Small Equipment"
+          type: EXPENSE
+          account_id: df7292d9-5be7-4ca7-b479-83857f470950
+      deferred_revenue:
+        - code: 2400
+          name: Deferred Revenue
+          type: CURRLIAB
+          account_id: 07b9f662-a3df-4821-bd16-d46846e64674
+    errors: []
+    evidence: live GET Organisation/Accounts/TrackingCategories/Reports/BankSummary/Reports/TrialBalance/Invoices page1
+    confidence: VERIFIED
+
+sandbox:
+  key: demo
+  legal_name: "Demo Company (US)"
+  tenant_id: c00a07d6-2681-45f9-a278-bacb418ff6c1
+  write_app: demo
+  visible_on: write-mode MCP only (not on read-mode readonlyv1/v2)
+  purpose: the only tenant authorized for confirmed write-tool tests
+  confidence: VERIFIED
+  evidence: user-e4l-xero-write list_entities 2026-08-19T23:05Z
+
+read_vs_write_mcp:
+  physical_server: C:\\Users\\Work\\Desktop\\vault\\projects\\E4L-FinanceOS\\app\\mcp-servers\\xero\\server.py
+  cursor_session:
+    user-e4l-xero-read: XERO_MCP_MODE=read -> readonlyv1/readonlyv2; 6 live orgs; no demo; write_access none or partial(contacts,settings)
+    user-e4l-xero-write: XERO_MCP_MODE=write -> master/nespty2/demo; 6 live + demo; write_access full granular scopes
+  prior_unified_e4l-xero_namespace: Claude Code host merge; NOT what this Cursor session exposes. OQ-2 settled for Cursor: split is authoritative.

@@ -1,0 +1,98 @@
+# Cato -> Genesis routing. Cato never asks the user to name a specialist.
+# Locked: 14 real guarded agents. Not hats. Not genesis-e4l-accounting.
+_meta:
+  last_verified: "2026-08-19"
+  cato_genesis_tool: C:\Users\Work\Desktop\vault\projects\My Github\Cato\cato\tools\genesis.py
+  architecture: one_agent_one_job
+  rejected: genesis-e4l-accounting
+  current_blocker: |
+    MONEY_DOMAIN_AGENTS immutably denies genesis-finance/billing/commerce/pricing.
+    The 14 genesis-e4l-* specialists must be on GENESIS_AGENTS and the fail-closed
+    allowlist, and must NOT be on MONEY_DOMAIN_AGENTS.
+
+dispatch_contract:
+  pattern: one_agent_one_job
+  payload_must_include: [entity_keys, period_from, period_to, question, required_evidence]
+  genesis_returns: accounting/CROSS_AGENT_HANDOFF_CONTRACT.yaml output shape
+  cato_synthesizes: one answer; never concatenates specialist prose
+  cato_on_conflict: genesis-e4l-controller
+
+intent_routes:
+  - id: S1
+    examples: ["Why does Stripe cash not match Xero?"]
+    agents: [genesis-e4l-stripe, genesis-e4l-cash, genesis-e4l-revenue, genesis-e4l-fs-integrity]
+    entities_default: [nesllc]
+    escalate_to: genesis-e4l-controller
+  - id: S2
+    examples: ["Close July for all E4L entities."]
+    agents: [genesis-e4l-close]
+    then_fanout: [genesis-e4l-cash, genesis-e4l-ar, genesis-e4l-ap, genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-intercompany, genesis-e4l-fs-integrity]
+    entities_default: [energy4life, ibe, xpo, massey, nesllc, nespty]
+    note: "nespty FYE 30 June — July is not its year-end. Flag, do not silently close as 31 Dec."
+  - id: S3
+    examples: ["Find everything currently preventing us from trusting the P&L."]
+    agents: [genesis-e4l-fs-integrity, genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-stripe]
+    entities_default: [nesllc, xpo]
+  - id: S4
+    examples: ["Why did contribution margin decrease?"]
+    agents: [genesis-e4l-cogs-cm, genesis-e4l-revenue, genesis-e4l-commissions, genesis-e4l-shopify]
+    entities_default: [nesllc]
+  - id: S5
+    examples: ["Find all intercompany balances that don't agree."]
+    agents: [genesis-e4l-intercompany]
+    entities_default: [energy4life, ibe, xpo, massey, nesllc, nespty]
+  - id: S6
+    examples: ["Reconcile Shopify/A2X/Stripe revenue to Xero."]
+    agents: [genesis-e4l-shopify, genesis-e4l-stripe, genesis-e4l-revenue]
+    do_not_invoke: [a2x]
+    announce: "A2X is not live; Amaka paused; Shopify bank vs Stripe bank are different rails"
+  - id: S7
+    examples: ["What accounting work can FinanceOS complete itself today?"]
+    agents: [genesis-e4l-close]
+    answer_constraint: |
+      READ-only inventory of armed paths. Today: MCP draft tools (propose),
+      FinanceOS xero-write DISARMED, portal already posts revenue autonomously
+      (not FinanceOS). Do not claim FinanceOS can close.
+  - id: S8
+    examples: ["What specifically requires Ben?"]
+    agents: [genesis-e4l-close, genesis-e4l-controller]
+    ben_only_examples:
+      - confirm=True on any write MCP against a live org
+      - arm XERO_PRODUCTION_WRITE_ENABLED
+      - disconnect retired Xero apps
+      - activate Amaka
+      - send email
+      - pay anything
+  - id: S9
+    examples: ["Show every material accounting anomaly across all Xero organizations."]
+    agents: [genesis-e4l-fs-integrity]
+    entities_default: [energy4life, ibe, xpo, massey, nesllc, nespty]
+  - id: S10
+    examples: ["Prepare the journal entries necessary to finish close, but do not post them."]
+    agents: [genesis-e4l-journals, genesis-e4l-close, genesis-e4l-controller]
+    write: PROPOSE_ONLY
+    forbidden: [confirm=True, entity!=demo]
+
+entity_hints:
+  stripe_or_shopify_or_portal: nesllc
+  kraken_or_interactive_brokers: massey
+  hsbc_or_uk_vat: xpo
+  aud_or_gst_or_june_year_end: nespty
+  donations_or_ibe: ibe
+  intangibles_gem_ip: energy4life
+
+forbidden_routes:
+  - slug: genesis-finance
+    reason: IMMUTABLE_DENIED + stub tools
+  - slug: genesis-billing
+    reason: IMMUTABLE_DENIED + stub tools
+  - slug: genesis-commerce
+    reason: IMMUTABLE_DENIED + stub tools
+  - slug: genesis-pricing
+    reason: IMMUTABLE_DENIED + stub tools
+  - slug: genesis-e4l-accounting
+    reason: REJECTED one-hat architecture
+  - any_unguarded_persona: true
+    reason: "36 persona-only slugs bypass escrow_guard; never money-adjacent"
+  - entity_named_agent: true
+    reason: "energy4life/ibe/xpo/massey/nesllc/nespty are context packs, not agents"

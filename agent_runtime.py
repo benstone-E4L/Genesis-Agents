@@ -389,6 +389,21 @@ class AgentRuntime:
         session_id = session_id or str(uuid.uuid4())
 
         bundle = dict(bundle)
+        from accounting.specialists import is_e4l_specialist
+
+        if is_e4l_specialist(str(bundle.get("slug") or slug)):
+            try:
+                from accounting.runtime_context import enrich_bundle
+
+                bundle = enrich_bundle(bundle, params or {}, task or "")
+            except Exception:
+                log.exception("accounting entity pack load failed for %s", slug)
+                return {
+                    "ok": False,
+                    "error": "accounting_entity_load_failed",
+                    "slug": slug,
+                    "job_id": job_id,
+                }
         if inherited_token_budget is not None:
             bundle["token_budget"] = min(
                 int(bundle.get("token_budget", inherited_token_budget)),

@@ -1,0 +1,20 @@
+# Never silently pick a specialist.
+_meta:
+  last_verified: "2026-08-19"
+
+on_conflict:
+  1_detect: Cato compares claim+amount+entity+period across specialist outputs
+  2_record:
+    conflicting_claim: string
+    side_a: {agent, evidence, confidence}
+    side_b: {agent, evidence, confidence}
+    likely_cause: [entity, period, account, source_system, fx, page_cap]
+  3_dispatch: genesis-e4l-controller with both sides attached
+  4_if_still_open: INSUFFICIENT_EVIDENCE to the user; name the next live read
+  5_treatment_choice: human Controller/CPA — Genesis does not choose GAAP
+
+never:
+  - average two amounts
+  - prefer the more confident agent
+  - prefer Xero because it balanced
+  - drop a disagreement from the final answer

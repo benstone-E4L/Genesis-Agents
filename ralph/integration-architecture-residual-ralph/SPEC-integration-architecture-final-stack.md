@@ -63,6 +63,10 @@ FinanceOS Postgres is the only financial authority. Genesis, Composio, Trigger.d
 9. Metabase is read-only and remains governed by its existing Ralph workspace.
 10. No Genesis hosting move is implied. Azure Blob can be consumed from the current approved Genesis host.
 
+### Accounting specialization (2026-08-19)
+
+E4L accounting specialists live in `Genesis Agents/accounting/` and `skill_bundles/genesis-e4l-*.json` (14 guarded agents). They use the host Xero MCP. They do not add a FinanceOS write path, a Genesis Xero client, or Composio Xero. `genesis-e4l-accounting` (one-hat/profiles) is rejected. Do not reopen CHUNK_1–4 for this.
+
 ## 4. Scope Classification
 
 Standing orders require each phase to be classified before Ralph prep.

@@ -1,0 +1,22 @@
+key: nespty
+legal_name: "NES Health PTY Ltd"
+tenant_id: 6ef9b468-7146-42a5-a95a-24257503e1c7
+write_app: nespty2
+base_currency: AUD
+country: AU
+fye_day: 30
+fye_month: 6
+coa_active: 221
+tracking:
+  - {name: "Sales Agent ID", status: ACTIVE, option_count: 437}
+banks:
+  - {code: "", name: "NES Health Pty Ltd", account_id: ca9a3fd2-ee69-4fea-a2cc-9b46a494e8f8}
+  - {code: "1020", name: "Stripe AUD", account_id: f66deb08-16a5-4c7e-ba4b-1d3b139f32ed}
+  - {code: "1080", name: "Commonwealth Bank - Op", account_id: 8b97611c-ca3d-4542-aff3-5be8e4382f97}
+  - {code: "1081", name: "NAB - Operating", account_id: cac7ade3-b7f6-475e-845b-4592250e7948}
+  - {code: "1090", name: "I/C Clearing Account", account_id: 095e718d-a39f-46de-8421-c5c61a021c6f}
+  - {code: "DELETE1095", name: "DO NOt USE _ Paypal", account_id: 076566e4-65c5-4577-8c5e-24b145b89e8b}
+  - {code: "DONTUS1082", name: "DO NOT USE _ ANZ Trust Account", account_id: 6f3bd8ec-cd34-4192-9d77-157ee9361f9f}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"

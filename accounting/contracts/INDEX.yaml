@@ -1,0 +1,31 @@
+# Specialist contracts — one YAML spec per real guarded agent.
+# Entity files under accounting/entities/ are context packs, not agents.
+agents:
+  - slug: genesis-e4l-revenue
+    contract: e4l-revenue.yaml
+  - slug: genesis-e4l-shopify
+    contract: e4l-shopify-ecommerce.yaml
+  - slug: genesis-e4l-stripe
+    contract: e4l-stripe-merchant.yaml
+  - slug: genesis-e4l-cash
+    contract: e4l-cash-bank.yaml
+  - slug: genesis-e4l-ap
+    contract: e4l-ap.yaml
+  - slug: genesis-e4l-ar
+    contract: e4l-ar.yaml
+  - slug: genesis-e4l-cogs-cm
+    contract: e4l-cogs-cm.yaml
+  - slug: genesis-e4l-commissions
+    contract: e4l-affiliate-commission.yaml
+  - slug: genesis-e4l-intercompany
+    contract: e4l-intercompany.yaml
+  - slug: genesis-e4l-close
+    contract: e4l-month-end-close.yaml
+  - slug: genesis-e4l-journals
+    contract: e4l-journal-propose.yaml
+  - slug: genesis-e4l-fs-integrity
+    contract: e4l-fs-integrity.yaml
+  - slug: genesis-e4l-controller
+    contract: e4l-controller-review.yaml
+  - slug: genesis-e4l-treasury
+    contract: e4l-treasury.yaml

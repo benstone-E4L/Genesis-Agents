@@ -1,0 +1,22 @@
+key: nesllc
+legal_name: "NES Health LLC"
+tenant_id: ed47099c-5925-4f97-bc58-b5fdc8d024b7
+write_app: nespty2
+base_currency: USD
+country: US
+fye_day: 31
+fye_month: 12
+coa_active: 237
+tracking:
+  - {name: "Sales Agent ID", status: ACTIVE, option_count: 495}
+banks:
+  - {code: "", name: "Sales Tax-Energy4Life", account_id: d99b2d5e-b834-4277-bb26-79647c5f008b}
+  - {code: "", name: "Paypal Bank", account_id: fd4a5cda-9c08-47d6-8866-23d1751ba18e}
+  - {code: "", name: "Shopify-Energy4Life", account_id: e932bbdc-0aa3-4362-8824-d290c3f5c8e2}
+  - {code: "1010", name: "Chase", account_id: 1f68ee84-f160-4c85-82e7-9b97f47ff2de}
+  - {code: "1020", name: "Stripe USD", account_id: 99e64ef9-6ec2-4902-84b0-8eed6b82c39d}
+  - {code: "2011", name: "AMEX - 72007", account_id: 48054d4a-bd72-4910-810f-e3948d0f7eb5}
+  - {code: "SH-00000", name: "Shopify Payment Balance", account_id: d7a3504a-f563-4b9b-ad73-766e5c701de4}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"

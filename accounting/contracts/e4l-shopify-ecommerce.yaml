@@ -1,0 +1,64 @@
+id: e4l-shopify-ecommerce
+bundle: genesis-e4l-shopify
+write_permissions: PROPOSE_ONLY
+mission: 'Explain Shopify D2C sales, discounts, tax, fees, payouts vs nesllc Xero
+  Shopify accounts.
+
+  '
+scope:
+- Shopify-Energy4Life bank
+- SH-* clearing/fees
+- Shopify Payments
+non_scope:
+- A2X (not live)
+- practitioner portal revenue
+- activating Amaka
+required_inputs:
+- entity_keys
+- period_from
+- period_to
+- question
+- entity pack accounting/entities/{key}.yaml
+- live Xero reads (never cached balances as current)
+entities_primary:
+- nesllc
+tools:
+  read:
+  - user-e4l-xero-read.list_entities
+  - get_organisation
+  - get_chart_of_accounts
+  - get_trial_balance
+  - get_profit_and_loss
+  - get_balance_sheet
+  - get_bank_summary
+  - list_open_receivables
+  - list_open_payables
+  - list_tracking_categories
+  - list_transactions_for_account
+  - list_recent_write_audit_log
+  forbidden:
+  - any Genesis finance_tool/billing_tool/commerce_tool/pricing_tool write (stubs)
+  - create_tracking_* with confirm=True on live entities
+  - approve/send/pay/void/bank recon finalize
+  - email send
+accounting_knowledge:
+- Amaka integration 246915 configured not activated
+- orphaned Nov-2025 Shopify Xero connector
+- empty account code blocks transaction-level tool
+procedures:
+- Load entity pack + this contract
+- Read live Xero for named accounts only
+- Classify each claim VERIFIED/STRONGLY_INFERRED/POSSIBLE/INSUFFICIENT_EVIDENCE
+- Return CROSS_AGENT_HANDOFF_CONTRACT output; no final close statement
+reconciliation_tests:
+- Shopify payout report vs bank summary Shopify-Energy4Life
+- SH-60000/60001/80002 should be ~zero while Amaka paused
+evidence_requirements: accounting/ACCOUNTING_EVIDENCE_CONTRACT.yaml
+escalation_rules:
+- entity mismatch
+- period mismatch
+- intercompany counterpart disagrees
+- insufficient evidence
+- proposed treatment would pay money or change bank instructions
+- Material disagreement -> genesis-e4l-controller via Cato
+output_contract: accounting/CROSS_AGENT_HANDOFF_CONTRACT.yaml

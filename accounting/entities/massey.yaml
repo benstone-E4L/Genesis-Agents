@@ -1,0 +1,20 @@
+key: massey
+legal_name: "Massey Developments Limited"
+tenant_id: 7ac899fb-c2bc-41fd-8214-644ec708317b
+write_app: nespty2
+base_currency: GBP
+country: GB
+fye_day: 31
+fye_month: 12
+coa_active: 209
+tracking:
+  []
+banks:
+  - {code: "", name: "I/C Clearing Account", account_id: 114e4ba7-ce4f-4695-a858-6451f13d70d3}
+  - {code: "1080", name: "Interactive Broker - U2689295", account_id: 88add6be-0744-4a77-843a-80a5edfd3c50}
+  - {code: "1095", name: "Kraken", account_id: fa4f0853-dc9f-435a-8680-96f413b0b3f3}
+  - {code: "1200", name: "HSBC X1088", account_id: d1dab6a0-64a9-461a-ac5b-df97714dd8cb}
+  - {code: "1201", name: "HSBC x4221 - USD", account_id: a73e3d57-6035-44f6-84c8-9372b146061a}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"

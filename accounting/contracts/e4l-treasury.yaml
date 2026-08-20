@@ -1,0 +1,61 @@
+id: e4l-treasury
+bundle: genesis-e4l-treasury
+write_permissions: PROPOSE_ONLY
+mission: 'Massey (and any later) investment/broker/crypto accounts: existence, movement,
+  FX, classification.
+
+  '
+scope:
+- massey 1080 Interactive Broker
+- 1095 Kraken
+- 0500 Investments 2.62m
+non_scope:
+- trading
+- rebalancing
+required_inputs:
+- entity_keys
+- period_from
+- period_to
+- question
+- entity pack accounting/entities/{key}.yaml
+- live Xero reads (never cached balances as current)
+entities_primary:
+- massey
+tools:
+  read:
+  - user-e4l-xero-read.list_entities
+  - get_organisation
+  - get_chart_of_accounts
+  - get_trial_balance
+  - get_profit_and_loss
+  - get_balance_sheet
+  - get_bank_summary
+  - list_open_receivables
+  - list_open_payables
+  - list_tracking_categories
+  - list_transactions_for_account
+  - list_recent_write_audit_log
+  forbidden:
+  - any Genesis finance_tool/billing_tool/commerce_tool/pricing_tool write (stubs)
+  - create_tracking_* with confirm=True on live entities
+  - approve/send/pay/void/bank recon finalize
+  - email send
+accounting_knowledge:
+- July bank summary: Kraken no movement at 1.43m; IB spent 71k to more-negative 584k
+procedures:
+- Load entity pack + this contract
+- Read live Xero for named accounts only
+- Classify each claim VERIFIED/STRONGLY_INFERRED/POSSIBLE/INSUFFICIENT_EVIDENCE
+- Return CROSS_AGENT_HANDOFF_CONTRACT output; no final close statement
+reconciliation_tests:
+- broker statement vs Xero bank/FA
+- unrealized P&L 1097
+evidence_requirements: accounting/ACCOUNTING_EVIDENCE_CONTRACT.yaml
+escalation_rules:
+- entity mismatch
+- period mismatch
+- intercompany counterpart disagrees
+- insufficient evidence
+- proposed treatment would pay money or change bank instructions
+- Material disagreement -> genesis-e4l-controller via Cato
+output_contract: accounting/CROSS_AGENT_HANDOFF_CONTRACT.yaml

@@ -1,0 +1,64 @@
+id: e4l-ap
+bundle: genesis-e4l-ap
+write_permissions: PROPOSE_ONLY
+mission: 'Open bills, duplicates, coding, aging, accrued AP, vendor completeness.
+
+  '
+scope:
+- ACCPAY AUTHORISED
+- 2000 family
+- accruals
+non_scope:
+- paying bills
+- creating vendors silently
+required_inputs:
+- entity_keys
+- period_from
+- period_to
+- question
+- entity pack accounting/entities/{key}.yaml
+- live Xero reads (never cached balances as current)
+entities_primary:
+- nesllc
+- xpo
+- energy4life
+- nespty
+tools:
+  read:
+  - user-e4l-xero-read.list_entities
+  - get_organisation
+  - get_chart_of_accounts
+  - get_trial_balance
+  - get_profit_and_loss
+  - get_balance_sheet
+  - get_bank_summary
+  - list_open_receivables
+  - list_open_payables
+  - list_tracking_categories
+  - list_transactions_for_account
+  - list_recent_write_audit_log
+  forbidden:
+  - any Genesis finance_tool/billing_tool/commerce_tool/pricing_tool write (stubs)
+  - create_tracking_* with confirm=True on live entities
+  - approve/send/pay/void/bank recon finalize
+  - email send
+accounting_knowledge:
+- create_draft_bill exists; confirm=True forbidden here
+- "nesllc page1 AP $219,865.70 \u2014 not a full aging"
+procedures:
+- Load entity pack + this contract
+- Read live Xero for named accounts only
+- Classify each claim VERIFIED/STRONGLY_INFERRED/POSSIBLE/INSUFFICIENT_EVIDENCE
+- Return CROSS_AGENT_HANDOFF_CONTRACT output; no final close statement
+reconciliation_tests:
+- open AP vs TB AP control
+- page cap must be stated
+evidence_requirements: accounting/ACCOUNTING_EVIDENCE_CONTRACT.yaml
+escalation_rules:
+- entity mismatch
+- period mismatch
+- intercompany counterpart disagrees
+- insufficient evidence
+- proposed treatment would pay money or change bank instructions
+- Material disagreement -> genesis-e4l-controller via Cato
+output_contract: accounting/CROSS_AGENT_HANDOFF_CONTRACT.yaml

@@ -1,0 +1,90 @@
+# Ten orchestration scenarios from the user brief.
+# Routes are real guarded agent slugs. Not profile_ids. Not genesis-e4l-accounting.
+_meta:
+  last_verified: "2026-08-19"
+  runner: tests/test_accounting_orchestration.py
+  architecture: one_agent_one_job
+  fixture_source: accounting/_live/xero_org_map_live.json
+
+scenarios:
+  - id: S1
+    prompt: "Why does Stripe cash not match Xero?"
+    expect_agents: [genesis-e4l-stripe, genesis-e4l-cash, genesis-e4l-revenue, genesis-e4l-fs-integrity]
+    expect_entities: [nesllc]
+    expect_not: [genesis-finance, a2x, genesis-e4l-accounting]
+    must_mention:
+      - "1020 Stripe USD"
+      - "inflows not on Invoices/BankTransactions/ManualJournals"
+      - "Controller record that Stripe rec is broken"
+    must_not_claim: "reconciled"
+  - id: S2
+    prompt: "Close July for all E4L entities."
+    expect_agents: [genesis-e4l-close]
+    expect_entities: [energy4life, ibe, xpo, massey, nesllc, nespty]
+    must_mention:
+      - "nespty FYE 30 June — July is not year-end for AU"
+      - "xpo period lock ~2024-12-31"
+      - "write = propose only"
+    must_not_claim: "July is closed"
+  - id: S3
+    prompt: "Find everything currently preventing us from trusting the P&L."
+    expect_agents: [genesis-e4l-fs-integrity, genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-stripe]
+    must_include_defects: [DEF-STRIPE-REC-NESLLC, DEF-NO-DIVISION-TRACKING, "4100 silent fallback"]
+  - id: S4
+    prompt: "Why did contribution margin decrease?"
+    expect_agents: [genesis-e4l-cogs-cm, genesis-e4l-revenue, genesis-e4l-commissions, genesis-e4l-shopify]
+    expect_entities: [nesllc]
+    must_compare: ["5100-series COGS", "5200 royalties", "41xx revenue", "6417 commissions"]
+  - id: S5
+    prompt: "Find all intercompany balances that don't agree."
+    expect_agents: [genesis-e4l-intercompany]
+    expect_entities: [energy4life, ibe, xpo, massey, nesllc, nespty]
+    must_pair_examples:
+      - ["energy4life 2360 Due To NES LLC", "nesllc counterpart INSUFFICIENT_EVIDENCE if not classified"]
+      - ["massey 1656 Due from E4L 1,061,071.17", "energy4life due-to Massey 2350"]
+    fx_required: true
+  - id: S6
+    prompt: "Reconcile Shopify/A2X/Stripe revenue to Xero."
+    expect_agents: [genesis-e4l-shopify, genesis-e4l-stripe, genesis-e4l-revenue]
+    expect_not: [a2x specialist, genesis-e4l-accounting]
+    must_say: "A2X is not live; Amaka paused"
+    must_split_rails: [Shopify-Energy4Life, Stripe USD]
+  - id: S7
+    prompt: "What accounting work can FinanceOS complete itself today?"
+    expect_agents: [genesis-e4l-close]
+    honest_answer_contains:
+      - "FinanceOS xero-write DISARMED"
+      - "MCP drafts exist (propose)"
+      - "Portal already posts revenue (not FinanceOS)"
+      - "no autonomous close"
+  - id: S8
+    prompt: "What specifically requires Ben?"
+    expect_agents: [genesis-e4l-close, genesis-e4l-controller]
+    ben_items_include:
+      - "confirm=True live write"
+      - "arm production write flag"
+      - "activate Amaka"
+      - "disconnect retired Xero apps"
+      - "send any email"
+  - id: S9
+    prompt: "Show every material accounting anomaly across all Xero organizations."
+    expect_agents: [genesis-e4l-fs-integrity]
+    expect_entities: [energy4life, ibe, xpo, massey, nesllc, nespty]
+    seed_anomalies_from_live_july_2026:
+      - energy4life duplicate retained earnings 2390 vs 3900
+      - ibe payroll clearing 33368.07
+      - massey Kraken 1.43m no July movement / IB more negative
+      - nesllc Stripe rec defect
+      - nespty deferred revenue 2400 exists
+  - id: S10
+    prompt: "Prepare the journal entries necessary to finish close, but do not post them."
+    expect_agents: [genesis-e4l-journals, genesis-e4l-close, genesis-e4l-controller]
+    write_attempted: false
+    confirm_true: false
+    entity_for_any_tool_exercise: demo
+
+cato_routing_unit_tests:
+  - given prompt, when classify, then agent slugs equal expect_agents (set equality, order free)
+  - MONEY_DOMAIN_AGENTS slugs never selected
+  - unguarded persona slugs never selected
+  - genesis-e4l-accounting never selected

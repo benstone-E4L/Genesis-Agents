@@ -1,0 +1,41 @@
+# Every accounting conclusion must be traceable. Ledger-balances-itself is not evidence.
+_meta:
+  last_verified: "2026-08-19"
+
+forbidden_as_proof:
+  - Xero accepted a draft
+  - TB debits equal credits
+  - HTTP 200
+  - an account reconciles to itself
+  - another agent said so
+  - Genesis tool {"ok": true, "stub": true}
+  - dry_run preview
+  - cached balance from a prior session
+
+required_fields_per_material_claim:
+  - source_system
+  - source_record_or_path
+  - xero_org_key
+  - xero_account_code_or_id
+  - transaction_or_report_date
+  - amount
+  - currency
+  - period
+  - reconciliation_status
+  - evidence
+  - confidence  # VERIFIED | STRONGLY_INFERRED | POSSIBLE | INSUFFICIENT_EVIDENCE
+  - unresolved_variance
+
+preferred_lineage: "operational source -> settlement -> bank/cash -> Xero ledger -> financial statement"
+
+confidence_rules:
+  VERIFIED: "this-session live tool/file cite"
+  STRONGLY_INFERRED: "multiple consistent indirect cites, no direct"
+  POSSIBLE: "plausible, no E4L evidence"
+  INSUFFICIENT_EVIDENCE: "checked and still missing — name the exact next read"
+
+hard_limits_must_be_stated:
+  - no accounting.journals.read
+  - AR/AP page1 default
+  - Payments/CreditNotes/Overpayments/Prepayments not in list_transactions_for_account
+  - empty bank codes cannot be queried by code

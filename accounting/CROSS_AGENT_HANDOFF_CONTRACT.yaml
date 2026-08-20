@@ -1,0 +1,33 @@
+# Structured handoff between Cato and one Genesis specialist. No prose dump.
+_meta:
+  last_verified: "2026-08-19"
+  architecture: one_agent_one_job
+
+request_from_cato:
+  agent_slug: string  # one of the 14 genesis-e4l-* specialists
+  entity_keys: [string]
+  period_from: date
+  period_to: date
+  question: string
+  prior_findings: [finding]  # optional
+  require_controller_review: bool
+
+response_from_genesis:
+  agent_slug: string
+  entities_touched: [string]
+  findings:  # each finding obeys ACCOUNTING_EVIDENCE_CONTRACT
+    - claim: string
+      confidence: string
+      evidence: [string]
+  open_items: [string]
+  disagreements: [string]  # never resolved here
+  proposed_journals: [object]  # empty unless genesis-e4l-journals
+  write_attempted: false  # must stay false
+  blocked: [string]
+  next_agents_recommended: [string]
+
+rules:
+  - Cato may run specialists in parallel
+  - A specialist must not overwrite another specialist's finding
+  - Cato concatenates findings then calls genesis-e4l-controller on conflict
+  - Final user answer is Cato-only

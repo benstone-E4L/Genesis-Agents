@@ -1,0 +1,17 @@
+key: ibe
+legal_name: "Institute of Bioenergy"
+tenant_id: 95a590b3-193e-4cbb-a904-7ec173d9de36
+write_app: master
+base_currency: USD
+country: US
+fye_day: 31
+fye_month: 12
+coa_active: 80
+tracking:
+  []
+banks:
+  - {code: "", name: "Chase xx1639", account_id: 38242b16-b96e-42e1-8a27-28961a6b55db}
+  - {code: "", name: "I/C Clearing Account", account_id: b4bbb770-7399-4a96-aad3-c8d2856f1944}
+full_map: ../XERO_ORGANIZATION_MAP.yaml
+confidence: VERIFIED
+last_verified: "2026-08-19T23:09:57Z"
