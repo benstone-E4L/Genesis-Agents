@@ -44,18 +44,26 @@ REAL_REGISTRY = REPO_ROOT / "trusted_ap2_clients.json"
 #: Cato's vault as ``CATO_AP2_PUBKEY``. Pinned deliberately: a future rotation
 #: MUST edit this constant, so no key can enter the trust store without a test
 #: changing in the same commit.
-CATO_CURRENT_PUBKEY_B64 = "7G6FdR1XQVc1JlIo+o8xfJFIOi4UK/gq22YvXoy7des="
+#:
+#: Rotated 2026-08-21 (Ben's decision, HANDOFF-CATO-GENESIS-XERO-DEMO-2026-08-21.md,
+#: Option B). FLAG: this value is byte-identical to the key that was previously
+#: retired below as ``RETIRED_AUG13_0000_PUBKEY_B64`` for having untested,
+#: not-operator-verified provenance. It is being re-trusted here solely because
+#: the operator's current CATO_VAULT_PASSWORD unlocks the live vault.enc and
+#: returns this exact value via ``Vault.get('CATO_AP2_PUBKEY')`` as of 2026-08-21
+#: — i.e. it is the key the operator currently, verifiably controls, superseding
+#: the 2026-08-13T18:40:00Z key below (now retired in its place). See
+#: ``trusted_ap2_clients.json``'s own notes field for the full incident history.
+CATO_CURRENT_PUBKEY_B64 = "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg="
 
 #: The 2026-05-17 key from the destroyed vault. Must appear in NO client record.
 RETIRED_MAY_PUBKEY_B64 = "ZgBMq0+O0CXEp1eWG8JdMsikQNT6SPWh4Hop5vbg7QQ="
 
-#: A short-lived 2026-08-13T00:00:00Z key that belonged to one of several vaults
-#: recreated that morning by a Vault.create() bug (see cato/vault.py — it
-#: unconditionally deleted the existing vault.enc on every recreate). Its
-#: private half lived only in a vault generation that no longer exists, and it
-#: was never confirmed to complete a real accepted call before the vault was
-#: recreated again. Must appear in NO client record, same as the May key.
-RETIRED_AUG13_0000_PUBKEY_B64 = "C0b5/ct/FoXrZ99mBj+LsDAPQGw3kBLFvl+ZlnvwDIg="
+#: The 2026-08-13T18:40:00Z key, trusted from 2026-08-13 until superseded by the
+#: 2026-08-21 rotation above. Its private half lived only in the vault
+#: generation that was reconstructed on 2026-08-20; no operator controls it
+#: post-reconstruction. Must appear in NO client record, same as the May key.
+RETIRED_AUG13_1840_PUBKEY_B64 = "7G6FdR1XQVc1JlIo+o8xfJFIOi4UK/gq22YvXoy7des="
 
 #: The capability set Cato is entitled to, pinned exactly. Removing one breaks
 #: the AP2 path in production; adding one silently widens the trust boundary.
@@ -213,11 +221,11 @@ def test_retired_may_key_appears_in_no_client_record():
         )
 
 
-def test_retired_aug13_0000_key_appears_in_no_client_record():
-    """Same rule for the short-lived 00:00:00Z key from the vault-recreation incident."""
+def test_retired_aug13_1840_key_appears_in_no_client_record():
+    """Same rule for the 2026-08-13T18:40:00Z key superseded by the 2026-08-21 rotation."""
     for record in _shipped_clients():
-        assert record["pubkey_b64"] != RETIRED_AUG13_0000_PUBKEY_B64, (
-            f"client {record['client_id']!r} still carries the retired 2026-08-13T00:00:00Z "
+        assert record["pubkey_b64"] != RETIRED_AUG13_1840_PUBKEY_B64, (
+            f"client {record['client_id']!r} still carries the retired 2026-08-13T18:40:00Z "
             "key; its private half lived only in a vault generation that no longer exists"
         )
 
@@ -275,8 +283,8 @@ def test_retired_may_key_is_rejected_by_the_real_shipped_registry(sqlite_auth):
     assert response.json()["detail"] == "ap2_client_untrusted"
 
 
-def test_retired_aug13_0000_key_is_rejected_by_the_real_shipped_registry(sqlite_auth):
-    body, headers = _unsigned_envelope(RETIRED_AUG13_0000_PUBKEY_B64)
+def test_retired_aug13_1840_key_is_rejected_by_the_real_shipped_registry(sqlite_auth):
+    body, headers = _unsigned_envelope(RETIRED_AUG13_1840_PUBKEY_B64)
 
     response = client.post("/retrieval/query", json=body, headers=headers)
 
