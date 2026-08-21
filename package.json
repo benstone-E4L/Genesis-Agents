@@ -1,0 +1,11 @@
+{
+  "name": "genesis-agents-trigger",
+  "private": true,
+  "description": "trigger.dev task definitions for the Genesis Agents FastAPI gateway",
+  "dependencies": {
+    "@trigger.dev/sdk": "4.5.12"
+  },
+  "devDependencies": {
+    "@trigger.dev/build": "4.5.12"
+  }
+}
