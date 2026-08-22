@@ -111,4 +111,12 @@ def augment_tools_advertised(agent_slug: str, tools: list[str]) -> list[str]:
         return out
     if "xero_scoped_invoke" not in out:
         out.append("xero_scoped_invoke")
+    for name in (
+        "financeos_invoice_proof",
+        "financeos_verify_api",
+        "financeos_get_invoice_proof",
+        "financeos_get_verify_api",
+    ):
+        if name not in out:
+            out.append(name)
     return out

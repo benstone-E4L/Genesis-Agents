@@ -297,6 +297,10 @@ TOOL_RISK_BY_NAME: dict[str, str] = {
     "web_search": RISK_NETWORK,
     "web_fetch": RISK_NETWORK,
     "xero_scoped_invoke": RISK_NETWORK,
+    "financeos_invoice_proof": RISK_NETWORK,
+    "financeos_verify_api": RISK_NETWORK,
+    "financeos_get_invoice_proof": RISK_NETWORK,
+    "financeos_get_verify_api": RISK_NETWORK,
 
     # finance_tool.py — APPROVAL_REQUIRED (mode per FINANCE-TOOL-CONTRACTS.md
     # Section 8): mutates a real financial record. Classified RISK_PAYMENT so

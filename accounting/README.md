@@ -14,3 +14,7 @@ There are **14 guarded specialists** on the existing Genesis gateway. Not 15 ser
 6. `SOURCE_EVIDENCE.md` — every query and file used
 
 Do not call `genesis-finance` / `genesis-billing` / `genesis-commerce` / `genesis-pricing` from Cato. Those slugs are immutably denied because their tools are stubs.
+
+**Implementation specs (Cato orchestration, 2026-08-20):**  
+`C:\Users\Work\Desktop\vault\projects\E4L-FinanceOS\app\specs\Ralph Chunks\cato-genesis-e4l-accounting\`  
+Runtime YAML stays in this folder. Do not duplicate the 14 contracts into a new FinanceOS Ralph workspace.
