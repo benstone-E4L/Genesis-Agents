@@ -1,33 +1,44 @@
-# Structured handoff between Cato and one Genesis specialist. No prose dump.
+# Structured handoff between Cato and one Genesis specialist.
+# Amended 2026-08-22: specialists may post domain work (write_attempted true + receipt).
 _meta:
-  last_verified: "2026-08-19"
+  last_verified: "2026-08-22"
   architecture: one_agent_one_job
+  posting_model: AMENDMENT_2026-08-22
 
 request_from_cato:
-  agent_slug: string  # one of the 14 genesis-e4l-* specialists
+  agent_slug: string
   entity_keys: [string]
   period_from: date
   period_to: date
   question: string
-  prior_findings: [finding]  # optional
+  evidence_bundle: object  # optional live Xero reads injected by Cato
+  allowed_xero_operations: [string]  # from XERO_SCOPE_TO_AGENT_MAP.yaml
+  scope_map_version: string
+  executor_default: genesis_specialist
+  execution_realm: demo_mcp | genesis_specialist | cato_remediation | production_worker
+  prior_findings: [finding]
   require_controller_review: bool
 
 response_from_genesis:
   agent_slug: string
   entities_touched: [string]
-  findings:  # each finding obeys ACCOUNTING_EVIDENCE_CONTRACT
-    - claim: string
-      confidence: string
-      evidence: [string]
+  findings: []
   open_items: [string]
-  disagreements: [string]  # never resolved here
-  proposed_journals: [object]  # empty unless genesis-e4l-journals
-  write_attempted: false  # must stay false
+  disagreements: [string]
+  proposed_journals: [object]
+  write_attempted: bool  # true when specialist executed xero_scoped_invoke
+  executor: string  # specialist slug or cato
+  execution_realm: string
+  xero_resource_id: string  # when write_attempted true
+  verify_api_run_id: string
+  invoice_proof_run_id: string  # AP paths
+  audit_proof_artifact_id: string
+  read_back_hash: string
   blocked: [string]
   next_agents_recommended: [string]
 
 rules:
-  - Cato may run specialists in parallel
-  - A specialist must not overwrite another specialist's finding
-  - Cato concatenates findings then calls genesis-e4l-controller on conflict
+  - Cato routes; specialists post domain work after VerifyAPI PASS
+  - Cato posts only on cato_remediation with audit reason
+  - fs-integrity: read-only; write_attempted must stay false
   - Final user answer is Cato-only

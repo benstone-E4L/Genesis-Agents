@@ -1,0 +1,264 @@
+# XERO_SCOPE_TO_AGENT_MAP.yaml
+# Canonical mapping: Xero OAuth scopes → Genesis specialist ownership.
+# Cato (Controller) holds ALL scopes at app registration; runtime policy uses remediation lane only.
+# fs-integrity: read-only on Xero — no write scopes.
+# Version: 2026-08-22 — see AMENDMENT_2026-08-22 in AMENDMENT_2026-08-21_POSTING_MODEL.md
+
+_meta:
+  schema_version: "1.0.0"
+  updated: "2026-08-22"
+  specialists:
+    - genesis-e4l-ap
+    - genesis-e4l-ar
+    - genesis-e4l-cash
+    - genesis-e4l-treasury
+    - genesis-e4l-journals
+    - genesis-e4l-close
+    - genesis-e4l-controller
+    - genesis-e4l-revenue
+    - genesis-e4l-cogs-cm
+    - genesis-e4l-commissions
+    - genesis-e4l-intercompany
+    - genesis-e4l-stripe
+    - genesis-e4l-shopify
+    - genesis-e4l-fs-integrity
+  cato_role: controller_remediation_full_access
+
+legend:
+  primary_write: specialist may POST routine domain transactions
+  read: query only
+  cato_remediation: Cato may write when routing policy assigns remediation (all scopes available)
+  close_payroll: no dedicated payroll agent — close owns until payroll specialist exists
+
+scopes:
+  app.connections:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.settings:
+    primary_write: [genesis-e4l-close, genesis-e4l-journals]
+    read: all_specialists
+    cato_remediation: true
+
+  accounting.settings.read:
+    primary_write: []
+    read: all_specialists
+    cato_remediation: true
+
+  accounting.contacts:
+    primary_write: [genesis-e4l-ap, genesis-e4l-ar, genesis-e4l-commissions]
+    read: [genesis-e4l-cash, genesis-e4l-stripe, genesis-e4l-shopify, genesis-e4l-close]
+    cato_remediation: true
+
+  accounting.contacts.read:
+    primary_write: []
+    read: all_specialists
+    cato_remediation: true
+
+  accounting.attachments:
+    primary_write: [genesis-e4l-ap, genesis-e4l-ar]
+    read: [genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.attachments.read:
+    primary_write: []
+    read: all_specialists
+    cato_remediation: true
+
+  accounting.budgets.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-controller, genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-treasury]
+    cato_remediation: true
+
+  accounting.payments:
+    primary_write: [genesis-e4l-treasury, genesis-e4l-cash]
+    read: [genesis-e4l-ap, genesis-e4l-ar, genesis-e4l-close, genesis-e4l-stripe]
+    cato_remediation: true
+    policy_note: "No automated outbound payment construction unless Ben explicitly authorizes; recording/matching only."
+
+  accounting.payments.read:
+    primary_write: []
+    read: [genesis-e4l-ap, genesis-e4l-ar, genesis-e4l-cash, genesis-e4l-treasury, genesis-e4l-stripe, genesis-e4l-close]
+    cato_remediation: true
+
+  accounting.invoices:
+    primary_write: [genesis-e4l-ar, genesis-e4l-revenue, genesis-e4l-shopify]
+    read: [genesis-e4l-stripe, genesis-e4l-close]
+    cato_remediation: true
+
+  accounting.invoices.read:
+    primary_write: []
+    read: [genesis-e4l-ar, genesis-e4l-revenue, genesis-e4l-shopify, genesis-e4l-stripe, genesis-e4l-cash, genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.banktransactions:
+    primary_write: [genesis-e4l-cash, genesis-e4l-treasury, genesis-e4l-stripe]
+    read: [genesis-e4l-shopify, genesis-e4l-close]
+    cato_remediation: true
+
+  accounting.banktransactions.read:
+    primary_write: []
+    read: [genesis-e4l-cash, genesis-e4l-treasury, genesis-e4l-stripe, genesis-e4l-shopify, genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.manualjournals:
+    primary_write: [genesis-e4l-journals, genesis-e4l-intercompany, genesis-e4l-close]
+    read: [genesis-e4l-cogs-cm, genesis-e4l-revenue]
+    cato_remediation: true
+
+  accounting.manualjournals.read:
+    primary_write: []
+    read: all_specialists
+    cato_remediation: true
+
+  accounting.reports.aged.read:
+    primary_write: []
+    read: [genesis-e4l-ar, genesis-e4l-ap, genesis-e4l-close, genesis-e4l-controller, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.reports.balancesheet.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-fs-integrity, genesis-e4l-controller, genesis-e4l-intercompany]
+    cato_remediation: true
+
+  accounting.reports.banksummary.read:
+    primary_write: []
+    read: [genesis-e4l-cash, genesis-e4l-treasury, genesis-e4l-close]
+    cato_remediation: true
+
+  accounting.reports.budgetsummary.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-controller]
+    cato_remediation: true
+
+  accounting.reports.executivesummary.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-controller]
+    cato_remediation: true
+
+  accounting.reports.profitandloss.read:
+    primary_write: []
+    read: [genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.reports.trialbalance.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-fs-integrity, genesis-e4l-controller, genesis-e4l-journals]
+    cato_remediation: true
+
+  accounting.reports.taxreports.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-controller, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  accounting.reports.tenninetynine.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-commissions]
+    cato_remediation: true
+
+  payroll.employees:
+    primary_write: [genesis-e4l-close]
+    read: [genesis-e4l-commissions]
+    cato_remediation: true
+    policy_note: close_payroll until dedicated payroll specialist
+
+  payroll.employees.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-commissions]
+    cato_remediation: true
+
+  payroll.payruns:
+    primary_write: [genesis-e4l-close]
+    read: []
+    cato_remediation: true
+
+  payroll.payruns.read:
+    primary_write: []
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  payroll.payslip:
+    primary_write: [genesis-e4l-close]
+    read: []
+    cato_remediation: true
+
+  payroll.payslip.read:
+    primary_write: []
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  payroll.settings:
+    primary_write: [genesis-e4l-close]
+    read: []
+    cato_remediation: true
+
+  payroll.settings.read:
+    primary_write: []
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  payroll.timesheets:
+    primary_write: [genesis-e4l-close]
+    read: []
+    cato_remediation: true
+
+  payroll.timesheets.read:
+    primary_write: []
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  files:
+    primary_write: [genesis-e4l-ap, genesis-e4l-ar]
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  files.read:
+    primary_write: []
+    read: [genesis-e4l-ap, genesis-e4l-ar, genesis-e4l-close, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  assets:
+    primary_write: [genesis-e4l-journals, genesis-e4l-close]
+    read: [genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  assets.read:
+    primary_write: []
+    read: [genesis-e4l-close, genesis-e4l-journals, genesis-e4l-fs-integrity]
+    cato_remediation: true
+
+  projects:
+    primary_write: [genesis-e4l-revenue, genesis-e4l-cogs-cm]
+    read: [genesis-e4l-close]
+    cato_remediation: true
+
+  projects.read:
+    primary_write: []
+    read: [genesis-e4l-revenue, genesis-e4l-cogs-cm, genesis-e4l-close]
+    cato_remediation: true
+
+specialist_overrides:
+  genesis-e4l-fs-integrity:
+    writes_forbidden: true
+    reads: all_report_scopes
+  genesis-e4l-controller:
+    writes: policy_conflict_resolution_only
+    reads: all_scopes
+  genesis-e4l-stripe:
+    domain: processor_clearing_and_settlement_lines
+  genesis-e4l-shopify:
+    domain: channel_sales_documents_and_clearing
+
+verify_api:
+  before_any_write: true
+  checks: [agent_scope_allowed, entity_binding, capability_token, handoff_schema]
+  on_fail: HOLD
+
+constitution_tests:
+  - name: specialist_scope_violation
+    fail_if: agent invokes Xero write tool not in its primary_write set for that scope family
+  - name: fs_integrity_write
+    fail_if: genesis-e4l-fs-integrity calls any write scope
+  - name: cato_routine_domain_write
+    fail_if: Cato posts bill/invoice without remediation flag in routing decision record

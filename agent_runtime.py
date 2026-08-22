@@ -598,7 +598,13 @@ class AgentRuntime:
     ) -> dict[str, Any]:
         slug = bundle["slug"]
         last_swarmsync: dict[str, Any] | None = None
-        tools_advertised = bundle.get("tools_advertised", [])
+        tools_advertised = list(bundle.get("tools_advertised", []))
+        try:
+            from accounting.xero_scope import augment_tools_advertised
+
+            tools_advertised = augment_tools_advertised(slug, tools_advertised)
+        except Exception:
+            pass
         token_budget = bundle.get("token_budget", 4000)
         model = bundle.get("model_hint", "anthropic/claude-sonnet-4-5")
         timeout_s = bundle.get("timeout_s", DEFAULT_TIMEOUT_S)
@@ -939,6 +945,10 @@ class AgentRuntime:
                                 "_parent_job_id": job_id,
                                 "_session_id": session_id,
                                 "_parent_agent_slug": slug,
+                                "_agent_slug": slug,
+                                "_allowed_xero_operations": params.get("allowed_xero_operations"),
+                                "_scope_map_version": params.get("scope_map_version"),
+                                "_execution_realm": params.get("execution_realm"),
                                 "_delegation_chain": (*delegation_chain, slug),
                                 "_delegation_depth": delegation_depth,
                                 # Subtract what earlier siblings already spent, or the
